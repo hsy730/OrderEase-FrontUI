@@ -3,23 +3,32 @@ import './assets/main.css'
 import { createApp } from 'vue'
 import App from './App.vue'
 import router from './router'
-import { Button, Card, SubmitBar, Popup, NavBar, Sidebar, SidebarItem, Icon, Toast } from 'vant'
+import { 
+  Button,
+  Tabbar,
+  TabbarItem,
+  Icon,
+  Sidebar,
+  SidebarItem,
+  NavBar,
+  Image as VanImage,
+  Stepper,
+  Badge
+} from 'vant'
 import 'vant/lib/index.css'
 
 const app = createApp(App)
 
-// 注册路由
 app.use(router)
-
-// 注册 Vant 组件
-app.use(Button)
-   .use(Card)
-   .use(SubmitBar)
-   .use(Popup)
-   .use(NavBar)
+   .use(Button)
+   .use(Tabbar)
+   .use(TabbarItem)
+   .use(Icon)
    .use(Sidebar)
    .use(SidebarItem)
-   .use(Icon)
-   .use(Toast)
+   .use(NavBar)
+   .use(VanImage)
+   .use(Stepper)
+   .use(Badge)
 
 app.mount('#app')
