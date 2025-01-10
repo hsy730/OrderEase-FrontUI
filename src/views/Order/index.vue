@@ -1,20 +1,31 @@
 <template>
-  <div class="order-container">
-    <!-- 左侧分类列表 -->
-    <div class="category-wrapper">
-      <category-list
-        :categories="categories"
-        :active-category="activeCategory"
-        @select="handleCategorySelect"
-      />
-    </div>
-    
-    <!-- 右侧商品列表 -->
-    <div class="product-wrapper">
-      <product-list
-        :products="products"
-        @add-to-cart="handleAddToCart"
-      />
+  <div class="order-page">
+    <!-- 顶部标题栏 -->
+    <van-nav-bar
+      title="中关村店"
+      left-arrow
+      @click-left="onClickLeft"
+      fixed
+      placeholder
+    />
+
+    <div class="content-container">
+      <!-- 左侧分类菜单 -->
+      <div class="category-menu">
+        <category-list
+          :categories="categories"
+          :active-category="activeCategory"
+          @select="handleCategorySelect"
+        />
+      </div>
+
+      <!-- 右侧商品列表 -->
+      <div class="product-container">
+        <product-list
+          :products="products"
+          @add-to-cart="handleAddToCart"
+        />
+      </div>
     </div>
 
     <!-- 底部购物车 -->
@@ -26,67 +37,84 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
-import { useStore } from 'vuex'
+import { ref } from 'vue'
+import { useRouter } from 'vue-router'
 import CategoryList from '@/components/CategoryList.vue'
 import ProductList from '@/components/ProductList.vue'
 import ShoppingCart from '@/components/ShoppingCart.vue'
 
-const store = useStore()
-const categories = ref([])
-const products = ref([])
-const activeCategory = ref('')
+const router = useRouter()
+const categories = ref([
+  { id: 1, name: '煲仔饭' },
+  { id: 2, name: '老火汤' },
+  { id: 3, name: '特色' },
+  { id: 4, name: '粉面' },
+  { id: 5, name: '果汁' },
+  { id: 6, name: '点心' },
+  { id: 7, name: '甜点' },
+  { id: 8, name: '套餐' }
+])
+
+const products = ref([
+  {
+    id: 1,
+    name: '菌菇清汤',
+    price: 38,
+    image: '/food1.jpg',
+    count: 0
+  }
+])
+
+const activeCategory = ref(1)
 const cartItems = ref([])
 
-// 获取分类列表
-const fetchCategories = async () => {
-  // TODO: 调用API获取分类列表
-}
-
-// 获取商品列表
-const fetchProducts = async (categoryId) => {
-  // TODO: 调用API获取商品列表
-}
-
-// 分类选择处理
 const handleCategorySelect = (category) => {
   activeCategory.value = category.id
-  fetchProducts(category.id)
+  // TODO: 加载该分类的商品
 }
 
-// 添加到购物车
 const handleAddToCart = (product) => {
-  // TODO: 添加到购物车逻辑
+  const index = cartItems.value.findIndex(item => item.id === product.id)
+  if (index === -1) {
+    cartItems.value.push({ ...product })
+  } else {
+    cartItems.value[index].count = product.count
+  }
 }
 
-// 提交订单
-const handleSubmitOrder = async () => {
+const handleSubmitOrder = () => {
   // TODO: 提交订单逻辑
 }
 
-onMounted(() => {
-  fetchCategories()
-})
+const onClickLeft = () => {
+  router.back()
+}
 </script>
 
 <style scoped>
-.order-container {
+.order-page {
+  min-height: 100vh;
+  background: #fff;
+}
+
+.content-container {
   display: flex;
-  height: 100vh;
-  overflow: hidden;
+  height: calc(100vh - 96px);
+  margin-top: 46px;
 }
 
-.category-wrapper {
-  width: 85px;
-  height: 100%;
+.category-menu {
+  width: 80px;
+  flex-shrink: 0;
+  background: #f8f8f8;
   overflow-y: auto;
-  background: #f7f8fa;
+  height: 100%;
 }
 
-.product-wrapper {
+.product-container {
   flex: 1;
-  height: 100%;
   overflow-y: auto;
-  padding-bottom: 50px;
+  height: 100%;
+  padding: 12px;
 }
 </style> 

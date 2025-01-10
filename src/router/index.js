@@ -3,22 +3,13 @@ import { createRouter, createWebHistory } from 'vue-router'
 const routes = [
   {
     path: '/',
-    redirect: '/order'
+    name: 'Home',
+    component: () => import('../views/Order/index.vue')
   },
   {
-    path: '/order',
-    name: 'Order',
-    component: () => import('../views/Order.vue')
-  },
-  {
-    path: '/activity',
-    name: 'Activity',
-    component: () => import('../views/Activity.vue')
-  },
-  {
-    path: '/pickup',
-    name: 'Pickup',
-    component: () => import('../views/Pickup.vue')
+    path: '/orders',
+    name: 'Orders',
+    component: () => import('../views/Orders.vue')
   },
   {
     path: '/mine',

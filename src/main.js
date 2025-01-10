@@ -13,7 +13,11 @@ import {
   NavBar,
   Image as VanImage,
   Stepper,
-  Badge
+  Badge,
+  Card,
+  Tag,
+  Cell,
+  CellGroup
 } from 'vant'
 import 'vant/lib/index.css'
 
@@ -30,5 +34,9 @@ app.use(router)
    .use(VanImage)
    .use(Stepper)
    .use(Badge)
+   .use(Card)
+   .use(Tag)
+   .use(Cell)
+   .use(CellGroup)
 
 app.mount('#app')
