@@ -1,7 +1,7 @@
 <template>
   <div class="mine-page">
     <van-nav-bar
-      title="个人中心"
+      title="中关村店"
       fixed
       placeholder
     />

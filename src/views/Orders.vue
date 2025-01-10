@@ -1,7 +1,7 @@
 <template>
   <div class="orders-page">
     <van-nav-bar
-      title="我的订单"
+      title="中关村店"
       fixed
       placeholder
     />

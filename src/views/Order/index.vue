@@ -95,12 +95,15 @@ const onClickLeft = () => {
 .order-page {
   min-height: 100vh;
   background: #fff;
+  padding-bottom: 100px; /* 为底部Tabbar和购物车预留空间 */
 }
 
 .content-container {
   display: flex;
-  height: calc(100vh - 96px);
+  /* 修改高度计算：减去顶部导航栏(46px)、底部Tabbar(50px)和购物车(50px)的高度 */
+  height: calc(100vh - 146px);
   margin-top: 46px;
+  padding-bottom: 50px; /* 为购物车预留空间 */
 }
 
 .category-menu {
@@ -116,5 +119,12 @@ const onClickLeft = () => {
   overflow-y: auto;
   height: 100%;
   padding: 12px;
+  /* 确保内容不会被底部遮挡 */
+  padding-bottom: 100px;
+}
+
+/* 确保购物车在Tabbar之上 */
+:deep(.cart-bar) {
+  bottom: 50px; /* Tabbar的高度 */
 }
 </style> 
