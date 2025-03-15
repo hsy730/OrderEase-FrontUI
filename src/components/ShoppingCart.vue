@@ -22,23 +22,17 @@
           <div class="cart-item">
             <span class="name">{{ item.name }}</span>
             <div class="controls">
-              <van-button 
-                size="mini" 
-                @click.stop="$emit('decrease', item.id)"
-              >-</van-button>
-              <input 
-                type="number" 
-                :value="item.count" 
-                @input="$emit('update:count', { id: item.id, count: $event.target.value })"
-                class="count-input"
-                min="0"
-              >
-              <van-button 
-                size="mini" 
-                @click.stop="$emit('increase', item.id)"
-              >+</van-button>
+              <van-stepper
+                v-model="item.count"
+                :min="1"
+                theme="round"
+                button-size="22"
+                disable-input
+                @change="$emit('update:count', { id: item.id, count: $event })"
+                class="stepper-container"
+              />
               <van-icon 
-                name="delete" 
+                name="delete-o" 
                 class="delete-icon"
                 @click.stop="$emit('remove', item.id)"
               />
@@ -165,6 +159,17 @@ const toggleCartList = () => {
   display: flex;
   align-items: center;
   gap: 8px;
+  height: 40px;
+}
+
+.delete-icon {
+  margin-top: 6px;
+  line-height: 1;
+  vertical-align: middle;
+}
+
+.van-stepper {
+  vertical-align: middle;
 }
 
 .count-input {
@@ -175,7 +180,27 @@ const toggleCartList = () => {
 }
 
 .delete-icon {
-  color: #f44;
-  margin-left: 8px;
+  color: var(--van-danger-color);
+  margin-left: 12px;
+  padding: 6px;
+  border-radius: 50%;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  background: rgba(255, 68, 68, 0.05);
+}
+
+.delete-icon:hover {
+  background: rgba(255, 68, 68, 0.1);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.delete-icon:active {
+  transform: scale(0.95);
+  background: rgba(255, 68, 68, 0.2);
+}
+.stepper-container {
+  margin-top: 8px;
+  display: flex;
+  justify-content: flex-end;
 }
 </style>
