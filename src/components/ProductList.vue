@@ -15,12 +15,12 @@
         </div>
         <div class="stepper-container">
           <van-stepper
-            v-model="product.count"
+            :model-value="product.count"
             :min="0"
             theme="round"
             button-size="22"
             disable-input
-            @change="handleCountChange(product)"
+            @update:model-value="(val) => handleCountChange(product, val)"
           />
         </div>
       </div>
@@ -38,8 +38,13 @@ defineProps({
 
 const emit = defineEmits(['add-to-cart'])
 
-const handleCountChange = (product) => {
-  emit('add-to-cart', product)
+// 修改事件处理函数
+const handleCountChange = (product, newVal) => {
+  const updatedProduct = { 
+    ...product,
+    count: newVal
+  }
+  emit('add-to-cart', updatedProduct)
 }
 </script>
 

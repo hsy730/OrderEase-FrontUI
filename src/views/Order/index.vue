@@ -100,15 +100,6 @@ const handleCategorySelect = async (category) => {
   }
 }
 
-const handleAddToCart = (product) => {
-  const index = cartItems.value.findIndex(item => item.id === product.id)
-  if (index === -1) {
-    cartItems.value.push({ ...product })
-  } else {
-    cartItems.value[index].count = product.count
-  }
-}
-
 const handleSubmitOrder = () => {
   // TODO: 提交订单逻辑
 }
@@ -117,23 +108,57 @@ const onClickLeft = () => {
   router.back()
 }
 
+// 修改 handleAddToCart 方法
+const handleAddToCart = (product) => {
+  // 同步更新商品列表
+  const productIndex = products.value.findIndex(p => p.id === product.id)
+  if (productIndex > -1) {
+    products.value[productIndex].count = product.count
+  }
+
+  // 更新购物车
+  const cartIndex = cartItems.value.findIndex(item => item.id === product.id)
+  if (cartIndex === -1) {
+    cartItems.value.push({...product})
+  } else {
+    cartItems.value[cartIndex].count = product.count
+  }
+}
+
+// 修改计数器更新方法
 const handleCountChange = (id, delta) => {
-  const index = cartItems.value.findIndex(item => item.id === id)
-  if (index > -1) {
-    const newCount = cartItems.value[index].count + delta
+  const cartIndex = cartItems.value.findIndex(item => item.id === id)
+  if (cartIndex > -1) {
+    const newCount = cartItems.value[cartIndex].count + delta
+    // 同步到商品列表
+    const productIndex = products.value.findIndex(p => p.id === id)
+    if (productIndex > -1) {
+      products.value[productIndex].count = newCount
+    }
+    
     if (newCount > 0) {
-      cartItems.value[index].count = newCount
+      cartItems.value[cartIndex].count = newCount
     } else {
-      cartItems.value.splice(index, 1)
+      cartItems.value.splice(cartIndex, 1)
     }
   }
 }
 
+// 修改直接更新计数器的方法
 const handleCountUpdate = ({ id, count }) => {
-  const index = cartItems.value.findIndex(item => item.id === id)
-  if (index > -1) {
-    const parsedCount = parseInt(count)
-    cartItems.value[index].count = isNaN(parsedCount) ? 0 : Math.max(0, parsedCount)
+  const parsedCount = parseInt(count)
+  const validCount = isNaN(parsedCount) ? 0 : Math.max(0, parsedCount)
+  
+  // 同步到商品列表
+  const productIndex = products.value.findIndex(p => p.id === id)
+  if (productIndex > -1) {
+    products.value[productIndex].count = validCount
+  }
+
+  // 更新购物车
+  const cartIndex = cartItems.value.findIndex(item => item.id === id)
+  if (cartIndex > -1) {
+    cartItems.value[cartIndex].count = validCount
   }
 }
 

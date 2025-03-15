@@ -23,13 +23,12 @@
             <span class="name">{{ item.name }}</span>
             <div class="controls">
               <van-stepper
-                v-model="item.count"
+                :model-value="item.count"
                 :min="1"
                 theme="round"
                 button-size="22"
                 disable-input
-                @change="$emit('update:count', { id: item.id, count: $event })"
-                class="stepper-container"
+                @update:model-value="$emit('update:count', { id: item.id, count: $event })"
               />
               <van-icon 
                 name="delete-o" 
