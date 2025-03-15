@@ -179,6 +179,7 @@ const toggleCartList = () => {
 }
 
 .delete-icon {
+  margin-top: 0;
   color: var(--van-danger-color);
   margin-left: 12px;
   padding: 6px;
