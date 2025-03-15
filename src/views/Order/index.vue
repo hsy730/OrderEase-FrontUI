@@ -91,7 +91,8 @@ const handleCategorySelect = async (category) => {
         price: p.price,
         image: p.image_url,
         description: p.description,
-        count: 0
+        // 从购物车获取已有数量
+        count: cartItems.value.find(item => item.id === p.id)?.count || 0
       }))
     }
   } catch (error) {
