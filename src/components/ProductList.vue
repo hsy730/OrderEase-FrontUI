@@ -16,6 +16,7 @@
         <div class="stepper-container">
           <van-stepper
             v-model="product.count"
+            :min="0"
             theme="round"
             button-size="22"
             disable-input
@@ -73,4 +74,4 @@ const handleCountChange = (product) => {
   display: flex;
   justify-content: flex-end;
 }
-</style> 
+</style>
