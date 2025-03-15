@@ -56,6 +56,12 @@ onMounted(async () => {
     const response = await getTags()
     if (response.status === 200) {
       categories.value = response.data.tags
+      
+      // 添加默认选中逻辑
+      if (categories.value.length > 0) {
+        activeCategory.value = categories.value[0].id
+        await handleCategorySelect(categories.value[0])
+      }
     }
   } catch (error) {
     console.error('获取分类失败:', error)
@@ -63,13 +69,7 @@ onMounted(async () => {
 })
 
 const products = ref([
-  {
-    id: 1,
-    name: '菌菇清汤',
-    price: 38,
-    image: '/food1.jpg',
-    count: 0
-  }
+  
 ])
 
 const activeCategory = ref(1)
