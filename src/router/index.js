@@ -1,21 +1,16 @@
 import { createRouter, createWebHistory } from 'vue-router'
 
+// 添加home路由配置（如果尚未存在）
 const routes = [
   {
     path: '/',
-    name: 'Home',
+    redirect: '/home' // 添加根路径重定向
+  },
+  { // 添加/order-ease-iui/home路由配置
+    path: '/order-ease-iui/home',
+    name: 'OrderEaseHome',
     component: () => import('../views/Order/index.vue')
-  }
-  // {
-  //   path: '/orders',
-  //   name: 'Orders',
-  //   component: () => import('../views/Orders.vue')
-  // },
-  // {
-  //   path: '/mine',
-  //   name: 'Mine',
-  //   component: () => import('../views/Mine.vue')
-  // }
+  },
 ]
 
 const router = createRouter({
@@ -23,4 +18,4 @@ const router = createRouter({
   routes
 })
 
-export default router 
+export default router
