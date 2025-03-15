@@ -29,9 +29,13 @@
     </div>
 
     <!-- 底部购物车 -->
-    <shopping-cart
+    <ShoppingCart
       :cart-items="cartItems"
       @submit="handleSubmitOrder"
+      @increase="handleCountChange($event, 1)"
+      @decrease="handleCountChange($event, -1)"
+      @remove="handleRemoveItem"
+      @update:count="handleCountUpdate"
     />
   </div>
 </template>
@@ -111,6 +115,30 @@ const handleSubmitOrder = () => {
 
 const onClickLeft = () => {
   router.back()
+}
+
+const handleCountChange = (id, delta) => {
+  const index = cartItems.value.findIndex(item => item.id === id)
+  if (index > -1) {
+    const newCount = cartItems.value[index].count + delta
+    if (newCount > 0) {
+      cartItems.value[index].count = newCount
+    } else {
+      cartItems.value.splice(index, 1)
+    }
+  }
+}
+
+const handleCountUpdate = ({ id, count }) => {
+  const index = cartItems.value.findIndex(item => item.id === id)
+  if (index > -1) {
+    const parsedCount = parseInt(count)
+    cartItems.value[index].count = isNaN(parsedCount) ? 0 : Math.max(0, parsedCount)
+  }
+}
+
+const handleRemoveItem = (id) => {
+  cartItems.value = cartItems.value.filter(item => item.id !== id)
 }
 </script>
 
