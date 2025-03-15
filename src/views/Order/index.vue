@@ -37,23 +37,27 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
+// 修改导入语句，添加解构语法
+import { getTags } from '@/api'
 import CategoryList from '@/components/CategoryList.vue'
 import ProductList from '@/components/ProductList.vue'
 import ShoppingCart from '@/components/ShoppingCart.vue'
 
 const router = useRouter()
-const categories = ref([
-  { id: 1, name: '煲仔饭' },
-  { id: 2, name: '老火汤' },
-  { id: 3, name: '特色' },
-  { id: 4, name: '粉面' },
-  { id: 5, name: '果汁' },
-  { id: 6, name: '点心' },
-  { id: 7, name: '甜点' },
-  { id: 8, name: '套餐' }
-])
+const categories = ref([]) // 移除静态数据
+
+onMounted(async () => {
+  try {
+    const response = await getTags()
+    if (response.status === 200) {
+      categories.value = response.data.tags
+    }
+  } catch (error) {
+    console.error('获取分类失败:', error)
+  }
+})
 
 const products = ref([
   {
@@ -127,4 +131,4 @@ const onClickLeft = () => {
 :deep(.cart-bar) {
   bottom: 50px; /* Tabbar的高度 */
 }
-</style> 
+</style>
