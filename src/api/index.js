@@ -5,12 +5,8 @@ const api = axios.create({
   timeout: 5000
 });
 
-export const getCategories = () => {
-  return api.get('/categories');
-};
-
-export const getProducts = (categoryId) => {
-  return api.get(`/products?categoryId=${categoryId}`);
+export const getProducts = (tagId) => {
+  return api.get(`/tag/bound-products?tag_id=${tagId}`);
 };
 
 export const submitOrder = (orderData) => {
