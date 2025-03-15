@@ -9,6 +9,16 @@ export const getProducts = (tagId) => {
   return api.get(`/tag/bound-products?tag_id=${tagId}`);
 };
 
+export const getTagBoundProducts = (params) => {
+  return api.get('/tag/bound-products', {
+    params: {
+      tag_id: params.tag_id,
+      page: params.page,
+      pageSize: params.pageSize
+    }
+  })
+};
+
 export const submitOrder = (orderData) => {
   return api.post('/orders', orderData);
 };

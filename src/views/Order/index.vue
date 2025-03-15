@@ -39,8 +39,7 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-// 修改导入语句，添加解构语法
-import { getTags } from '@/api'
+import { getTags, getTagBoundProducts } from '@/api' // 新增导入
 import CategoryList from '@/components/CategoryList.vue'
 import ProductList from '@/components/ProductList.vue'
 import ShoppingCart from '@/components/ShoppingCart.vue'
@@ -72,9 +71,29 @@ const products = ref([
 const activeCategory = ref(1)
 const cartItems = ref([])
 
-const handleCategorySelect = (category) => {
+const handleCategorySelect = async (category) => {
   activeCategory.value = category.id
-  // TODO: 加载该分类的商品
+  try {
+    const response = await getTagBoundProducts({
+      tag_id: category.id,
+      page: 1,
+      pageSize: 20
+    })
+    
+    if (response.status === 200) {
+      products.value = response.data.data.map(p => ({
+        id: p.id,
+        name: p.name,
+        price: p.price,
+        image: p.image_url,
+        description: p.description,
+        count: 0
+      }))
+    }
+  } catch (error) {
+    console.error('获取商品失败:', error)
+    products.value = []
+  }
 }
 
 const handleAddToCart = (product) => {
