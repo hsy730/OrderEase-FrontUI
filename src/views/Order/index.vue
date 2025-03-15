@@ -110,19 +110,34 @@ const onClickLeft = () => {
 
 // 修改 handleAddToCart 方法
 const handleAddToCart = (product) => {
-  // 同步更新商品列表
+  // 当数量为0时从购物车移除
+  if (product.count === 0) {
+    cartItems.value = cartItems.value.filter(item => item.id !== product.id)
+  } else {
+    const cartIndex = cartItems.value.findIndex(item => item.id === product.id)
+    if (cartIndex === -1) {
+      cartItems.value.push({...product})
+    } else {
+      cartItems.value[cartIndex].count = product.count
+    }
+  }
+
+  // 强制同步到商品列表
   const productIndex = products.value.findIndex(p => p.id === product.id)
   if (productIndex > -1) {
     products.value[productIndex].count = product.count
   }
+}
 
-  // 更新购物车
-  const cartIndex = cartItems.value.findIndex(item => item.id === product.id)
-  if (cartIndex === -1) {
-    cartItems.value.push({...product})
-  } else {
-    cartItems.value[cartIndex].count = product.count
+const handleRemoveItem = (id) => {
+  // 清空对应商品的计数器
+  const productIndex = products.value.findIndex(p => p.id === id)
+  if (productIndex > -1) {
+    products.value[productIndex].count = 0
   }
+  
+  // 从购物车移除
+  cartItems.value = cartItems.value.filter(item => item.id !== id)
 }
 
 // 修改计数器更新方法
@@ -130,16 +145,18 @@ const handleCountChange = (id, delta) => {
   const cartIndex = cartItems.value.findIndex(item => item.id === id)
   if (cartIndex > -1) {
     const newCount = cartItems.value[cartIndex].count + delta
+    
     // 同步到商品列表
     const productIndex = products.value.findIndex(p => p.id === id)
     if (productIndex > -1) {
-      products.value[productIndex].count = newCount
+      products.value[productIndex].count = Math.max(0, newCount)
     }
-    
+
     if (newCount > 0) {
       cartItems.value[cartIndex].count = newCount
     } else {
-      cartItems.value.splice(cartIndex, 1)
+      // 数量为0时触发移除逻辑
+      handleRemoveItem(id)
     }
   }
 }
@@ -160,10 +177,6 @@ const handleCountUpdate = ({ id, count }) => {
   if (cartIndex > -1) {
     cartItems.value[cartIndex].count = validCount
   }
-}
-
-const handleRemoveItem = (id) => {
-  cartItems.value = cartItems.value.filter(item => item.id !== id)
 }
 </script>
 
