@@ -20,11 +20,17 @@ export const getTagBoundProducts = (params) => {
 };
 
 export const submitOrder = (orderData) => {
-  return api.post('/orders', orderData);
+  return api.post('/order', orderData);
 };
 
-export const getOrders = () => {
-  return api.get('/orders');
+export const getOrders = (params) => {
+  return api.get('/order/user/list', {
+    params: {
+      user_id: params.user_id,
+      page: params.page,
+      pageSize: params.pageSize
+    }
+  });
 };
 
 // 确保使用具名导出
