@@ -37,8 +37,7 @@
   onMounted(async () => {
     try {
       const response = await getOrders({
-        // user_id: localStorage.getItem('userId'), // 假设用户ID存储在本地存储
-        user_id: 4,
+        user_id: localStorage.getItem('userId'), // 假设用户ID存储在本地存储
         page: 1,
         page_size: 50
       })
