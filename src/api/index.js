@@ -40,3 +40,11 @@ export const getTags = () => {
 
 // 保持默认导出
 export default api;
+
+// 添加订单创建接口
+// 修复 createOrder 方法（使用 api 实例）
+export const  createOrder = (data) => {
+  return api.post('/order/create', data)
+}
+
+// 删除重复的 request 调用

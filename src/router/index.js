@@ -14,8 +14,8 @@ const router = createRouter({
       component: () => import('../views/home/index.vue')
     },
     { // 添加/order-ease-iui/orders路由配置
-      path: '/order-ease-iui/orders',
-      name: 'OrderEaseOrders',
+      path: '/orders',
+      name: 'Orders',
       component: () => import('../views/Orders.vue')
     },
     {
