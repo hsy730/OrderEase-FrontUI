@@ -29,25 +29,40 @@
   </template>
   
   <script setup>
-  import { ref } from 'vue'
+  import { ref, onMounted } from 'vue'
+  import { getOrders } from '@/api'
   
-  const orders = ref([
-    {
-      id: 1,
-      orderNo: '202403090001',
-      createTime: '2024-03-09 12:30',
-      status: '待取餐',
-      totalAmount: 76,
-      items: [
-        {
-          name: '菌菇清汤',
-          price: 38,
-          quantity: 2,
-          image: '/food1.jpg'
-        }
-      ]
+  const orders = ref([])
+  
+  onMounted(async () => {
+    try {
+      const response = await getOrders({
+        // user_id: localStorage.getItem('userId'), // 假设用户ID存储在本地存储
+        user_id: 4,
+        page: 1,
+        page_size: 50
+      })
+      
+      if (response.data && response.data.code === 200) {
+        orders.value = response.data.orders.map(order => ({
+          id: order.id,
+          orderNo: order.id, // 使用接口返回的订单ID
+          createTime: new Date().toLocaleString(), // 需要根据接口实际字段调整
+          status: order.status,
+          totalAmount: order.total_price,
+          items: [{
+            name: order.product_name,
+            price: order.total_price,
+            quantity: 1, // 需要根据接口实际数据调整
+            // image: '/food1.jpg'
+          }]
+        }))
+      }
+    } catch (error) {
+      console.error('获取订单失败:', error)
+      orders.value = []
     }
-  ])
+  })
   
   const getStatusType = (status) => {
     const typeMap = {
@@ -71,4 +86,4 @@
     margin-bottom: 12px;
     border-radius: 8px;
   }
-  </style> 
+  </style>
