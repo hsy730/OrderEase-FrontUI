@@ -43,7 +43,8 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { getTags, getTagBoundProducts } from '@/api' // 新增导入
+// 添加createOrder到导入列表
+import { getTags, getTagBoundProducts, createOrder } from '@/api'
 import CategoryList from '@/components/CategoryList.vue'
 import ProductList from '@/components/ProductList.vue'
 import ShoppingCart from '@/components/ShoppingCart.vue'
@@ -101,8 +102,42 @@ const handleCategorySelect = async (category) => {
   }
 }
 
-const handleSubmitOrder = () => {
-  // TODO: 提交订单逻辑
+// 在顶部添加 Toast 方法引入
+import { showSuccessToast, showFailToast } from 'vant'
+
+const handleSubmitOrder = async () => {
+  if (cartItems.value.length === 0) {
+    showFailToast({
+      message: '购物车为空',
+      position: 'top',
+    })
+    return
+  }
+
+  try {
+    // 构造符合接口要求的订单数据
+    const orderData = {
+      user_id: parseInt(localStorage.getItem('userId')),
+      items: cartItems.value.map(item => ({
+        product_id: item.id,
+        quantity: item.count
+      }))
+    }
+
+    // 发送单个订单创建请求
+    const response = await createOrder(orderData)
+    
+    if (response.data.code === 200) {
+      showSuccessToast({ message: '订单创建成功', position: 'top' })
+      cartItems.value = []
+      router.push('/orders')
+    } else {
+      throw new Error(response.data.error || '订单创建失败')
+    }
+  } catch (error) {
+    console.error('订单提交失败:', error)
+    showFailToast(error.message || '订单提交失败')
+  }
 }
 
 const onClickLeft = () => {
