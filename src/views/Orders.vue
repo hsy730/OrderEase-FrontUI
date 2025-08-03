@@ -43,7 +43,7 @@
       })
       
       if (response.data && response.data.code === 200) {
-        orders.value = response.data.orders.map(order => ({
+        orders.value = response.data.data.map(order => ({
           id: order.id,
           orderNo: order.id, // 使用接口返回的订单ID
           createTime: new Date().toLocaleString(), // 需要根据接口实际字段调整

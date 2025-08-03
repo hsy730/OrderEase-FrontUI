@@ -5,6 +5,25 @@ const api = axios.create({
   timeout: 5000
 });
 
+// 请求拦截器，自动添加shopId参数
+api.interceptors.request.use(config => {
+  // 从localStorage中获取shopId
+  const shop_id = localStorage.getItem('shop_id');
+  if (shop_id) {
+    // 如果是GET请求，添加到params
+    if (config.method === 'get') {
+      config.params = {...config.params, shop_id};
+    } 
+    // 如果是其他请求，添加到data
+    else {
+      config.data = {...config.data, shop_id};
+    }
+  }
+  return config;
+}, error => {
+  return Promise.reject(error);
+});
+
 export const getProducts = (tagId) => {
   return api.get(`/tag/bound-products?tag_id=${tagId}`);
 };
