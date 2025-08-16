@@ -2,7 +2,7 @@
   <div class="order-page">
     <!-- 顶部标题栏 -->
     <van-nav-bar
-      title="中关村店"
+      :title="error ? '店铺加载失败' : (shopDetail?.name| '加载中...')"
       left-arrow
       @click-left="onClickLeft"
       fixed
@@ -13,7 +13,7 @@
       <!-- 左侧分类菜单 -->
       <div class="category-menu">
         <category-list
-          :categories="categories"
+          :categories="shopDetail?.tags || []"
           :active-category="activeCategory"
           @select="handleCategorySelect"
         />
@@ -44,19 +44,23 @@
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 // 添加createOrder到导入列表
-import { getTags, getTagBoundProducts, createOrder } from '@/api'
+import { getShopDetail, getTagBoundProducts, createOrder } from '@/api'
 import CategoryList from '@/components/CategoryList.vue'
 import ProductList from '@/components/ProductList.vue'
 import ShoppingCart from '@/components/ShoppingCart.vue'
 
 const router = useRouter()
-const categories = ref([]) // 移除静态数据
+const shopDetail = ref(null)
 
 onMounted(async () => {
   try {
-    const response = await getTags()
-    if (response.status === 200) {
-      categories.value = response.data.tags
+    // 获取店铺详情及分类
+    const { data: shopRes } = await getShopDetail()
+    if (shopRes) {
+      shopDetail.value = shopRes;
+      // 分类数据已整合至shopDetail
+      // 移除旧接口数据残留
+      error.value = ''
       
       // 添加默认选中逻辑
       if (categories.value.length > 0) {
@@ -65,7 +69,8 @@ onMounted(async () => {
       }
     }
   } catch (error) {
-    console.error('获取分类失败:', error)
+    console.error('店铺数据加载失败:', error)
+      error.value = '无法加载店铺分类信息'
   }
 })
 

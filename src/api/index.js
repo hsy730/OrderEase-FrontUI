@@ -66,4 +66,9 @@ export const  createOrder = (data) => {
   return api.post('/order/create', data)
 }
 
-// 删除重复的 request 调用
+// 外部调用接口
+export const getShopDetail = () => {
+  const shopId = localStorage.getItem('shopId');
+  if (!shopId) throw new Error('未找到店铺ID');
+  return api.get(`/shop/detail?shop_id=${shopId}`);
+}
