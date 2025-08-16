@@ -57,15 +57,16 @@ onMounted(async () => {
     // 获取店铺详情及分类
     const { data: shopRes } = await getShopDetail()
     if (shopRes) {
+      shopRes.tags.push({id: -1, name: "未分类"})
       shopDetail.value = shopRes;
       // 分类数据已整合至shopDetail
       // 移除旧接口数据残留
       error.value = ''
       
       // 添加默认选中逻辑
-      if (categories.value.length > 0) {
-        activeCategory.value = categories.value[0].id
-        await handleCategorySelect(categories.value[0])
+      if (shopRes.tags.length > 0) {
+        activeCategory.value = shopRes.tags[0].id
+        await handleCategorySelect(shopRes.tags[0])
       }
     }
   } catch (error) {
@@ -80,6 +81,7 @@ const products = ref([
 
 const activeCategory = ref(1)
 const cartItems = ref([])
+const error = ref('')
 
 const handleCategorySelect = async (category) => {
   activeCategory.value = category.id
@@ -100,7 +102,9 @@ const handleCategorySelect = async (category) => {
         // 从购物车获取已有数量
         count: cartItems.value.find(item => item.id === p.id)?.count || 0
       }))
+      return;
     }
+    products.value = []
   } catch (error) {
     console.error('获取商品失败:', error)
     products.value = []
