@@ -12,7 +12,7 @@
       </div>
       
       <div class="product-info mb-4">
-        <img :src="product.image" class="w-full h-40 object-cover rounded-lg" />
+        <img :src="getImageUrl(product.image)" class="w-full h-40 object-cover rounded-lg" />
         <div class="mt-2">
           <div class="text-[#C3A87C] text-xl">¥{{ product.price }}</div>
           <div class="text-sm text-gray-500 mt-1">{{ product.description }}</div>
@@ -66,6 +66,7 @@
 
 <script setup>
 import { ref } from 'vue'
+import { getImageUrl } from '@/utils/image';
 
 const props = defineProps({
   show: Boolean,
@@ -88,4 +89,4 @@ const addToCart = () => {
   // TODO: 实现添加到购物车的逻辑
   close()
 }
-</script> 
+</script>

@@ -68,7 +68,5 @@ export const  createOrder = (data) => {
 
 // 外部调用接口
 export const getShopDetail = () => {
-  const shopId = localStorage.getItem('shopId');
-  if (!shopId) throw new Error('未找到店铺ID');
-  return api.get(`/shop/detail?shop_id=${shopId}`);
+  return api.get(`/shop/detail`);
 }

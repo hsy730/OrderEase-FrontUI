@@ -13,7 +13,7 @@
           :price="order.totalAmount"
           :title="order.orderNo"
           :desc="order.createTime"
-          :thumb="order.items[0]?.image"
+          :thumb="getImageUrl(order.items[0]?.image)"
         >
           <template #tags>
             <van-tag :type="getStatusType(order.status)">{{ order.status }}</van-tag>
@@ -31,6 +31,7 @@
   <script setup>
   import { ref, onMounted } from 'vue'
   import { getOrders } from '@/api'
+  import { getImageUrl } from '@/utils/image'
   
   const orders = ref([])
   
@@ -53,7 +54,7 @@
             name: order.product_name,
             price: order.total_price,
             quantity: 1, // 需要根据接口实际数据调整
-            // image: '/food1.jpg'
+            image: order.image_url || '' // 添加图片URL字段
           }]
         }))
       }

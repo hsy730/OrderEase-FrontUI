@@ -2,7 +2,7 @@
   <div class="product-list">
     <div v-for="product in products" :key="product.id" class="product-item">
       <van-image
-        :src="product.image"
+        :src="getImageUrl(product.image)"
         width="100"
         height="100"
         radius="8"
@@ -29,6 +29,8 @@
 </template>
 
 <script setup>
+import { getImageUrl } from '@/utils/image';
+
 defineProps({
   products: {
     type: Array,
