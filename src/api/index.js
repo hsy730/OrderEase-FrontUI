@@ -24,9 +24,9 @@ api.interceptors.request.use(config => {
   return Promise.reject(error);
 });
 
-export const getProducts = (tagId) => {
-  return api.get(`/tag/bound-products?tag_id=${tagId}`);
-};
+// export const getProducts = (tagId) => {
+//   return api.get(`/tag/bound-products?tag_id=${tagId}`);
+// };
 
 export const getTagBoundProducts = (params) => {
   return api.get('/tag/bound-products', {

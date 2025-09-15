@@ -2,7 +2,7 @@
   <div class="order-page">
     <!-- 顶部标题栏 -->
     <van-nav-bar
-      :title="error ? '店铺加载失败' : (shopDetail?.name| '加载中...')"
+      :title="error ? '店铺加载失败' : (shopDetail?.name || '加载中...')"
       left-arrow
       @click-left="onClickLeft"
       fixed
@@ -38,19 +38,74 @@
       @update:count="handleCountUpdate"
     />
   </div>
+
+  <van-popup 
+    v-model:show="showOptionsPopup"
+    position="bottom"
+    :style="{ height: '60%' }"
+  >
+    <div class="popup-content">
+      <div v-if="selectedProduct" v-for="category in selectedProduct.option_categories || []" :key="category.id">
+       <h4>{{ category.name }}<span v-if="category.is_required" style="color: red">*</span></h4>
+        <van-cell-group>
+          <van-cell>
+            <template #right-icon>
+              <div class="flex gap-2 flex-wrap">
+                <div 
+                  v-for="option in category.options"
+                  :key="option.id"
+                  class="option-item"
+                  :class="{ 'selected': isOptionSelected(category, option) }"
+                  @click="toggleOption(category, option)"
+                >
+                  {{ option.name }}
+                  <span v-if="option.price_adjustment > 0">+¥{{ option.price_adjustment }}</span>
+                </div>
+              </div>
+            </template>
+          </van-cell>
+        </van-cell-group>
+      </div>
+    </div>
+    <div class="footer-actions">
+      <div class="price-display">
+        总计：¥{{ (selectedProduct?.price || 0) + optionTotal }}
+      </div>
+      <div style="width: fit-content;">
+          <van-button 
+        type="primary"
+        block
+        round
+        @click="confirmSelection"
+      >
+        确认
+      </van-button>
+      </div>
+      
+    </div>
+  </van-popup>
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
 // 添加createOrder到导入列表
 import { getShopDetail, getTagBoundProducts, createOrder } from '@/api'
 import CategoryList from '@/components/CategoryList.vue'
 import ProductList from '@/components/ProductList.vue'
 import ShoppingCart from '@/components/ShoppingCart.vue'
+import { Popup } from 'vant'
+// 在顶部添加 Toast 方法引入
+import { showSuccessToast, showFailToast } from 'vant'
+const components = {
+  VanPopup: Popup
+}
 
 const router = useRouter()
 const shopDetail = ref(null)
+
+const selectedProduct = ref(null)
+const showOptionsPopup = ref(false)
 
 onMounted(async () => {
   try {
@@ -100,7 +155,8 @@ const handleCategorySelect = async (category) => {
         image: p.image_url,
         description: p.description,
         // 从购物车获取已有数量
-        count: cartItems.value.find(item => item.id === p.id)?.count || 0
+        count: cartItems.value.find(item => item.id === p.id)?.count || 0,
+        option_categories: p.option_categories || []
       }))
       return;
     }
@@ -111,8 +167,7 @@ const handleCategorySelect = async (category) => {
   }
 }
 
-// 在顶部添加 Toast 方法引入
-import { showSuccessToast, showFailToast } from 'vant'
+
 
 const handleSubmitOrder = async () => {
   if (cartItems.value.length === 0) {
@@ -153,25 +208,79 @@ const onClickLeft = () => {
   router.back()
 }
 
-// 修改 handleAddToCart 方法
-const handleAddToCart = (product) => {
-  // 当数量为0时从购物车移除
-  if (product.count === 0) {
-    cartItems.value = cartItems.value.filter(item => item.id !== product.id)
-  } else {
-    const cartIndex = cartItems.value.findIndex(item => item.id === product.id)
-    if (cartIndex === -1) {
-      cartItems.value.push({...product})
+const addToCart = (product) => {
+  const existingIndex = cartItems.value.findIndex(item => 
+    item.id === product.id && 
+    JSON.stringify(item.selectedOptions) === JSON.stringify(product.selectedOptions)
+  );
+
+  if (existingIndex > -1) { // 存在判断增减
+    if (product.action === 'add') {
+      cartItems.value[existingIndex].count += product.count;
     } else {
-      cartItems.value[cartIndex].count = product.count
+      cartItems.value[existingIndex].count = Math.max(0, cartItems.value[existingIndex].count - product.count);
     }
+  } else { // 不存在则添加
+    cartItems.value.push({
+      ...product,
+      basePrice: product.price,
+      count: product.count || 1
+    });
+  }
+  // 删除商品列表的同步更新
+}
+
+// 选项弹窗交互逻辑
+const handleAddToCart = (product) => {
+  if (product.option_categories?.length) {
+    selectedProduct.value = product
+    showOptionsPopup.value = true
+  } else {
+    addToCart({ ...product, count: 1 })
+  }
+}
+
+const confirmSelection = () => {
+  if (!selectedProduct.value) return
+
+  // 移除局部optionTotal计算
+  const finalPrice = selectedProduct.value.price + optionTotal.value
+
+  // 创建带选项的商品副本
+  const productWithOptions = {
+    ...selectedProduct.value,
+    finalPrice: selectedProduct.value.price + optionTotal,
+    selectedOptions: Array.from(selectedOptions.value).map(([categoryId, opts]) => ({
+      category: selectedProduct.value.option_categories.find(c => c.id === categoryId)?.name,
+      options: opts.map(o => o.name)
+    })),
+    count: 1
   }
 
-  // 强制同步到商品列表
-  const productIndex = products.value.findIndex(p => p.id === product.id)
-  if (productIndex > -1) {
-    products.value[productIndex].count = product.count
+  addToCart(productWithOptions)
+  showOptionsPopup.value = false
+}
+
+// 添加弹窗关闭处理
+const handlePopupClose = () => {
+  showOptionsPopup.value = false
+  selectedProduct.value = null
+}
+// 选项选择处理器
+const handleOptionSelect = (category, option) => {
+  if (category.is_multiple) {
+    // 处理多选逻辑...
+  } else {
+    selectedOptions.value[category.id] = option
   }
+}
+
+// 最终价格计算
+const calculateFinalPrice = () => {
+  return selectedProduct.value.price + 
+    Object.values(selectedOptions.value).reduce((total, option) => {
+      return total + (option?.price_adjustment || 0)
+    }, 0)
 }
 
 const handleRemoveItem = (id) => {
@@ -223,9 +332,62 @@ const handleCountUpdate = ({ id, count }) => {
     cartItems.value[cartIndex].count = validCount
   }
 }
+// 在script setup部分添加
+const selectedOptions = ref(new Map())
+
+const optionTotal = computed(() => {
+  return Array.from(selectedOptions.value.values())
+    .flat()
+    .reduce((sum, opt) => sum + (opt.price_adjustment || 0), 0)
+})
+
+const toggleOption = (category, option) => {
+  const categoryOptions = selectedOptions.value.get(category.id) || []
+  
+  if (category.is_required) {
+    // 单选逻辑
+    selectedOptions.value.set(category.id, [option])
+  } else {
+    // 多选逻辑
+    const index = categoryOptions.findIndex(o => o.id === option.id)
+    if (index > -1) {
+      categoryOptions.splice(index, 1)
+    } else {
+      categoryOptions.push(option)
+    }
+    selectedOptions.value.set(category.id, categoryOptions)
+  }
+}
+
+const isOptionSelected = (category, option) => {
+  const categoryOptions = selectedOptions.value.get(category.id) || []
+  return categoryOptions.some(opt => opt.id === option.id)
+}
+
+
 </script>
 
 <style scoped>
+.flex-wrap {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.option-item {
+  white-space: nowrap;
+  padding: 8px 12px;
+  border: 1px solid #eee;
+  border-radius: 16px;
+  margin: 4px;
+  transition: all 0.2s;
+}
+
+.selected {
+  border-color: #07c160;
+  color: #07c160;
+  background-color: #f0faff;
+}
 .order-page {
   min-height: 100vh;
   background: #fff;
@@ -261,4 +423,42 @@ const handleCountUpdate = ({ id, count }) => {
 :deep(.cart-bar) {
   bottom: 50px; /* Tabbar的高度 */
 }
+.popup-content {
+  padding: 16px;
+}
+</style>
+
+<style scoped>
+.footer-actions {
+  position: fixed;
+  bottom: 0;
+  padding: 16px;
+  background: white;
+  border-top: 1px solid #ebedf0;
+  z-index: 1;
+  width: inherit;
+}
+
+.confirm-btn {
+  width: 100%;
+  padding: 12px;
+  background: #07c160;
+  color: white;
+  border-radius: 8px;
+}
+
+ .footer-actions {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 16px;
+      background: white;
+      border-top: 1px solid #ebedf0;
+    }
+    
+    .price-display {
+      font-size: 16px;
+      color: #ee0a24;
+      font-weight: 500;
+    }
 </style>

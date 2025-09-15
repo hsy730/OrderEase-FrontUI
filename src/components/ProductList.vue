@@ -44,9 +44,11 @@ const emit = defineEmits(['add-to-cart'])
 const handleCountChange = (product, newVal) => {
   const updatedProduct = { 
     ...product,
-    count: newVal
+    count: newVal,
+    action: newVal > product.count ? 'add' : 'remove'
   }
   emit('add-to-cart', updatedProduct)
+  product.count = newVal
 }
 </script>
 

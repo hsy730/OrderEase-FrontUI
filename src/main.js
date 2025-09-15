@@ -5,6 +5,7 @@ import App from './App.vue'
 import router from './router'
 import { 
   Button,
+  Popup,
   Tabbar,
   TabbarItem,
   Icon,
@@ -25,6 +26,7 @@ const app = createApp(App)
 
 app.use(router)
    .use(Button)
+   .use(Popup)
    .use(Tabbar)
    .use(TabbarItem)
    .use(Icon)
