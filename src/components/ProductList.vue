@@ -3,27 +3,41 @@
     <div v-for="product in products" :key="product.id" class="product-item">
       <van-image
         :src="getImageUrl(product.image)"
-        width="100"
-        height="100"
+        width="60"
+        height="60"
         radius="8"
       />
       <div class="product-info">
         <div class="product-name">{{ product.name }}</div>
-        <div class="product-price">
-          <span class="text-sm">¥</span>
-          <span class="text-lg font-bold">{{ product.price }}</span>
-        </div>
-        <div class="stepper-container">
-          <van-stepper
-            :model-value="product.count"
-            :min="0"
-            :show-minus="product.count > 0"
-            theme="round"
-            button-size="22"
-            disable-input
-            :before-change="(val) => beforeCountChange(product, val)"
-            @update:model-value="(val) => handleCountChange(product, val)"
-          />
+        <div class="product-details">
+          <div class="product-price">
+            <span class="text-sm">¥</span>
+            <span class="text-md font-bold">{{ product.price }}</span>
+          </div>
+          <div class="stepper-container">
+            <van-stepper
+              v-if="product.count > 0"
+              :model-value="product.count"
+              :min="0"
+              theme="round"
+              button-size="22"
+              disable-input
+              :before-change="(val) => beforeCountChange(product, val)"
+              @update:model-value="(val) => handleCountChange(product, val)"
+            />
+            <van-stepper
+              v-else
+              :model-value="0"
+              :min="0"
+              :show-input="false"
+              :show-minus="false"
+              theme="round"
+              button-size="22"
+              disable-input
+              :before-change="(val) => beforeCountChange(product, val)"
+              @update:model-value="(val) => handleCountChange(product, val)"
+            />
+          </div>
         </div>
       </div>
     </div>
@@ -101,6 +115,7 @@ const beforeCountChange = (product, newVal) => {
   background: #fff;
   padding: 8px;
   border-radius: 8px;
+  align-items: center;
 }
 
 .product-info {
@@ -108,6 +123,7 @@ const beforeCountChange = (product, newVal) => {
   flex: 1;
   display: flex;
   flex-direction: column;
+  height: 60px; /* 与图片高度一致 */
 }
 
 .product-name {
@@ -115,13 +131,19 @@ const beforeCountChange = (product, newVal) => {
   font-weight: 500;
 }
 
+.product-details {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: auto;
+}
+
 .product-price {
-  margin-top: 8px;
-  color: #ff4d4f;
+  color: #333;
+  font-weight: bold;
 }
 
 .stepper-container {
-  margin-top: 8px;
   display: flex;
   justify-content: flex-end;
 }

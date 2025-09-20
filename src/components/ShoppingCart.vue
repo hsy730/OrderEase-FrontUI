@@ -1,5 +1,5 @@
 <template>
-  <div class="cart-bar">
+  <div class="cart-bar" v-if="totalCount > 0">
     <div class="cart-info">
       <van-badge :content="totalCount" :show="totalCount > 0">
         <!-- 添加点击事件 -->
@@ -15,26 +15,42 @@
         <span class="amount">{{ totalAmount }}</span>
       </div>
     </div>
+    <!-- 遮罩层 -->
+    <div v-if="show" class="overlay" @click="toggleCartList"></div>
     <!-- 新增购物车列表 -->
     <div v-if="show" class="cart-list">
-      <ul>
-        <li v-for="item in props.cartItems" :key="item.id">
+      <div class="cart-list-header">
+        <span class="header-title">已选商品</span>
+        <div class="clear-cart" @click="$emit('clear')" :class="{ disabled: totalCount === 0 }">
+          <van-icon name="delete-o" size="16" class="clear-icon" />
+          <span class="clear-text">清空</span>
+        </div>
+      </div>
+      <ul style="margin: 10px;">
+        <li v-for="(item, index) in props.cartItems" :key="`${item.id}-${index}`">
           <div class="cart-item">
-            <span class="name">{{ item.name }}</span>
+            <div class="item-info">
+              <div class="item-details">
+                <div class="item-name">{{ item.name }}</div>
+                <!-- 显示选项信息 -->
+                <div v-if="item.selectedOptions && item.selectedOptions.length" class="options">
+                  {{ item.selectedOptions.map(option => option.options.join(', ')).join(', ') }}
+                </div>
+                <div v-else class="options-placeholder"></div>
+                <!-- 显示商品价格 -->
+                <div class="item-price">
+                  ¥ {{ formatPrice(item.finalPrice || item.price || 0) }}
+                </div>
+              </div>
+            </div>
             <div class="controls">
               <van-stepper
                 :model-value="item.count"
-                :min="1"
-                :show-minus="item.count > 0"
+                :min="0"
                 theme="round"
                 button-size="22"
                 disable-input
-                @update:model-value="$emit('update:count', { id: item.id, count: $event })"
-              />
-              <van-icon 
-                name="delete-o" 
-                class="delete-icon"
-                @click.stop="$emit('remove', item.id)"
+                @update:model-value="handleCountChange(item, $event)"
               />
             </div>
           </div>
@@ -68,19 +84,43 @@ const props = defineProps({
   },
 })
 
-const emit = defineEmits(['submit', 'increase', 'decrease', 'remove', 'update:count', 'update:show'])
+const emit = defineEmits(['submit', 'increase', 'decrease', 'remove', 'update:count', 'update:show', 'clear'])
 
 const totalCount = computed(() => {
   return props.cartItems.reduce((sum, item) => sum + item.count, 0)
 })
 
 const totalAmount = computed(() => {
-  return props.cartItems.reduce((sum, item) => sum + item.price * item.count, 0)
+  return props.cartItems.reduce((sum, item) => {
+    // 使用finalPrice（如果存在）否则使用基础价格
+    const price = item.finalPrice || item.price || 0
+    return sum + price * item.count
+  }, 0)
 })
 
 
 const toggleCartList = () => {
   emit('update:show', !props.show)
+}
+
+const handleCountChange = (item, count) => {
+  if (count === 0) {
+    // 当数量为0时，发出删除事件
+    emit('remove', item.cartItemId || item.id)
+  } else {
+    // 否则更新数量
+    emit('update:count', { id: item.cartItemId || item.id, count: count })
+  }
+}
+
+const formatPrice = (price) => {
+  // 如果价格是整数，不显示小数部分
+  if (Number.isInteger(price)) {
+    return price.toString()
+  } else {
+    // 否则保留两位小数
+    return price.toFixed(2)
+  }
 }
 </script>
 
@@ -97,7 +137,7 @@ const toggleCartList = () => {
   align-items: center;
   justify-content: space-between;
   padding: 0 16px;
-  z-index: 100;
+  z-index: 1000;
 }
 
 .cart-info {
@@ -126,6 +166,17 @@ const toggleCartList = () => {
   width: 120px;
 }
 
+/* 遮罩层样式 */
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: calc(100% - 100px); /* 减去底部购物车栏和按钮区域的高度 */
+  background-color: rgba(0, 0, 0, 0.5); /* 半透明黑色遮罩 */
+  z-index: 999; /* 确保遮罩在购物车列表下方，但在其他内容上方 */
+}
+
 /* 新增购物车列表样式 */
 .cart-list {
   position: absolute;
@@ -134,9 +185,62 @@ const toggleCartList = () => {
   right: 0;
   background-color: white;
   border: 1px solid #eee;
-  padding: 10px;
-  max-height: 200px;
+  border-top-left-radius: 12px;
+  border-top-right-radius: 12px;
+  /* padding: 10px; */
+  max-height: min(80vh, 600px); /* 限制最大高度为视口80%或400px中的较小值 */
+  height: fit-content; /* 内容自适应高度 */
+  min-height: 100px; /* 最小高度 */
   overflow-y: auto;
+  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+  z-index: 1001; /* 确保购物车列表在遮罩上方 */
+}
+
+.cart-list-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px;
+  background-color: #f5f5f5;
+  margin: 0;
+}
+
+.header-title {
+  font-size: 16px;
+  font-weight: bold;
+  color: #333;
+}
+
+.clear-cart {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 4px;
+  transition: all 0.2s;
+}
+
+.clear-cart:hover {
+  background-color: #f5f5f5;
+}
+
+.clear-cart.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.clear-cart.disabled:hover {
+  background-color: transparent;
+}
+
+.clear-icon {
+  color: #999;
+  margin-right: 4px;
+}
+
+.clear-text {
+  font-size: 14px;
+  color: #999;
 }
 
 .cart-list ul {
@@ -153,7 +257,7 @@ const toggleCartList = () => {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 8px 0;
+  /* padding: 8px 0; */
 }
 
 .controls {
@@ -163,10 +267,26 @@ const toggleCartList = () => {
   height: 40px;
 }
 
-.delete-icon {
-  margin-top: 6px;
-  line-height: 1;
-  vertical-align: middle;
+.item-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.options {
+  font-size: 11px;
+  color: #666;
+  margin-top: 4px;
+}
+
+.options-placeholder {
+  height: 14px; /* 与.options的字体大小和行高保持一致 */
+  margin: 2px 0;
+}
+
+.options span {
+  display: block;
+  margin-bottom: 2px;
 }
 
 .van-stepper {
@@ -179,30 +299,30 @@ const toggleCartList = () => {
   border: 1px solid #eee;
   padding: 2px;
 }
-
-.delete-icon {
-  margin-top: 0;
-  color: var(--van-danger-color);
-  margin-left: 12px;
-  padding: 6px;
-  border-radius: 50%;
-  transition: all 0.2s ease;
-  cursor: pointer;
-  background: rgba(255, 68, 68, 0.05);
-}
-
-.delete-icon:hover {
-  background: rgba(255, 68, 68, 0.1);
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-}
-
-.delete-icon:active {
-  transform: scale(0.95);
-  background: rgba(255, 68, 68, 0.2);
-}
 .stepper-container {
   margin-top: 8px;
   display: flex;
   justify-content: flex-end;
+}
+
+/* 商品项信息样式 */
+.item-details {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  /* gap: 2px; */
+}
+
+.item-name {
+  font-size: 14px;
+  font-weight: 500;
+  color: #333;
+}
+
+.item-price {
+  font-size: 14px;
+  font-weight: bold;
+  color: #333;
+  margin-top: 2px;
 }
 </style>

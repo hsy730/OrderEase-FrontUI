@@ -38,6 +38,7 @@
       @decrease="handleCountChange($event, -1)"
       @remove="handleRemoveItem"
       @update:count="handleCountUpdate"
+      @clear="handleClearCart"
     />
   </div>
 
@@ -212,9 +213,23 @@ const onClickLeft = () => {
 }
 
 const addToCart = (product) => {
+  // 为带选项的商品生成唯一标识符
+  const getCartItemKey = (item) => {
+    if (item.selectedOptions && item.selectedOptions.length > 0) {
+      // 对选项进行排序以确保一致性
+      const sortedOptions = [...item.selectedOptions].sort((a, b) => 
+        a.category.localeCompare(b.category)
+      );
+      return `${item.id}-${JSON.stringify(sortedOptions)}`;
+    }
+    return `${item.id}`;
+  };
+
+  const productKey = getCartItemKey(product);
+  
+  // 查找具有相同选项的商品
   const existingIndex = cartItems.value.findIndex(item => 
-    item.id === product.id && 
-    JSON.stringify(item.selectedOptions) === JSON.stringify(product.selectedOptions)
+    getCartItemKey(item) === productKey
   );
 
   if (existingIndex > -1) { // 存在判断增减
@@ -229,11 +244,15 @@ const addToCart = (product) => {
       handleRemoveItem(product.id)
     }
   } else { // 不存在则添加
-    cartItems.value.push({
+    // 为购物车商品添加唯一标识符
+    const cartItem = {
       ...product,
       basePrice: product.price,
-      count: product.count || 1
-    });
+      count: product.count || 1,
+      cartItemId: productKey // 添加唯一标识符
+    };
+    
+    cartItems.value.push(cartItem);
     
     // 同步到商品列表
     const productIndex = products.value.findIndex(p => p.id === product.id)
@@ -268,13 +287,14 @@ const handleShowCartPopup = (product) => {
 const confirmSelection = () => {
   if (!selectedProduct.value) return
 
-  // 移除局部optionTotal计算
+  // 计算包含选项的最终价格
   const finalPrice = selectedProduct.value.price + optionTotal.value
 
   // 创建带选项的商品副本
   const productWithOptions = {
     ...selectedProduct.value,
-    finalPrice: selectedProduct.value.price + optionTotal,
+    finalPrice: finalPrice,
+    price: finalPrice, // 更新商品价格为包含选项的最终价格
     selectedOptions: Array.from(selectedOptions.value).map(([categoryId, opts]) => ({
       category: selectedProduct.value.option_categories.find(c => c.id === categoryId)?.name,
       options: opts.map(o => o.name)
@@ -316,22 +336,40 @@ const handleRemoveItem = (id) => {
   }
   
   // 从购物车移除
-  cartItems.value = cartItems.value.filter(item => item.id !== id)
+  // 如果id包含选项信息，则使用cartItemId进行匹配
+  if (typeof id === 'string' && id.includes('-')) {
+    // 这是一个带选项的商品ID
+    cartItems.value = cartItems.value.filter(item => item.cartItemId !== id)
+  } else {
+    // 这是一个普通商品ID
+    cartItems.value = cartItems.value.filter(item => item.id !== id)
+  }
 }
 
 // 修改计数器更新方法
 const handleCountChange = (id, delta) => {
-  const cartIndex = cartItems.value.findIndex(item => item.id === id)
+  // 查找购物车中的商品索引
+  let cartIndex = -1;
+  if (typeof id === 'string' && id.includes('-')) {
+    // 这是一个带选项的商品ID
+    cartIndex = cartItems.value.findIndex(item => item.cartItemId === id)
+  } else {
+    // 这是一个普通商品ID
+    cartIndex = cartItems.value.findIndex(item => item.id === id)
+  }
+  
   if (cartIndex > -1) {
     const newCount = cartItems.value[cartIndex].count + delta
     
-    // 同步到商品列表
-    const productIndex = products.value.findIndex(p => p.id === id)
-    if (productIndex > -1) {
-      products.value[productIndex].count = Math.max(0, newCount)
-      // 同步lastCount用于ProductList组件的逻辑处理
-      if (newCount === 0) {
-        products.value[productIndex].lastCount = 0
+    // 同步到商品列表（仅对普通商品）
+    if (typeof id !== 'string' || !id.includes('-')) {
+      const productIndex = products.value.findIndex(p => p.id === id)
+      if (productIndex > -1) {
+        products.value[productIndex].count = Math.max(0, newCount)
+        // 同步lastCount用于ProductList组件的逻辑处理
+        if (newCount === 0) {
+          products.value[productIndex].lastCount = 0
+        }
       }
     }
 
@@ -349,18 +387,28 @@ const handleCountUpdate = ({ id, count }) => {
   const parsedCount = parseInt(count)
   const validCount = isNaN(parsedCount) ? 0 : Math.max(0, parsedCount)
   
-  // 同步到商品列表
-  const productIndex = products.value.findIndex(p => p.id === id)
-  if (productIndex > -1) {
-    products.value[productIndex].count = validCount
-    // 同步lastCount用于ProductList组件的逻辑处理
-    if (validCount === 0) {
-      products.value[productIndex].lastCount = 0
+  // 同步到商品列表（仅对普通商品）
+  if (typeof id !== 'string' || !id.includes('-')) {
+    const productIndex = products.value.findIndex(p => p.id === id)
+    if (productIndex > -1) {
+      products.value[productIndex].count = validCount
+      // 同步lastCount用于ProductList组件的逻辑处理
+      if (validCount === 0) {
+        products.value[productIndex].lastCount = 0
+      }
     }
   }
 
   // 更新购物车
-  const cartIndex = cartItems.value.findIndex(item => item.id === id)
+  let cartIndex = -1;
+  if (typeof id === 'string' && id.includes('-')) {
+    // 这是一个带选项的商品ID
+    cartIndex = cartItems.value.findIndex(item => item.cartItemId === id)
+  } else {
+    // 这是一个普通商品ID
+    cartIndex = cartItems.value.findIndex(item => item.id === id)
+  }
+  
   if (cartIndex > -1) {
     cartItems.value[cartIndex].count = validCount
     // 当数量为0时，确保正确清理
@@ -368,6 +416,17 @@ const handleCountUpdate = ({ id, count }) => {
       handleRemoveItem(id)
     }
   }
+}
+
+const handleClearCart = () => {
+  // 清空所有商品的计数器
+  products.value.forEach(product => {
+    product.count = 0
+    product.lastCount = 0
+  })
+  
+  // 清空购物车
+  cartItems.value = []
 }
 // 在script setup部分添加
 const selectedOptions = ref(new Map())
@@ -428,7 +487,8 @@ const isOptionSelected = (category, option) => {
 .order-page {
   min-height: 100vh;
   background: #fff;
-  padding-bottom: 100px; /* 为底部Tabbar和购物车预留空间 */
+  overflow: hidden; /* 隐藏页面滚动条 */
+  position: relative; /* 确保定位上下文 */
 }
 
 .content-container {
@@ -436,7 +496,7 @@ const isOptionSelected = (category, option) => {
   /* 修改高度计算：减去顶部导航栏(46px)、底部Tabbar(50px)和购物车(50px)的高度 */
   height: calc(100vh - 146px);
   margin-top: 46px;
-  padding-bottom: 50px; /* 为购物车预留空间 */
+  overflow: hidden; /* 隐藏容器滚动条 */
 }
 
 .category-menu {
@@ -452,8 +512,6 @@ const isOptionSelected = (category, option) => {
   overflow-y: auto;
   height: 100%;
   padding: 12px;
-  /* 确保内容不会被底部遮挡 */
-  padding-bottom: 100px;
 }
 
 /* 确保购物车在Tabbar之上 */

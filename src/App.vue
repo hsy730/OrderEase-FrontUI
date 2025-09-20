@@ -18,5 +18,6 @@ const active = ref(0)
 .app-container {
   min-height: 100vh;
   background: #f7f8fa;
+  overflow: hidden; /* 防止页面滑动 */
 }
 </style>
