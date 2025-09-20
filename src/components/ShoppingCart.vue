@@ -16,7 +16,7 @@
       </div>
     </div>
     <!-- 新增购物车列表 -->
-    <div v-if="isCartListVisible" class="cart-list">
+    <div v-if="show" class="cart-list">
       <ul>
         <li v-for="item in props.cartItems" :key="item.id">
           <div class="cart-item">
@@ -25,6 +25,7 @@
               <van-stepper
                 :model-value="item.count"
                 :min="1"
+                :show-minus="item.count > 0"
                 theme="round"
                 button-size="22"
                 disable-input
@@ -60,11 +61,14 @@ const props = defineProps({
   cartItems: {
     type: Array,
     required: true
-  }
+  },
+  show: { // 接收父组件传递的show值
+    type: Boolean,
+    default: false
+  },
 })
 
-// 修改defineEmits部分
-defineEmits(['submit', 'increase', 'decrease', 'remove', 'update:count'])
+const emit = defineEmits(['submit', 'increase', 'decrease', 'remove', 'update:count', 'update:show'])
 
 const totalCount = computed(() => {
   return props.cartItems.reduce((sum, item) => sum + item.count, 0)
@@ -74,11 +78,9 @@ const totalAmount = computed(() => {
   return props.cartItems.reduce((sum, item) => sum + item.price * item.count, 0)
 })
 
-// 控制购物车列表显示隐藏
-const isCartListVisible = ref(false)
 
 const toggleCartList = () => {
-  isCartListVisible.value = !isCartListVisible.value
+  emit('update:show', !props.show)
 }
 </script>
 

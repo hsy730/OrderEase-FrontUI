@@ -24,6 +24,7 @@
         <product-list
           :products="products"
           @add-to-cart="handleAddToCart"
+          @show-cart-popup="handleShowCartPopup"
         />
       </div>
     </div>
@@ -31,6 +32,7 @@
     <!-- 底部购物车 -->
     <ShoppingCart
       :cart-items="cartItems"
+      v-model:show="showCartPopup"
       @submit="handleSubmitOrder"
       @increase="handleCountChange($event, 1)"
       @decrease="handleCountChange($event, -1)"
@@ -96,7 +98,7 @@ import ProductList from '@/components/ProductList.vue'
 import ShoppingCart from '@/components/ShoppingCart.vue'
 import { Popup } from 'vant'
 // 在顶部添加 Toast 方法引入
-import { showSuccessToast, showFailToast } from 'vant'
+import { showSuccessToast, showFailToast, showToast } from 'vant'
 const components = {
   VanPopup: Popup
 }
@@ -137,6 +139,7 @@ const products = ref([
 const activeCategory = ref(1)
 const cartItems = ref([])
 const error = ref('')
+const showCartPopup = ref(false)
 
 const handleCategorySelect = async (category) => {
   activeCategory.value = category.id
@@ -220,24 +223,46 @@ const addToCart = (product) => {
     } else {
       cartItems.value[existingIndex].count = Math.max(0, cartItems.value[existingIndex].count - product.count);
     }
+    
+    // 如果数量为0，从购物车移除
+    if (cartItems.value[existingIndex].count === 0) {
+      handleRemoveItem(product.id)
+    }
   } else { // 不存在则添加
     cartItems.value.push({
       ...product,
       basePrice: product.price,
       count: product.count || 1
     });
+    
+    // 同步到商品列表
+    const productIndex = products.value.findIndex(p => p.id === product.id)
+    if (productIndex > -1) {
+      products.value[productIndex].count = product.count || 1
+      products.value[productIndex].lastCount = product.count || 1
+    }
   }
-  // 删除商品列表的同步更新
 }
 
 // 选项弹窗交互逻辑
 const handleAddToCart = (product) => {
   if (product.option_categories?.length) {
-    selectedProduct.value = product
-    showOptionsPopup.value = true
+    // 显示商品选项popup，二次选择
+    if (product.action === 'add') {
+      selectedProduct.value = product
+      showOptionsPopup.value = true
+    } else {
+      // 定制商品（有选项参数）需要在购物车中移除，自动显示购物车popup
+      showCartPopup.value = true
+    }
   } else {
     addToCart({ ...product, count: 1 })
   }
+}
+
+const handleShowCartPopup = (product) => {
+  showCartPopup.value = true
+  showToast(`请在购物车中移除定制商品`)
 }
 
 const confirmSelection = () => {
@@ -304,6 +329,10 @@ const handleCountChange = (id, delta) => {
     const productIndex = products.value.findIndex(p => p.id === id)
     if (productIndex > -1) {
       products.value[productIndex].count = Math.max(0, newCount)
+      // 同步lastCount用于ProductList组件的逻辑处理
+      if (newCount === 0) {
+        products.value[productIndex].lastCount = 0
+      }
     }
 
     if (newCount > 0) {
@@ -324,12 +353,20 @@ const handleCountUpdate = ({ id, count }) => {
   const productIndex = products.value.findIndex(p => p.id === id)
   if (productIndex > -1) {
     products.value[productIndex].count = validCount
+    // 同步lastCount用于ProductList组件的逻辑处理
+    if (validCount === 0) {
+      products.value[productIndex].lastCount = 0
+    }
   }
 
   // 更新购物车
   const cartIndex = cartItems.value.findIndex(item => item.id === id)
   if (cartIndex > -1) {
     cartItems.value[cartIndex].count = validCount
+    // 当数量为0时，确保正确清理
+    if (validCount === 0) {
+      handleRemoveItem(id)
+    }
   }
 }
 // 在script setup部分添加
