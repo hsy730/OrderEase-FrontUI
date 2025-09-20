@@ -25,6 +25,7 @@
           :products="products"
           @add-to-cart="handleAddToCart"
           @show-cart-popup="handleShowCartPopup"
+          @show-product-options="handleShowProductOptions"
         />
       </div>
     </div>
@@ -71,20 +72,33 @@
       </div>
     </div>
     <div class="footer-actions">
-      <div class="price-display">
-        总计：¥{{ (selectedProduct?.price || 0) + optionTotal }}
+      <div class="price-quantity-container">
+        <div class="price-display">
+          总计：¥{{ (selectedProduct?.price || 0) + optionTotal }}
+        </div>
+        <!-- 计数器 -->
+        <div class="quantity-control" v-if="selectedProduct">
+          <!-- <span class="quantity-label">数量</span> -->
+          <van-stepper 
+            v-model="productQuantity" 
+            integer 
+            :min="1" 
+            :max="99" 
+            theme="round" 
+            button-size="22" 
+          />
+        </div>
       </div>
-      <div style="width: fit-content;">
-          <van-button 
-        type="primary"
-        block
-        round
-        @click="confirmSelection"
-      >
-        确认
-      </van-button>
+      <div class="button-container">
+        <van-button 
+          type="primary"
+          block
+          round
+          @click="confirmSelection"
+        >
+          确认
+        </van-button>
       </div>
-      
     </div>
   </van-popup>
 </template>
@@ -97,11 +111,12 @@ import { getShopDetail, getTagBoundProducts, createOrder } from '@/api'
 import CategoryList from '@/components/CategoryList.vue'
 import ProductList from '@/components/ProductList.vue'
 import ShoppingCart from '@/components/ShoppingCart.vue'
-import { Popup } from 'vant'
+import { Popup, Stepper } from 'vant'
 // 在顶部添加 Toast 方法引入
 import { showSuccessToast, showFailToast, showToast } from 'vant'
 const components = {
-  VanPopup: Popup
+  VanPopup: Popup,
+  VanStepper: Stepper
 }
 
 const router = useRouter()
@@ -109,6 +124,7 @@ const shopDetail = ref(null)
 
 const selectedProduct = ref(null)
 const showOptionsPopup = ref(false)
+const productQuantity = ref(1)
 
 onMounted(async () => {
   try {
@@ -227,6 +243,8 @@ const addToCart = (product) => {
 
   const productKey = getCartItemKey(product);
   
+  let cartItemIndex = -1;
+  
   // 查找具有相同选项的商品
   const existingIndex = cartItems.value.findIndex(item => 
     getCartItemKey(item) === productKey
@@ -243,6 +261,7 @@ const addToCart = (product) => {
     if (cartItems.value[existingIndex].count === 0) {
       handleRemoveItem(product.id)
     }
+    cartItemIndex = existingIndex;
   } else { // 不存在则添加
     // 为购物车商品添加唯一标识符
     const cartItem = {
@@ -253,12 +272,24 @@ const addToCart = (product) => {
     };
     
     cartItems.value.push(cartItem);
-    
-    // 同步到商品列表
-    const productIndex = products.value.findIndex(p => p.id === product.id)
-    if (productIndex > -1) {
-      products.value[productIndex].count = product.count || 1
-      products.value[productIndex].lastCount = product.count || 1
+    cartItemIndex = cartItems.value.length - 1;
+  }
+  
+  // 同步到商品列表
+  const productIndex = products.value.findIndex(p => p.id === product.id)
+  if (productIndex > -1) {
+    // 对于带选项的商品，我们需要计算该商品在购物车中的总数量
+    if (product.selectedOptions && product.selectedOptions.length > 0) {
+      const totalProductCount = cartItems.value
+        .filter(item => item.id === product.id)
+        .reduce((sum, item) => sum + item.count, 0);
+      
+      products.value[productIndex].count = totalProductCount;
+      products.value[productIndex].lastCount = totalProductCount;
+    } else {
+      // 对于不带选项的商品，直接使用购物车中该商品的数量
+      products.value[productIndex].count = cartItems.value[cartItemIndex].count;
+      products.value[productIndex].lastCount = cartItems.value[cartItemIndex].count;
     }
   }
 }
@@ -284,6 +315,11 @@ const handleShowCartPopup = (product) => {
   showToast(`请在购物车中移除定制商品`)
 }
 
+const handleShowProductOptions = (product) => {
+  selectedProduct.value = product
+  showOptionsPopup.value = true
+}
+
 const confirmSelection = () => {
   if (!selectedProduct.value) return
 
@@ -299,11 +335,12 @@ const confirmSelection = () => {
       category: selectedProduct.value.option_categories.find(c => c.id === categoryId)?.name,
       options: opts.map(o => o.name)
     })),
-    count: 1
+    count: productQuantity.value
   }
 
   addToCart(productWithOptions)
   showOptionsPopup.value = false
+  // 重置数量为1
 }
 
 // 添加弹窗关闭处理
@@ -532,6 +569,9 @@ const isOptionSelected = (category, option) => {
   border-top: 1px solid #ebedf0;
   z-index: 1;
   width: inherit;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
 }
 
 .confirm-btn {
@@ -542,18 +582,30 @@ const isOptionSelected = (category, option) => {
   border-radius: 8px;
 }
 
- .footer-actions {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 12px 16px;
-      background: white;
-      border-top: 1px solid #ebedf0;
-    }
-    
-    .price-display {
-      font-size: 16px;
-      color: #ee0a24;
-      font-weight: 500;
-    }
+.price-display {
+  font-size: 16px;
+  color: #ee0a24;
+  font-weight: 500;
+}
+
+.quantity-control {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.quantity-label {
+  font-size: 14px;
+  color: #333;
+}
+
+.price-quantity-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.button-container {
+  width: 100%;
+}
 </style>

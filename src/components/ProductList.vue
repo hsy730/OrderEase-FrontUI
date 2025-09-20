@@ -54,7 +54,7 @@ defineProps({
   }
 })
 
-const emit = defineEmits(['add-to-cart', 'show-cart-popup'])
+const emit = defineEmits(['add-to-cart', 'show-cart-popup', 'show-product-options'])
 
 // 修改事件处理函数
 const handleCountChange = (product, newVal) => {
@@ -95,6 +95,13 @@ const beforeCountChange = (product, newVal) => {
   // 阻止带选项商品减少操作并显示购物车
   if (product.option_categories?.length && newVal < lastValidCount) {
     emit('show-cart-popup', product)
+    return false
+  }
+  
+  // 阻止带选项商品增加操作并显示商品选项弹窗
+  if (product.option_categories?.length && newVal > lastValidCount) {
+    product.action = 'add'
+    emit('show-product-options', product)
     return false
   }
   
