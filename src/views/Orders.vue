@@ -1,11 +1,5 @@
 <template>
     <div class="orders-page">
-      <van-nav-bar
-        title="中关村店"
-        fixed
-        placeholder
-      />
-      
       <div class="orders-list p-4">
         <van-card
           v-for="order in orders"

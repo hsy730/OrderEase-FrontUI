@@ -7,17 +7,21 @@ const api = axios.create({
 
 // 请求拦截器，自动添加shopId参数
 api.interceptors.request.use(config => {
-  // 从localStorage中获取shopId
+  // 获取本地存储参数
   const shop_id = localStorage.getItem('shop_id');
-  if (shop_id) {
-    // 如果是GET请求，添加到params
-    if (config.method === 'get') {
-      config.params = {...config.params, shop_id};
-    } 
-    // 如果是其他请求，添加到data
-    else {
-      config.data = {...config.data, shop_id};
-    }
+  const user_id = localStorage.getItem('user_id');
+  
+  const addParams = (target) => {
+    if (shop_id) target.shop_id = Number(shop_id);
+    if (user_id) target.user_id = user_id;
+  };
+
+  if (config.method === 'get') {
+    config.params = {...config.params};
+    addParams(config.params);
+  } else {
+    config.data = {...config.data};
+    addParams(config.data);
   }
   return config;
 }, error => {

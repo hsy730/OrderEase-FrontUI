@@ -1,14 +1,5 @@
 <template>
   <div class="order-page">
-    <!-- 顶部标题栏 -->
-    <van-nav-bar
-      :title="error ? '店铺加载失败' : (shopDetail?.name || '加载中...')"
-      left-arrow
-      @click-left="onClickLeft"
-      fixed
-      placeholder
-    />
-
     <div class="content-container">
       <!-- 左侧分类菜单 -->
       <div class="category-menu">
@@ -212,7 +203,7 @@ const handleSubmitOrder = async () => {
     // 发送单个订单创建请求
     const response = await createOrder(orderData)
     
-    if (response.data.code === 200) {
+    if (response.status === 200) {
       showSuccessToast({ message: '订单创建成功', position: 'top' })
       cartItems.value = []
       router.push('/orders')

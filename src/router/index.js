@@ -28,13 +28,17 @@ const router = createRouter({
 
 // 全局前置守卫，用于解析URL中的shopId参数
 router.beforeEach((to, from, next) => {
-  // 检查URL中是否有shopId参数
-  const shopId = to.query.shop_id
+  // 检查URL参数
+  const shopId = to.query.shop_id;
+  const userId = to.query.user_id;
+  
   if (shopId) {
-    // 将shopId存储到localStorage
-    localStorage.setItem('shop_id', shopId)
+    localStorage.setItem('shop_id', shopId);
   }
-  next()
-})
+  if (userId) {
+    localStorage.setItem('user_id', userId);
+  }
+  next();
+});
 
 export default router

@@ -1,11 +1,5 @@
 <template>
   <div class="mine-page">
-    <van-nav-bar
-      title="中关村店"
-      fixed
-      placeholder
-    />
-    
     <!-- 用户信息 -->
     <div class="user-info bg-white p-4 mt-2 flex items-center">
       <van-image
@@ -41,4 +35,4 @@
   background: #f7f8fa;
   padding-bottom: 50px;
 }
-</style> 
+</style>
