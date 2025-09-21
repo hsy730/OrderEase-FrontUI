@@ -46,13 +46,15 @@
   <van-popup 
     v-model:show="showOptionsPopup"
     position="bottom"
-    :style="{ height: '60%' }"
+    style="height: 60%;"
+    closeable
   >
     <div class="popup-content">
-      <div v-if="selectedProduct" v-for="category in selectedProduct.option_categories || []" :key="category.id">
+      <h4 style="text-align: left; font-size: 20px; border-bottom: 1px solid #eee; padding-bottom: 10px;">{{ selectedProduct.name }}</h4>
+      <div style="margin-top: 10px;" v-if="selectedProduct" v-for="category in selectedProduct.option_categories || []" :key="category.id">
        <h4>{{ category.name }}<span v-if="category.is_required" style="color: red">*</span></h4>
-        <van-cell-group>
-          <van-cell>
+        <van-cell-group :border="false" style="padding-bottom: 0px;">
+          <van-cell :border="false" style="padding: 0;">
             <template #right-icon>
               <div class="flex gap-2 flex-wrap">
                 <div 
@@ -542,15 +544,15 @@ const isOptionSelected = (category, option) => {
 .option-item {
   white-space: nowrap;
   padding: 8px 12px;
-  border: 1px solid #eee;
-  border-radius: 16px;
+  background-color: #f5f5f5;
+  border-radius: 6px;
   margin: 4px;
   transition: all 0.2s;
 }
 
 .selected {
-  border-color: #07c160;
-  color: #07c160;
+  border-color: #1989fa;
+  color: #1989fa;
   background-color: #f0faff;
 }
 .order-page {

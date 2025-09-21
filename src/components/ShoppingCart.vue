@@ -124,7 +124,7 @@ const formatPrice = (price) => {
 .cart-bar {
   height: 50px;
   background: white;
-  border-top: 1px solid #eee;
+  /* border-top: 1px solid #eee; */
   position: fixed;
   bottom: 0;
   left: 0;
@@ -180,7 +180,7 @@ const formatPrice = (price) => {
   left: 0;
   right: 0;
   background-color: white;
-  border: 1px solid #eee;
+  /* border: 1px solid #eee; */
   border-top-left-radius: 12px;
   border-top-right-radius: 12px;
   /* padding: 10px; */
@@ -188,7 +188,7 @@ const formatPrice = (price) => {
   height: fit-content; /* 内容自适应高度 */
   min-height: 100px; /* 最小高度 */
   overflow-y: auto;
-  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+  /* box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1); */
   z-index: 1001; /* 确保购物车列表在遮罩上方 */
 }
 
@@ -212,7 +212,7 @@ const formatPrice = (price) => {
   align-items: center;
   cursor: pointer;
   padding: 4px 8px;
-  border-radius: 4px;
+  /* border-radius: 4px; */
   transition: all 0.2s;
 }
 
@@ -292,7 +292,7 @@ const formatPrice = (price) => {
 .count-input {
   width: 40px;
   text-align: center;
-  border: 1px solid #eee;
+  /* border: 1px solid #eee; */
   padding: 2px;
 }
 .stepper-container {
