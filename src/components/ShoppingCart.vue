@@ -60,6 +60,7 @@
     <div class="submit-btn">
       <van-button 
         block
+        round
         :disabled="totalCount === 0"
         :color="totalCount === 0 ? '#7D7E80' : '#1989fa'"
         @click="$emit('submit')"
@@ -104,13 +105,8 @@ const toggleCartList = () => {
 }
 
 const handleCountChange = (item, count) => {
-  if (count === 0) {
-    // 当数量为0时，发出删除事件
-    emit('remove', item.cartItemId || item.id)
-  } else {
-    // 否则更新数量
-    emit('update:count', { id: item.cartItemId || item.id, count: count })
-  }
+  // 总是发送更新事件，包括数量为0的情况
+  emit('update:count', item.cartItemId || item.id, count)
 }
 
 const formatPrice = (price) => {

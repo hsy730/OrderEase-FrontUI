@@ -74,7 +74,7 @@
     <div class="footer-actions">
       <div class="price-quantity-container">
         <div class="price-display">
-          总计：¥{{ (selectedProduct?.price || 0) + optionTotal }}
+          ¥{{ (selectedProduct?.price || 0) + optionTotal }}
         </div>
         <!-- 计数器 -->
         <div class="quantity-control" v-if="selectedProduct">
@@ -92,11 +92,10 @@
       <div class="button-container">
         <van-button 
           type="primary"
-          block
           round
           @click="confirmSelection"
         >
-          确认
+          加入购物车
         </van-button>
       </div>
     </div>
@@ -341,12 +340,17 @@ const confirmSelection = () => {
   addToCart(productWithOptions)
   showOptionsPopup.value = false
   // 重置数量为1
+  productQuantity.value = 1
+  // 清除选项状态
+  selectedOptions.value = new Map()
 }
 
 // 添加弹窗关闭处理
 const handlePopupClose = () => {
   showOptionsPopup.value = false
   selectedProduct.value = null
+  // 清除选项状态
+  selectedOptions.value = new Map()
 }
 // 选项选择处理器
 const handleOptionSelect = (category, option) => {
@@ -366,12 +370,6 @@ const calculateFinalPrice = () => {
 }
 
 const handleRemoveItem = (id) => {
-  // 清空对应商品的计数器
-  const productIndex = products.value.findIndex(p => p.id === id)
-  if (productIndex > -1) {
-    products.value[productIndex].count = 0
-  }
-  
   // 从购物车移除
   // 如果id包含选项信息，则使用cartItemId进行匹配
   if (typeof id === 'string' && id.includes('-')) {
@@ -381,32 +379,81 @@ const handleRemoveItem = (id) => {
     // 这是一个普通商品ID
     cartItems.value = cartItems.value.filter(item => item.id !== id)
   }
+  
+  // 重新计算商品列表中的计数器
+  recalculateProductCounts()
 }
 
 // 修改计数器更新方法
-const handleCountChange = (id, delta) => {
+const handleCountChange = (id, count) => {
   // 查找购物车中的商品索引
   let cartIndex = -1;
+  let productId = id;
   if (typeof id === 'string' && id.includes('-')) {
     // 这是一个带选项的商品ID
     cartIndex = cartItems.value.findIndex(item => item.cartItemId === id)
+    // 获取原始商品ID
+    if (cartIndex > -1) {
+      productId = cartItems.value[cartIndex].id;
+    }
   } else {
     // 这是一个普通商品ID
     cartIndex = cartItems.value.findIndex(item => item.id === id)
   }
   
   if (cartIndex > -1) {
-    const newCount = cartItems.value[cartIndex].count + delta
+    // 更新购物车中的数量
+    cartItems.value[cartIndex].count = count
     
-    // 同步到商品列表（仅对普通商品）
-    if (typeof id !== 'string' || !id.includes('-')) {
-      const productIndex = products.value.findIndex(p => p.id === id)
-      if (productIndex > -1) {
+    // 重新计算商品列表中的计数器
+    recalculateProductCounts()
+    
+    // 如果数量为0，从购物车中移除
+    if (count === 0) {
+      handleRemoveItem(id)
+    }
+  }
+}
+
+// 修改直接更新计数器的方法
+const handleCountUpdate = (id, newCount) => {
+  // 查找购物车中的商品索引
+  let cartIndex = -1;
+  let productId = id;
+  if (typeof id === 'string' && id.includes('-')) {
+    // 这是一个带选项的商品ID
+    cartIndex = cartItems.value.findIndex(item => item.cartItemId === id)
+    // 获取原始商品ID
+    if (cartIndex > -1) {
+      productId = cartItems.value[cartIndex].id;
+    }
+  } else {
+    // 这是一个普通商品ID
+    cartIndex = cartItems.value.findIndex(item => item.id === id)
+  }
+  
+  if (cartIndex > -1) {
+    // 同步到商品列表
+    const productIndex = products.value.findIndex(p => p.id === productId)
+    if (productIndex > -1) {
+      if (typeof id !== 'string' || !id.includes('-')) {
+        // 普通商品直接同步数量
         products.value[productIndex].count = Math.max(0, newCount)
-        // 同步lastCount用于ProductList组件的逻辑处理
-        if (newCount === 0) {
-          products.value[productIndex].lastCount = 0
-        }
+        products.value[productIndex].lastCount = Math.max(0, newCount)
+      } else {
+        // 带选项的商品需要计算该商品在购物车中的总数量
+        const totalProductCount = cartItems.value
+          .filter(item => item.id === productId)
+          .reduce((sum, item) => {
+            // 如果是正在修改的商品，使用新数量；否则使用原数量
+            if (item.cartItemId === id) {
+              return sum + Math.max(0, newCount);
+            }
+            return sum + item.count;
+          }, 0);
+        
+        products.value[productIndex].count = totalProductCount;
+        products.value[productIndex].lastCount = totalProductCount;
       }
     }
 
@@ -419,40 +466,22 @@ const handleCountChange = (id, delta) => {
   }
 }
 
-// 修改直接更新计数器的方法
-const handleCountUpdate = ({ id, count }) => {
-  const parsedCount = parseInt(count)
-  const validCount = isNaN(parsedCount) ? 0 : Math.max(0, parsedCount)
+// 重新计算商品列表中的计数器
+const recalculateProductCounts = () => {
+  // 重置所有商品的计数器
+  products.value.forEach(product => {
+    product.count = 0
+    product.lastCount = 0
+  })
   
-  // 同步到商品列表（仅对普通商品）
-  if (typeof id !== 'string' || !id.includes('-')) {
-    const productIndex = products.value.findIndex(p => p.id === id)
+  // 重新计算每个商品的总数量
+  cartItems.value.forEach(item => {
+    const productIndex = products.value.findIndex(p => p.id === item.id)
     if (productIndex > -1) {
-      products.value[productIndex].count = validCount
-      // 同步lastCount用于ProductList组件的逻辑处理
-      if (validCount === 0) {
-        products.value[productIndex].lastCount = 0
-      }
+      products.value[productIndex].count += item.count
+      products.value[productIndex].lastCount += item.count
     }
-  }
-
-  // 更新购物车
-  let cartIndex = -1;
-  if (typeof id === 'string' && id.includes('-')) {
-    // 这是一个带选项的商品ID
-    cartIndex = cartItems.value.findIndex(item => item.cartItemId === id)
-  } else {
-    // 这是一个普通商品ID
-    cartIndex = cartItems.value.findIndex(item => item.id === id)
-  }
-  
-  if (cartIndex > -1) {
-    cartItems.value[cartIndex].count = validCount
-    // 当数量为0时，确保正确清理
-    if (validCount === 0) {
-      handleRemoveItem(id)
-    }
-  }
+  })
 }
 
 const handleClearCart = () => {
@@ -464,6 +493,9 @@ const handleClearCart = () => {
   
   // 清空购物车
   cartItems.value = []
+  
+  // 重置购物车弹窗状态
+  showCartPopup.value = false
 }
 // 在script setup部分添加
 const selectedOptions = ref(new Map())
@@ -584,8 +616,8 @@ const isOptionSelected = (category, option) => {
 
 .price-display {
   font-size: 16px;
-  color: #ee0a24;
-  font-weight: 500;
+  color: #000000;
+  font-weight: bold;
 }
 
 .quantity-control {
@@ -606,6 +638,8 @@ const isOptionSelected = (category, option) => {
 }
 
 .button-container {
+  display: flex;
+  justify-content: flex-end;
   width: 100%;
 }
 </style>
