@@ -74,3 +74,7 @@ export const  createOrder = (data) => {
 export const getShopDetail = () => {
   return api.get(`/shop/detail`);
 }
+// 订单详情接口
+export const getOrderDetail = (orderId) => {
+  return api.get(`/order/detail?id=${orderId}`);
+}

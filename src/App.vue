@@ -79,7 +79,22 @@ const showBackButton = computed(() => {
 <style>
 .app-container {
   min-height: 100vh;
+  height: 100vh; /* 固定高度为视口高度 */
   background: #f7f8fa;
-  overflow: hidden; /* 防止页面滑动 */
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+/* 路由视图容器 */
+.app-container > :not(.van-tabbar) {
+  flex: 1;
+  overflow-y: auto;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.app-container > :not(.van-tabbar)::-webkit-scrollbar {
+  display: none;
 }
 </style>

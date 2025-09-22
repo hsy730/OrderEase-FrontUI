@@ -267,9 +267,9 @@ const addToCart = (product) => {
     cartItemIndex = cartItems.value.length - 1;
   }
   
-  // 同步到商品列表
+  // 同步到商品列表（仅当购物车项仍然存在时）
   const productIndex = products.value.findIndex(p => p.id === product.id)
-  if (productIndex > -1) {
+  if (productIndex > -1 && cartItemIndex < cartItems.value.length) {
     // 对于带选项的商品，我们需要计算该商品在购物车中的总数量
     if (product.selectedOptions && product.selectedOptions.length > 0) {
       const totalProductCount = cartItems.value
@@ -278,10 +278,14 @@ const addToCart = (product) => {
       
       products.value[productIndex].count = totalProductCount;
       products.value[productIndex].lastCount = totalProductCount;
-    } else {
+    } else if (cartItemIndex >= 0) {
       // 对于不带选项的商品，直接使用购物车中该商品的数量
-      products.value[productIndex].count = cartItems.value[cartItemIndex].count;
-      products.value[productIndex].lastCount = cartItems.value[cartItemIndex].count;
+      // 确保购物车项仍然存在再访问其count属性
+      const cartItem = cartItems.value[cartItemIndex];
+      if (cartItem) {
+        products.value[productIndex].count = cartItem.count;
+        products.value[productIndex].lastCount = cartItem.count;
+      }
     }
   }
 }

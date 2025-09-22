@@ -16,39 +16,81 @@
             <div class="text-sm text-gray-500">
               共{{ order.items.length }}件商品
             </div>
+            <div class="order-actions" style="margin-top: 10px;">
+              <van-button 
+                size="small" 
+                type="text"
+                style="color: #1989fa; background: transparent; border: none; padding: 0; --van-button-active-background: transparent"
+                @click="viewOrderDetail(order)">详情</van-button>
+            </div>
           </template>
         </van-card>
       </div>
+      
+      <!-- 订单详情弹窗 -->
+      <van-popup v-model:show="showDetailPopup" position="bottom" round style="height: 80%; padding: 20px;">
+        <div class="order-detail">
+          <h2 style="text-align: center; margin-bottom: 20px;">订单详情</h2>
+          <div v-if="selectedOrder" class="order-info">
+            <van-cell-group>
+              <van-cell title="订单号" :value="selectedOrder.id" />
+              <van-cell title="下单时间" :value="formatDate(selectedOrder.create_time)" />
+              <van-cell title="订单状态">
+                <template #value>
+                  <van-tag :type="getStatusType(selectedOrder.status)">{{ selectedOrder.status }}</van-tag>
+                </template>
+              </van-cell>
+              <van-cell title="总计" :value="`¥${selectedOrder.total_price}`" />
+            </van-cell-group>
+            
+            <h3 style="margin: 20px 0 10px;">商品列表</h3>
+            <van-card
+              v-for="(item, index) in selectedOrder.items"
+              :key="index"
+              :price="item.price"
+              :title="item.name"
+              :thumb="getImageUrl(item.image)"
+            >
+              <template #num>
+                <span>数量: {{ item.quantity }}</span>
+              </template>
+            </van-card>
+          </div>
+        </div>
+      </van-popup>
     </div>
   </template>
   
   <script setup>
   import { ref, onMounted } from 'vue'
-  import { getOrders } from '@/api'
+  import { getOrders, getOrderDetail } from '@/api'
   import { getImageUrl } from '@/utils/image'
+  import { showLoadingToast, showFailToast } from 'vant'
   
   const orders = ref([])
+  const showDetailPopup = ref(false)
+  const selectedOrder = ref(null)
   
   onMounted(async () => {
     try {
       const response = await getOrders({
-        user_id: localStorage.getItem('userId'), // 假设用户ID存储在本地存储
+        user_id: localStorage.getItem('user_id'), // 使用user_id而不是userId
         page: 1,
-        page_size: 50
+        pageSize: 50
       })
       
       if (response.data && response.data.code === 200) {
         orders.value = response.data.data.map(order => ({
           id: order.id,
           orderNo: order.id, // 使用接口返回的订单ID
-          createTime: new Date().toLocaleString(), // 需要根据接口实际字段调整
+          createTime: formatDate(order.create_time), // 格式化创建时间
           status: order.status,
-          totalAmount: order.total_price,
-          items: [{
+          totalAmount: order.total_price, // 使用total_price而不是totalAmount
+          items: order.items || [{
             name: order.product_name,
             price: order.total_price,
-            quantity: 1, // 需要根据接口实际数据调整
-            image: order.image_url || '' // 添加图片URL字段
+            quantity: 1,
+            image: order.image_url || ''
           }]
         }))
       }
@@ -66,11 +108,43 @@
     }
     return typeMap[status] || 'default'
   }
+  
+  // 格式化日期
+  const formatDate = (dateString) => {
+    if (!dateString) return ''
+    const date = new Date(dateString)
+    return date.toLocaleString('zh-CN')
+  }
+  
+  // 查看订单详情
+  const viewOrderDetail = async (order) => {
+    // 显示加载提示
+    const loadingToast = showLoadingToast('加载中...')
+    
+    try {
+      // 调用API获取订单详情
+      const response = await getOrderDetail(order.id)
+      
+      if (response.data && response.status === 200) {
+        // 设置选中的订单详情
+        selectedOrder.value = response.data
+        showDetailPopup.value = true
+      } else {
+        showFailToast('获取订单详情失败')
+      }
+    } catch (error) {
+      console.error('获取订单详情失败:', error)
+      showFailToast('获取订单详情失败')
+    } finally {
+      // 关闭加载提示
+      loadingToast.close()
+    }
+  }
   </script>
   
   <style scoped>
   .orders-page {
-    min-height: 100vh;
+    min-height: calc(100vh - 50px);
     background: #f7f8fa;
     padding-bottom: 50px;
   }
@@ -79,5 +153,14 @@
     background: #fff;
     margin-bottom: 12px;
     border-radius: 8px;
+  }
+  
+  .order-detail {
+    height: 100%;
+    overflow-y: auto;
+  }
+  
+  .order-info {
+    margin-top: 20px;
   }
   </style>
