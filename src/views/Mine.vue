@@ -31,7 +31,7 @@
 
 <style scoped>
 .mine-page {
-  min-height: 100vh;
+  min-height: calc(100vh - 50px);
   background: #f7f8fa;
   padding-bottom: 50px;
 }

@@ -194,10 +194,39 @@ const handleSubmitOrder = async () => {
     // 构造符合接口要求的订单数据
     const orderData = {
       user_id: parseInt(localStorage.getItem('userId')),
-      items: cartItems.value.map(item => ({
-        product_id: item.id,
-        quantity: item.count
-      }))
+      items: cartItems.value.map(item => {
+        const orderItem = {
+          product_id: item.id,
+          quantity: item.count,
+          price: item.price
+        }
+        
+        // 如果商品有选项，添加options字段
+        if (item.selectedOptions && item.selectedOptions.length > 0 && item.option_categories) {
+          orderItem.options = []
+          
+          // 遍历已选择的选项
+          item.selectedOptions.forEach(selected => {
+            // 查找对应的选项分类
+            const category = item.option_categories.find(cat => cat.name === selected.category)
+            if (category) {
+              // 遍历该分类下已选择的选项
+              selected.options.forEach(optionName => {
+                // 查找选项ID
+                const optionDetail = category.options.find(opt => opt.name === optionName)
+                if (optionDetail) {
+                  orderItem.options.push({
+                    category_id: category.id,
+                    option_id: optionDetail.id
+                  })
+                }
+              })
+            }
+          })
+        }
+        
+        return orderItem
+      })
     }
 
     // 发送单个订单创建请求
@@ -340,30 +369,6 @@ const confirmSelection = () => {
   productQuantity.value = 1
   // 清除选项状态
   selectedOptions.value = new Map()
-}
-
-// 添加弹窗关闭处理
-const handlePopupClose = () => {
-  showOptionsPopup.value = false
-  selectedProduct.value = null
-  // 清除选项状态
-  selectedOptions.value = new Map()
-}
-// 选项选择处理器
-const handleOptionSelect = (category, option) => {
-  if (category.is_multiple) {
-    // 处理多选逻辑...
-  } else {
-    selectedOptions.value[category.id] = option
-  }
-}
-
-// 最终价格计算
-const calculateFinalPrice = () => {
-  return selectedProduct.value.price + 
-    Object.values(selectedOptions.value).reduce((total, option) => {
-      return total + (option?.price_adjustment || 0)
-    }, 0)
 }
 
 const handleRemoveItem = (id) => {

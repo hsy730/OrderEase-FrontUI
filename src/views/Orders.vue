@@ -47,12 +47,22 @@
             <van-card
               v-for="(item, index) in selectedOrder.items"
               :key="index"
-              :price="item.price"
-              :title="item.name"
-              :thumb="getImageUrl(item.image)"
+              :price="item.total_price"
+              :title="item.name || item.product_name"
+              :thumb="getImageUrl(item.image || item.product_image_url)"
             >
               <template #num>
                 <span>数量: {{ item.quantity }}</span>
+              </template>
+              <template #desc>
+                <div v-if="item.options && item.options.length > 0">
+                  <!-- 按category_id分组选项 -->
+                  <div v-for="(options, categoryId) in groupOptionsByCategory(item.options)" :key="categoryId" style="font-size: 12px; color: #666;">
+                    {{ options[0].category_name }}: {{ options.map(opt => opt.option_name).join(', ') }}
+                    <!-- 显示该分类下所有选项的价格调整总和 -->
+                    <!-- <span v-if="getCategoryPriceAdjustment(options) > 0" style="color: #ee0a24;">(+¥{{ getCategoryPriceAdjustment(options) }})</span> -->
+                  </div>
+                </div>
               </template>
             </van-card>
           </div>
@@ -139,6 +149,23 @@
       // 关闭加载提示
       loadingToast.close()
     }
+  }
+  
+  // 按分类ID对选项进行分组
+  const groupOptionsByCategory = (options) => {
+    const grouped = {}
+    options.forEach(option => {
+      if (!grouped[option.category_id]) {
+        grouped[option.category_id] = []
+      }
+      grouped[option.category_id].push(option)
+    })
+    return grouped
+  }
+  
+  // 计算同一分类下所有选项的价格调整总和
+  const getCategoryPriceAdjustment = (options) => {
+    return options.reduce((sum, option) => sum + (option.price_adjustment || 0), 0)
   }
   </script>
   
