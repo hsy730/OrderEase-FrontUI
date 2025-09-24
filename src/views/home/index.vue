@@ -564,8 +564,8 @@ const isOptionSelected = (category, option) => {
 
 .content-container {
   display: flex;
-  /* 修改高度计算：减去顶部导航栏(46px)、底部Tabbar(50px)和购物车(50px)的高度 */
-  height: calc(100vh - 146px);
+  /* 修改高度计算：减去顶部导航栏(46px)、底部Tabbar(50px)的高度 */
+  height: calc(100vh - 96px);
   margin-top: 46px;
   overflow: hidden; /* 隐藏容器滚动条 */
 }

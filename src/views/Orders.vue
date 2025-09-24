@@ -1,6 +1,6 @@
 <template>
     <div class="orders-page">
-      <div class="orders-list p-4">
+      <div class="orders-list p-4" ref="ordersListRef" @scroll="handleScroll">
         <van-card
           v-for="order in orders"
           :key="order.id"
@@ -13,9 +13,9 @@
             <van-tag :type="getStatusType(order.status)">{{ order.status }}</van-tag>
           </template>
           <template #footer>
-            <div class="text-sm text-gray-500">
+            <!-- <div class="text-sm text-gray-500">
               共{{ order.items.length }}件商品
-            </div>
+            </div> -->
             <div class="order-actions" style="margin-top: 10px;">
               <van-button 
                 size="small" 
@@ -25,6 +25,16 @@
             </div>
           </template>
         </van-card>
+        
+        <!-- 加载更多提示 -->
+        <div v-if="loadingMore" class="loading-more">
+          <van-loading size="24px">加载中...</van-loading>
+        </div>
+        
+        <!-- 没有更多数据提示 -->
+        <div v-if="noMoreData" class="no-more-data">
+          没有更多订单了
+        </div>
       </div>
       
       <!-- 订单详情弹窗 -->
@@ -34,7 +44,7 @@
           <div v-if="selectedOrder" class="order-info">
             <van-cell-group>
               <van-cell title="订单号" :value="selectedOrder.id" />
-              <van-cell title="下单时间" :value="formatDate(selectedOrder.create_time)" />
+              <van-cell title="下单时间" :value="formatDate(selectedOrder.created_at)" />
               <van-cell title="订单状态">
                 <template #value>
                   <van-tag :type="getStatusType(selectedOrder.status)">{{ selectedOrder.status }}</van-tag>
@@ -80,22 +90,34 @@
   const orders = ref([])
   const showDetailPopup = ref(false)
   const selectedOrder = ref(null)
+  const ordersListRef = ref(null)
   
-  onMounted(async () => {
+  // 分页相关状态
+  const currentPage = ref(1)
+  const pageSize = ref(10)
+  const loadingMore = ref(false)
+  const noMoreData = ref(false)
+  const isLoading = ref(false)
+  
+  // 初始化加载订单
+  const loadOrders = async (page = 1) => {
+    if (isLoading.value) return
+    isLoading.value = true
+    
     try {
       const response = await getOrders({
-        user_id: localStorage.getItem('user_id'), // 使用user_id而不是userId
-        page: 1,
-        pageSize: 50
+        user_id: localStorage.getItem('user_id'),
+        page: page,
+        pageSize: pageSize.value
       })
       
       if (response.data && response.data.code === 200) {
-        orders.value = response.data.data.map(order => ({
+        const newOrders = response.data.data.map(order => ({
           id: order.id,
-          orderNo: order.id, // 使用接口返回的订单ID
-          createTime: formatDate(order.create_time), // 格式化创建时间
+          orderNo: order.id,
+          createTime: formatDate(order.created_at),
           status: order.status,
-          totalAmount: order.total_price, // 使用total_price而不是totalAmount
+          totalAmount: order.total_price,
           items: order.items || [{
             name: order.product_name,
             price: order.total_price,
@@ -103,12 +125,58 @@
             image: order.image_url || ''
           }]
         }))
+        
+        // 如果是第一页，替换数据；否则追加数据
+        if (page === 1) {
+          orders.value = newOrders
+        } else {
+          orders.value = [...orders.value, ...newOrders]
+        }
+        
+        // 检查是否还有更多数据
+        if (newOrders.length < pageSize.value) {
+          noMoreData.value = true
+        }
+        
+        // 更新当前页码
+        currentPage.value = page
       }
     } catch (error) {
       console.error('获取订单失败:', error)
-      orders.value = []
+      if (page === 1) {
+        orders.value = []
+      }
+      showFailToast('获取订单失败')
+    } finally {
+      isLoading.value = false
+      loadingMore.value = false
     }
+  }
+  
+  // 首次加载
+  onMounted(async () => {
+    await loadOrders(1)
   })
+  
+  // 滚动事件处理
+  const handleScroll = () => {
+    if (!ordersListRef.value || loadingMore.value || noMoreData.value) return
+    
+    const { scrollTop, scrollHeight, clientHeight } = ordersListRef.value
+    // 当滚动到底部时加载更多
+    if (scrollTop + clientHeight >= scrollHeight - 10) {
+      loadMore()
+    }
+  }
+  
+  // 加载更多订单
+  const loadMore = () => {
+    if (loadingMore.value || noMoreData.value) return
+    
+    loadingMore.value = true
+    const nextPage = currentPage.value + 1
+    loadOrders(nextPage)
+  }
   
   const getStatusType = (status) => {
     const typeMap = {
@@ -189,5 +257,16 @@
   
   .order-info {
     margin-top: 20px;
+  }
+  
+  .loading-more, .no-more-data {
+    text-align: center;
+    padding: 16px;
+    color: #999;
+  }
+  
+  .orders-list {
+    height: calc(100vh - 50px);
+    overflow-y: auto;
   }
   </style>
