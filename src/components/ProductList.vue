@@ -1,10 +1,16 @@
 <template>
   <div class="product-list">
     <div v-for="product in products" :key="product.id" class="product-item">
-      <SmartImage
-        :src="getImageUrl(product.image)"
-        :style="{ width: '60px', height: '60px', borderRadius: '8px' }"
-      />
+      <div v-if="product.image" class="product-image-container">
+        <SmartImage
+          :src="getImageUrl(product.image)"
+          :style="{ width: '60px', height: '60px', borderRadius: '8px' }"
+        />
+      </div>
+      <div v-else class="image-placeholder">
+        <el-icon><Picture /></el-icon>
+      </div>
+     
       <div class="product-info">
         <div class="product-name">{{ product.name }}</div>
         <div class="product-details">
@@ -45,7 +51,7 @@
 <script setup>
 import { getImageUrl } from '@/utils/image';
 import SmartImage from './SmartImage.vue';
-
+import { Picture } from '@element-plus/icons-vue';
 defineProps({
   products: {
     type: Array,
@@ -152,5 +158,17 @@ const beforeCountChange = (product, newVal) => {
 .stepper-container {
   display: flex;
   justify-content: flex-end;
+}
+
+.image-placeholder {
+  width: 60px;
+  height: 60px;
+  background-color: #f5f5f5;
+  border: 1px dashed #d9d9d9;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #999;
 }
 </style>

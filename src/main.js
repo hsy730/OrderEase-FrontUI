@@ -25,6 +25,11 @@ import {
 } from 'vant'
 import 'vant/lib/index.css'
 
+// 引入Element Plus
+import ElementPlus from 'element-plus'
+import 'element-plus/dist/index.css'
+import * as ElementPlusIconsVue from '@element-plus/icons-vue'
+
 const app = createApp(App)
 
 app.use(router)
@@ -46,5 +51,12 @@ app.use(router)
    .use(Form)
    .use(Field)
    .use(Toast)
+   // 注册Element Plus
+   .use(ElementPlus)
+
+// 注册所有Element Plus图标
+for (const [key, component] of Object.entries(ElementPlusIconsVue)) {
+  app.component(key, component)
+}
 
 app.mount('#app')
