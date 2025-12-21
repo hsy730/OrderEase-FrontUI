@@ -1,5 +1,15 @@
 import { createRouter, createWebHistory } from 'vue-router'
 
+// 检查用户是否已登录
+const isAuthenticated = () => {
+  const token = localStorage.getItem('token')
+  const userInfo = localStorage.getItem('user_info')
+  return !!(token && userInfo)
+}
+
+// 需要登录验证的路由列表
+const authRequiredRoutes = ['/orders', '/mine']
+
 // 修改路由配置
 const router = createRouter({
   history: createWebHistory('/order-ease-iui/'), // 设置基础路径
@@ -16,18 +26,51 @@ const router = createRouter({
     { // 添加/order-ease-iui/orders路由配置
       path: '/orders',
       name: 'Orders',
-      component: () => import('../views/Orders.vue')
+      component: () => import('../views/Orders.vue'),
+      meta: { requiresAuth: true }
     },
     {
       path: '/mine',
       name: 'Mine',
-      component: () => import('../views/Mine.vue')
+      component: () => import('../views/Mine.vue'),
+      meta: { requiresAuth: true }
+    },
+    {
+      path: '/login',
+      name: 'Login',
+      component: () => import('../views/Login.vue')
+    },
+    {
+      path: '/token-login',
+      name: 'TokenLogin',
+      component: () => import('../views/TokenLogin.vue')
+    },
+    {
+      path: '/register',
+      name: 'Register',
+      component: () => import('../views/Register.vue')
     }
   ]
 })
 
-// 全局前置守卫，用于解析URL中的shopId参数
+// 全局前置守卫，用于登录验证和解析URL参数
 router.beforeEach((to, from, next) => {
+  // 检查是否需要登录验证
+  if (to.meta.requiresAuth && !isAuthenticated()) {
+    // 未登录且访问需要认证的路由，跳转到登录页面
+    next({ 
+      path: '/login',
+      query: { redirect: to.fullPath } // 保存目标路由，登录后跳转回去
+    })
+    return
+  }
+
+  // 如果已登录但访问登录页面，跳转到首页
+  if (to.path === '/login' && isAuthenticated()) {
+    next('/home')
+    return
+  }
+
   // 检查URL参数
   const shopId = to.query.shop_id;
   const userId = to.query.user_id;
@@ -38,6 +81,7 @@ router.beforeEach((to, from, next) => {
   if (userId) {
     localStorage.setItem('user_id', userId);
   }
+  
   next();
 });
 

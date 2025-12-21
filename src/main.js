@@ -18,7 +18,10 @@ import {
   Card,
   Tag,
   Cell,
-  CellGroup
+  CellGroup,
+  Form,
+  Field,
+  Toast
 } from 'vant'
 import 'vant/lib/index.css'
 
@@ -40,5 +43,8 @@ app.use(router)
    .use(Tag)
    .use(Cell)
    .use(CellGroup)
+   .use(Form)
+   .use(Field)
+   .use(Toast)
 
 app.mount('#app')

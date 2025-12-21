@@ -1,31 +1,82 @@
 import axios from 'axios';
 import { API_BASE_URL } from '@/utils/constants';
+import router from '@/router';
 
 const api = axios.create({
   baseURL: API_BASE_URL,
   timeout: 5000
 });
 
-// 请求拦截器，自动添加shopId参数
+// 请求拦截器，自动添加shopId参数和Authorization头
 api.interceptors.request.use(config => {
   // 获取本地存储参数
   const shop_id = localStorage.getItem('shop_id');
   const user_id = localStorage.getItem('user_id');
+  const token = localStorage.getItem('token');
   
-  const addParams = (target) => {
-    if (shop_id) target.shop_id = Number(shop_id);
-    if (user_id) target.user_id = user_id;
-  };
-
-  if (config.method === 'get') {
-    config.params = {...config.params};
-    addParams(config.params);
-  } else {
-    config.data = {...config.data};
-    addParams(config.data);
+  // 添加Authorization头
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
   }
+
+  // 检查是否为FormData类型
+  const isFormData = config.data instanceof FormData;
+  
+  if (isFormData) {
+    // FormData类型（文件上传）：将参数添加到query参数中
+    config.params = {...config.params};
+    if (shop_id) config.params.shop_id = Number(shop_id);
+    if (user_id) config.params.user_id = user_id;
+  } else {
+    // 检查是否有body数据
+    const hasBodyData = config.data && config.data !== '';
+    
+    if (hasBodyData) {
+      // 有body数据且非FormData：将参数添加到body中
+      config.data = {...config.data};
+      if (shop_id) config.data.shop_id = Number(shop_id);
+      if (user_id) config.data.user_id = user_id;
+    }
+    // 无body数据：将参数添加到query参数中
+    config.params = {...config.params};
+    if (shop_id) config.params.shop_id = Number(shop_id);
+    if (user_id) config.params.user_id = user_id;
+  }
+  
   return config;
 }, error => {
+  return Promise.reject(error);
+});
+
+// 响应拦截器，处理401错误
+api.interceptors.response.use(response => {
+  return response;
+}, error => {
+  // 记录错误信息，便于调试
+  console.log('API请求错误:', {
+    url: error.config?.url,
+    status: error.response?.status,
+    message: error.message
+  });
+  
+  // 处理网络错误或请求被取消的情况
+  if (!error.response) {
+    console.log('无响应错误:', error.message);
+    return Promise.reject(error);
+  }
+  
+  if (error.response.status === 401) {
+    // 检查是否为登录接口
+    const isLoginRequest = error.config.url.includes('/user/login');
+    if (!isLoginRequest) {
+      console.log('收到401错误，准备跳转到登录页面');
+      // 清除本地存储的登录信息
+      localStorage.removeItem('token');
+      localStorage.removeItem('user_info');
+      // 跳转到登录页面，使用replace防止回退
+      router.replace('/login');
+    }
+  }
   return Promise.reject(error);
 });
 
@@ -78,4 +129,19 @@ export const getShopDetail = () => {
 // 订单详情接口
 export const getOrderDetail = (orderId) => {
   return api.get(`/order/detail?id=${orderId}`);
+}
+
+// 用户注册接口
+export const userRegister = (userData) => {
+  return api.post('/user/register', userData);
+}
+
+// 用户登录接口
+export const userLogin = (userData) => {
+  return api.post('/user/login', userData);
+}
+
+// 用户令牌登录接口
+export const userLoginByToken = (tokenData) => {
+  return api.post('/shop/temp-login', tokenData);
 }

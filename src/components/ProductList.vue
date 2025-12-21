@@ -1,11 +1,9 @@
 <template>
   <div class="product-list">
     <div v-for="product in products" :key="product.id" class="product-item">
-      <van-image
+      <SmartImage
         :src="getImageUrl(product.image)"
-        width="60"
-        height="60"
-        radius="8"
+        :style="{ width: '60px', height: '60px', borderRadius: '8px' }"
       />
       <div class="product-info">
         <div class="product-name">{{ product.name }}</div>
@@ -46,6 +44,7 @@
 
 <script setup>
 import { getImageUrl } from '@/utils/image';
+import SmartImage from './SmartImage.vue';
 
 defineProps({
   products: {

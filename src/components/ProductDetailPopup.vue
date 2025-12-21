@@ -12,7 +12,10 @@
       </div>
       
       <div class="product-info mb-4">
-        <img :src="getImageUrl(product.image)" class="w-full h-40 object-cover rounded-lg" />
+        <SmartImage 
+          :src="getImageUrl(product.image)" 
+          :className="'w-full h-40 object-cover rounded-lg'"
+        />
         <div class="mt-2">
           <div class="text-[#C3A87C] text-xl">¥{{ product.price }}</div>
           <div class="text-sm text-gray-500 mt-1">{{ product.description }}</div>

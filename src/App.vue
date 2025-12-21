@@ -65,6 +65,10 @@ const navBarTitle = computed(() => {
       return error.value ? '店铺加载失败' : (shopDetail.value?.name || '加载中...')
     case 'Mine':
       return error.value ? '店铺加载失败' : (shopDetail.value?.name || '加载中...')
+    case 'Login':
+      return '用户登录'
+    case 'Register':
+      return '用户注册'
     default:
       return ''
   }

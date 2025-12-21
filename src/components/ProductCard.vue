@@ -1,7 +1,10 @@
 <template>
   <div class="product-card bg-white rounded-lg p-4 mb-4">
     <div class="flex">
-      <img :src="getImageUrl(product.image)" class="w-24 h-24 rounded-lg object-cover" />
+      <SmartImage 
+        :src="getImageUrl(product.image)" 
+        :className="'w-24 h-24 rounded-lg object-cover'"
+      />
       <div class="ml-4 flex-1">
         <div class="flex items-center">
           <span class="text-lg font-bold">{{ product.name }}</span>
@@ -23,6 +26,7 @@
 
 <script setup>
 import { getImageUrl } from '@/utils/image';
+import SmartImage from './SmartImage.vue';
 
 defineProps({
   product: {
