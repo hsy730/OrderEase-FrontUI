@@ -24,7 +24,7 @@
               :model-value="product.count"
               :min="0"
               theme="round"
-              button-size="22"
+              button-size="28"
               disable-input
               :before-change="(val) => beforeCountChange(product, val)"
               @update:model-value="(val) => handleCountChange(product, val)"
@@ -36,7 +36,7 @@
               :show-input="false"
               :show-minus="false"
               theme="round"
-              button-size="22"
+              button-size="28"
               disable-input
               :before-change="(val) => beforeCountChange(product, val)"
               @update:model-value="(val) => handleCountChange(product, val)"
@@ -199,5 +199,16 @@ const beforeCountChange = (product, newVal) => {
   align-items: center;
   justify-content: center;
   color: var(--accent-orange);
+}
+
+/* 移动端微调 */
+@media (max-width: 420px) {
+  .product-item {
+    margin-bottom: 12px;
+  }
+
+  .product-name {
+    font-size: 13px;
+  }
 }
 </style>

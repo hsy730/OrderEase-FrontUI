@@ -72,13 +72,13 @@
         <!-- 计数器 -->
         <div class="quantity-control" v-if="selectedProduct">
           <!-- <span class="quantity-label">数量</span> -->
-          <van-stepper 
-            v-model="productQuantity" 
-            integer 
-            :min="1" 
-            :max="99" 
-            theme="round" 
-            button-size="22" 
+          <van-stepper
+            v-model="productQuantity"
+            integer
+            :min="1"
+            :max="99"
+            theme="round"
+            button-size="28"
           />
         </div>
       </div>
@@ -666,5 +666,22 @@ const isOptionSelected = (category, option) => {
 .button-container :deep(.van-button):active {
   transform: translateY(0);
   box-shadow: var(--shadow-sm);
+}
+
+/* 移动端微调 */
+@media (max-width: 420px) {
+  .option-item {
+    padding: 10px 14px;
+    font-size: 13px;
+    margin: 2px;
+  }
+
+  .footer-actions {
+    padding: 12px;
+  }
+
+  .price-display {
+    font-size: 16px;
+  }
 }
 </style>

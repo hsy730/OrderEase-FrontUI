@@ -48,7 +48,7 @@
                 :model-value="item.count"
                 :min="0"
                 theme="round"
-                button-size="22"
+                button-size="28"
                 disable-input
                 @update:model-value="handleCountChange(item, $event)"
               />
@@ -164,7 +164,7 @@ const formatPrice = (price) => {
 }
 
 .price-info .amount {
-  font-size: 22px;
+  font-size: 20px;
   font-weight: bold;
   background: var(--gradient-accent);
   -webkit-background-clip: text;
@@ -305,7 +305,7 @@ const formatPrice = (price) => {
 }
 
 .options {
-  font-size: 11px;
+  font-size: 12px;
   color: var(--text-tertiary);
   margin-top: 4px;
 }
@@ -361,5 +361,16 @@ const formatPrice = (price) => {
   font-weight: bold;
   color: var(--price-primary);
   margin-top: 2px;
+}
+
+/* 移动端微调 */
+@media (max-width: 420px) {
+  .price-info .amount {
+    font-size: 18px;
+  }
+
+  .submit-btn {
+    width: 90px;
+  }
 }
 </style>
