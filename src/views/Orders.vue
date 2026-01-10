@@ -17,10 +17,10 @@
               共{{ order.items.length }}件商品
             </div> -->
             <div class="order-actions" style="margin-top: 10px;">
-              <van-button 
-                size="small" 
+              <van-button
+                size="small"
                 type="text"
-                style="color: #1989fa; background: transparent; border: none; padding: 0; --van-button-active-background: transparent"
+                style="color: #1E40AF; background: transparent; border: none; padding: 0; --van-button-active-background: transparent"
                 @click="viewOrderDetail(order)">详情</van-button>
             </div>
           </template>
@@ -240,31 +240,88 @@
   <style scoped>
   .orders-page {
     min-height: calc(100vh - 50px);
-    background: #f7f8fa;
+    background: var(--bg-secondary);
     padding-bottom: 50px;
   }
-  
+
   :deep(.van-card) {
-    background: #fff;
-    margin-bottom: 12px;
-    border-radius: 8px;
+    background: var(--bg-primary);
+    margin-bottom: var(--spacing-md);
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--border-light);
+    box-shadow: var(--shadow-card);
+    transition: all var(--transition-base);
+    overflow: hidden;
   }
-  
+
+  :deep(.van-card:hover) {
+    border-color: var(--primary-blue-light);
+    box-shadow: var(--shadow-md);
+    transform: translateY(-2px);
+  }
+
+  :deep(.van-card__title) {
+    font-weight: 600;
+    color: var(--text-primary);
+  }
+
+  :deep(.van-card__desc) {
+    color: var(--text-secondary);
+  }
+
+  :deep(.van-card__price) {
+    color: var(--price-primary);
+    font-weight: bold;
+  }
+
+  /* 订单详情按钮样式 */
+  .order-actions :deep(.van-button) {
+    color: var(--primary-blue);
+    transition: all var(--transition-base);
+  }
+
+  .order-actions :deep(.van-button:hover) {
+    color: var(--primary-blue-light);
+    background: rgba(30, 64, 175, 0.08) !important;
+  }
+
+  /* 订单详情弹窗 */
+  :deep(.van-popup--bottom) {
+    border-top-left-radius: var(--radius-xl);
+    border-top-right-radius: var(--radius-xl);
+    overflow: hidden;
+  }
+
   .order-detail {
     height: 100%;
     overflow-y: auto;
   }
-  
-  .order-info {
-    margin-top: 20px;
+
+  :deep(.van-cell-group) {
+    background: var(--bg-primary);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
   }
-  
+
+  :deep(.van-cell) {
+    background: var(--bg-primary);
+    border-bottom: 1px solid var(--border-light);
+  }
+
+  :deep(.van-cell:last-child) {
+    border-bottom: none;
+  }
+
+  .order-info {
+    margin-top: var(--spacing-xl);
+  }
+
   .loading-more, .no-more-data {
     text-align: center;
-    padding: 16px;
-    color: #999;
+    padding: var(--spacing-lg);
+    color: var(--text-tertiary);
   }
-  
+
   .orders-list {
     height: calc(100vh - 50px);
     overflow-y: auto;

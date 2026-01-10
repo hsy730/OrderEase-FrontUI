@@ -124,10 +124,19 @@ const beforeCountChange = (product, newVal) => {
 .product-item {
   display: flex;
   margin-bottom: 16px;
-  background: #fff;
+  background: var(--bg-primary);
   padding: 8px;
-  border-radius: 8px;
+  border-radius: var(--radius-md);
   align-items: center;
+  border: 1px solid var(--border-light);
+  box-shadow: var(--shadow-sm);
+  transition: all var(--transition-base);
+}
+
+.product-item:hover {
+  border-color: var(--primary-blue-lighter);
+  box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
 }
 
 .product-info {
@@ -141,6 +150,7 @@ const beforeCountChange = (product, newVal) => {
 .product-name {
   font-size: 15px;
   font-weight: 500;
+  color: var(--text-primary);
 }
 
 .product-details {
@@ -151,8 +161,12 @@ const beforeCountChange = (product, newVal) => {
 }
 
 .product-price {
-  color: #333;
+  color: var(--price-primary);
   font-weight: bold;
+}
+
+.product-price .text-sm {
+  color: var(--price-secondary);
 }
 
 .stepper-container {
@@ -160,15 +174,30 @@ const beforeCountChange = (product, newVal) => {
   justify-content: flex-end;
 }
 
+/* 计数器按钮深蓝渐变样式 */
+:deep(.van-stepper__plus),
+:deep(.van-stepper__minus) {
+  background: var(--gradient-primary);
+  box-shadow: var(--shadow-sm);
+  transition: all var(--transition-base);
+}
+
+:deep(.van-stepper__plus):hover,
+:deep(.van-stepper__minus):hover {
+  background: var(--gradient-hover);
+  box-shadow: var(--shadow-orange);
+  transform: scale(1.05);
+}
+
 .image-placeholder {
   width: 60px;
   height: 60px;
-  background-color: #f5f5f5;
-  border: 1px dashed #d9d9d9;
-  border-radius: 8px;
+  background: var(--gradient-subtle);
+  border: 2px dashed var(--accent-orange-light);
+  border-radius: var(--radius-md);
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #999;
+  color: var(--accent-orange);
 }
 </style>

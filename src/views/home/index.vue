@@ -543,37 +543,50 @@ const isOptionSelected = (category, option) => {
 
 .option-item {
   white-space: nowrap;
-  padding: 8px 12px;
-  background-color: #f5f5f5;
-  border-radius: 6px;
+  padding: 12px 16px;
+  background-color: var(--bg-secondary);
+  border: 2px solid var(--border-default);
+  border-radius: var(--radius-sm);
   margin: 4px;
-  transition: all 0.2s;
+  transition: all var(--transition-base);
+  cursor: pointer;
+}
+
+.option-item:hover {
+  border-color: var(--primary-blue-light);
+  box-shadow: var(--shadow-sm);
+  transform: translateY(-1px);
 }
 
 .selected {
-  border-color: #1989fa;
-  color: #1989fa;
-  background-color: #f0faff;
+  border-color: var(--primary-blue);
+  color: var(--primary-blue);
+  background: linear-gradient(135deg,
+    rgba(30, 64, 175, 0.08) 0%,
+    rgba(249, 115, 22, 0.05) 100%
+  );
+  box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
 }
+
 .order-page {
   min-height: 100vh;
-  background: #fff;
-  overflow: hidden; /* 隐藏页面滚动条 */
-  position: relative; /* 确保定位上下文 */
+  background: var(--bg-secondary);
+  overflow: hidden;
+  position: relative;
 }
 
 .content-container {
   display: flex;
-  /* 修改高度计算：减去顶部导航栏(46px)、底部Tabbar(50px)的高度 */
   height: calc(100vh - 96px);
   margin-top: 46px;
-  overflow: hidden; /* 隐藏容器滚动条 */
+  overflow: hidden;
 }
 
 .category-menu {
   width: 80px;
   flex-shrink: 0;
-  background: #f8f8f8;
+  background: var(--bg-muted);
   overflow-y: auto;
   height: 100%;
 }
@@ -583,12 +596,14 @@ const isOptionSelected = (category, option) => {
   overflow-y: auto;
   height: 100%;
   padding: 12px;
+  background: var(--bg-primary);
 }
 
 /* 确保购物车在Tabbar之上 */
 :deep(.cart-bar) {
-  bottom: 50px; /* Tabbar的高度 */
+  bottom: 50px;
 }
+
 .popup-content {
   padding: 16px;
 }
@@ -598,28 +613,24 @@ const isOptionSelected = (category, option) => {
 .footer-actions {
   position: fixed;
   bottom: 0;
-  padding: 16px;
-  background: white;
-  border-top: 1px solid #ebedf0;
-  z-index: 1;
+  padding: var(--spacing-lg);
+  background: var(--bg-primary);
+  border-top: 1px solid var(--border-light);
+  z-index: var(--z-fixed);
   width: inherit;
   display: flex;
   flex-direction: column;
-  gap: 16px;
-}
-
-.confirm-btn {
-  width: 100%;
-  padding: 12px;
-  background: #07c160;
-  color: white;
-  border-radius: 8px;
+  gap: var(--spacing-lg);
+  box-shadow: var(--shadow-float);
 }
 
 .price-display {
-  font-size: 16px;
-  color: #000000;
+  font-size: 18px;
   font-weight: bold;
+  background: var(--gradient-accent);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 .quantity-control {
@@ -630,7 +641,7 @@ const isOptionSelected = (category, option) => {
 
 .quantity-label {
   font-size: 14px;
-  color: #333;
+  color: var(--text-primary);
 }
 
 .price-quantity-container {
@@ -639,9 +650,21 @@ const isOptionSelected = (category, option) => {
   align-items: center;
 }
 
-.button-container {
-  display: flex;
-  justify-content: flex-end;
-  width: 100%;
+.button-container :deep(.van-button) {
+  background: var(--gradient-primary);
+  border: none;
+  box-shadow: var(--shadow-md);
+  transition: all var(--transition-base);
+}
+
+.button-container :deep(.van-button):hover {
+  background: var(--gradient-hover);
+  box-shadow: var(--shadow-lg);
+  transform: translateY(-2px);
+}
+
+.button-container :deep(.van-button):active {
+  transform: translateY(0);
+  box-shadow: var(--shadow-sm);
 }
 </style>

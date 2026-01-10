@@ -147,7 +147,7 @@ const goToLogin = () => {
 <style scoped>
 .register-container {
   min-height: 100vh;
-  background: linear-gradient(135deg, #1989fa 0%, #36a2f7 100%);
+  background: linear-gradient(135deg, #1E40AF 0%, #3B82F6 100%);
 }
 
 .register-content {
@@ -159,45 +159,77 @@ const goToLogin = () => {
 }
 
 .register-form {
-  background: white;
+  background: var(--bg-primary);
   border-radius: 16px;
   padding: 30px 20px;
   width: 100%;
   max-width: 400px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 10px 30px rgba(30, 64, 175, 0.2);
 }
 
 .register-title {
   text-align: center;
   margin-bottom: 30px;
-  color: #333;
+  color: var(--text-primary);
   font-size: 24px;
-  font-weight: 600;
+  font-weight: 700;
+  background: var(--gradient-primary);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 .login-link {
   text-align: center;
   margin-top: 20px;
-  color: #666;
+  color: var(--text-secondary);
 }
 
 .link {
-  color: #1989fa;
+  color: var(--primary-blue);
   margin-left: 5px;
   cursor: pointer;
+  font-weight: 600;
+  transition: color var(--transition-base);
 }
 
 .link:hover {
+  color: var(--primary-blue-light);
   text-decoration: underline;
 }
 
 /* 表单样式调整 */
-.van-cell-group {
+:deep(.van-cell-group) {
   margin-bottom: 20px;
+  background: transparent;
 }
 
-.van-field {
-  background: #f8f9fa;
-  border-radius: 8px;
+:deep(.van-field) {
+  background: var(--bg-secondary);
+  border-radius: var(--radius-md);
+  border: 1px solid transparent;
+  transition: all var(--transition-base);
+}
+
+:deep(.van-field:focus-within) {
+  border-color: var(--primary-blue);
+  background: var(--bg-primary);
+  box-shadow: 0 2px 8px rgba(30, 64, 175, 0.15);
+}
+
+/* 注册按钮 */
+:deep(.van-button--primary) {
+  background: var(--gradient-primary);
+  border: none;
+  height: 48px;
+  font-weight: 600;
+  box-shadow: var(--shadow-md);
+  transition: all var(--transition-base);
+}
+
+:deep(.van-button--primary:hover) {
+  background: var(--gradient-hover);
+  box-shadow: var(--shadow-lg);
+  transform: translateY(-2px);
 }
 </style>

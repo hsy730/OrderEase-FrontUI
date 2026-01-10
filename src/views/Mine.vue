@@ -131,7 +131,81 @@ onMounted(() => {
 <style scoped>
 .mine-page {
   min-height: calc(100vh - 50px);
-  background: #f7f8fa;
+  background: var(--bg-secondary);
   padding-bottom: 50px;
+}
+
+/* 用户信息卡片 */
+.user-info {
+  background: var(--bg-primary);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+  margin: var(--spacing-md);
+  border: 1px solid var(--border-light);
+  overflow: hidden;
+}
+
+.user-info :deep(.van-image) {
+  border: 3px solid var(--border-light);
+  box-shadow: var(--shadow-sm);
+}
+
+/* 登录提示卡片 */
+.login-prompt {
+  background: var(--bg-primary);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+  margin: var(--spacing-md);
+  border: 1px solid var(--border-light);
+}
+
+/* 登录按钮 */
+.login-prompt :deep(.van-button--primary) {
+  background: var(--gradient-primary);
+  border: none;
+  box-shadow: var(--shadow-md);
+  transition: all var(--transition-base);
+}
+
+.login-prompt :deep(.van-button--primary:hover) {
+  background: var(--gradient-hover);
+  box-shadow: var(--shadow-lg);
+  transform: translateY(-2px);
+}
+
+/* 功能列表 */
+.function-list {
+  margin: var(--spacing-md);
+}
+
+.function-list :deep(.van-cell-group) {
+  background: var(--bg-primary);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: var(--shadow-card);
+  border: 1px solid var(--border-light);
+}
+
+.function-list :deep(.van-cell) {
+  background: var(--bg-primary);
+  border-bottom: 1px solid var(--border-light);
+  transition: background var(--transition-fast);
+}
+
+.function-list :deep(.van-cell:last-child) {
+  border-bottom: none;
+}
+
+.function-list :deep(.van-cell:hover) {
+  background: var(--bg-secondary);
+}
+
+.function-list :deep(.van-cell__left-icon) {
+  color: var(--primary-blue);
+  font-size: 18px;
+}
+
+.function-list :deep(.van-cell__right-icon) {
+  color: var(--text-tertiary);
 }
 </style>

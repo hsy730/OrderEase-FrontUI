@@ -3,11 +3,11 @@
     <div class="cart-info">
       <van-badge :content="totalCount" :show="totalCount > 0">
         <!-- 添加点击事件 -->
-        <van-icon 
-          name="shopping-cart-o" 
-          size="24" 
-          :class="totalCount > 0 ? 'text-[#1989fa]' : 'text-gray-500'" 
-          @click="toggleCartList" 
+        <van-icon
+          name="shopping-cart-o"
+          size="24"
+          :class="totalCount > 0 ? 'text-[var(--primary-blue)]' : 'text-gray-500'"
+          @click="toggleCartList"
         />
       </van-badge>
       <div class="price-info" v-if="totalAmount > 0">
@@ -58,11 +58,11 @@
       </ul>
     </div>
     <div class="submit-btn">
-      <van-button 
+      <van-button
         block
         round
         :disabled="totalCount === 0"
-        :color="totalCount === 0 ? '#7D7E80' : '#1989fa'"
+        :color="totalCount === 0 ? '#CBD5E1' : '#1E40AF'"
         @click="$emit('submit')"
       >
         选好了
@@ -123,8 +123,8 @@ const formatPrice = (price) => {
 <style scoped>
 .cart-bar {
   height: 50px;
-  background: white;
-  /* border-top: 1px solid #eee; */
+  background: var(--bg-primary);
+  border-top: 1px solid var(--border-light);
   position: fixed;
   bottom: 0;
   left: 0;
@@ -133,13 +133,24 @@ const formatPrice = (price) => {
   align-items: center;
   justify-content: space-between;
   padding: 0 16px;
-  z-index: 1000;
+  z-index: var(--z-fixed);
+  box-shadow: var(--shadow-float);
 }
 
 .cart-info {
   display: flex;
   align-items: center;
   gap: 12px;
+}
+
+.cart-info :deep(.van-icon) {
+  color: var(--primary-blue);
+  transition: all var(--transition-base);
+}
+
+.cart-info :deep(.van-icon):hover {
+  transform: scale(1.1);
+  color: var(--primary-blue-light);
 }
 
 .price-info {
@@ -149,17 +160,38 @@ const formatPrice = (price) => {
 
 .price-info .symbol {
   font-size: 12px;
-  color: #333;
+  color: var(--text-secondary);
 }
 
 .price-info .amount {
-  font-size: 20px;
+  font-size: 22px;
   font-weight: bold;
-  color: #333;
+  background: var(--gradient-accent);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 .submit-btn {
   width: 120px;
+}
+
+.submit-btn :deep(.van-button) {
+  background: var(--gradient-primary);
+  border: none;
+  box-shadow: var(--shadow-md);
+  transition: all var(--transition-base);
+}
+
+.submit-btn :deep(.van-button:not(.van-button--disabled)):hover {
+  background: var(--gradient-hover);
+  box-shadow: var(--shadow-lg);
+  transform: translateY(-2px);
+}
+
+.submit-btn :deep(.van-button--disabled) {
+  background: var(--text-tertiary);
+  box-shadow: none;
 }
 
 /* 遮罩层样式 */
@@ -168,56 +200,57 @@ const formatPrice = (price) => {
   top: 0;
   left: 0;
   width: 100%;
-  height: calc(100% - 100px); /* 减去底部购物车栏和按钮区域的高度 */
-  background-color: rgba(0, 0, 0, 0.5); /* 半透明黑色遮罩 */
-  z-index: 999; /* 确保遮罩在购物车列表下方，但在其他内容上方 */
+  height: calc(100% - 100px);
+  background-color: var(--bg-overlay);
+  z-index: var(--z-modal-backdrop);
 }
 
-/* 新增购物车列表样式 */
+/* 购物车列表样式 */
 .cart-list {
   position: absolute;
   bottom: 50px;
   left: 0;
   right: 0;
-  background-color: white;
-  /* border: 1px solid #eee; */
-  border-top-left-radius: 12px;
-  border-top-right-radius: 12px;
-  /* padding: 10px; */
-  max-height: min(80vh, 600px); /* 限制最大高度为视口80%或400px中的较小值 */
-  height: fit-content; /* 内容自适应高度 */
-  min-height: 100px; /* 最小高度 */
+  background-color: var(--bg-primary);
+  border-top-left-radius: var(--radius-xl);
+  border-top-right-radius: var(--radius-xl);
+  max-height: min(80vh, 600px);
+  height: fit-content;
+  min-height: 100px;
   overflow-y: auto;
-  /* box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1); */
-  z-index: 1001; /* 确保购物车列表在遮罩上方 */
+  z-index: var(--z-modal);
+  box-shadow: var(--shadow-xl);
+  animation: slideUp var(--transition-base) ease-out;
 }
 
 .cart-list-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 10px;
-  background-color: #f5f5f5;
+  padding: var(--spacing-md);
+  background-color: var(--bg-secondary);
   margin: 0;
+  border-top-left-radius: var(--radius-xl);
+  border-top-right-radius: var(--radius-xl);
 }
 
 .header-title {
   font-size: 16px;
-  font-weight: bold;
-  color: #333;
+  font-weight: 700;
+  color: var(--text-primary);
 }
 
 .clear-cart {
   display: flex;
   align-items: center;
   cursor: pointer;
-  padding: 4px 8px;
-  /* border-radius: 4px; */
-  transition: all 0.2s;
+  padding: var(--spacing-sm);
+  border-radius: var(--radius-sm);
+  transition: all var(--transition-base);
 }
 
-.clear-cart:hover {
-  background-color: #f5f5f5;
+.clear-cart:not(.disabled):hover {
+  background-color: var(--bg-tertiary);
 }
 
 .clear-cart.disabled {
@@ -225,18 +258,14 @@ const formatPrice = (price) => {
   cursor: not-allowed;
 }
 
-.clear-cart.disabled:hover {
-  background-color: transparent;
-}
-
 .clear-icon {
-  color: #999;
+  color: var(--color-danger);
   margin-right: 4px;
 }
 
 .clear-text {
   font-size: 14px;
-  color: #999;
+  color: var(--color-danger);
 }
 
 .cart-list ul {
@@ -253,7 +282,13 @@ const formatPrice = (price) => {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  /* padding: 8px 0; */
+  padding: var(--spacing-md);
+  border-bottom: 1px solid var(--border-light);
+  transition: background var(--transition-fast);
+}
+
+.cart-item:hover {
+  background: var(--bg-secondary);
 }
 
 .controls {
@@ -271,12 +306,12 @@ const formatPrice = (price) => {
 
 .options {
   font-size: 11px;
-  color: #666;
+  color: var(--text-tertiary);
   margin-top: 4px;
 }
 
 .options-placeholder {
-  height: 14px; /* 与.options的字体大小和行高保持一致 */
+  height: 14px;
   margin: 2px 0;
 }
 
@@ -292,13 +327,20 @@ const formatPrice = (price) => {
 .count-input {
   width: 40px;
   text-align: center;
-  /* border: 1px solid #eee; */
   padding: 2px;
 }
+
 .stepper-container {
   margin-top: 8px;
   display: flex;
   justify-content: flex-end;
+}
+
+/* 计数器按钮样式 */
+:deep(.van-stepper__plus),
+:deep(.van-stepper__minus) {
+  background: var(--gradient-primary);
+  box-shadow: var(--shadow-sm);
 }
 
 /* 商品项信息样式 */
@@ -306,19 +348,18 @@ const formatPrice = (price) => {
   display: flex;
   flex-direction: column;
   justify-content: center;
-  /* gap: 2px; */
 }
 
 .item-name {
   font-size: 14px;
-  font-weight: 500;
-  color: #333;
+  font-weight: 600;
+  color: var(--text-primary);
 }
 
 .item-price {
   font-size: 14px;
   font-weight: bold;
-  color: #333;
+  color: var(--price-primary);
   margin-top: 2px;
 }
 </style>

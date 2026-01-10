@@ -1,0 +1,164 @@
+/* ============================================
+   OrderEase 动画系统
+   深蓝橙系过渡动画效果
+   ============================================ */
+
+/* ========== 淡入淡出 ========== */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes fadeOut {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
+/* ========== 滑动动画 ========== */
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideLeft {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideRight {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* ========== 缩放动画 ========== */
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes scaleOut {
+  from {
+    opacity: 1;
+    transform: scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+}
+
+/* ========== 弹跳动画 ========== */
+@keyframes bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-5px); }
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+
+/* ========== 旋转动画 ========== */
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* ========== 抖动动画 ========== */
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  10%, 30%, 50%, 70%, 90% { transform: translateX(-2px); }
+  20%, 40%, 60%, 80% { transform: translateX(2px); }
+}
+
+/* ========== 工具类 ========== */
+.animate-fade-in { animation: fadeIn var(--transition-base, 0.25s ease); }
+.animate-fade-out { animation: fadeOut var(--transition-base, 0.25s ease); }
+.animate-slide-up { animation: slideUp var(--transition-base, 0.25s ease); }
+.animate-slide-down { animation: slideDown var(--transition-base, 0.25s ease); }
+.animate-slide-left { animation: slideLeft var(--transition-base, 0.25s ease); }
+.animate-slide-right { animation: slideRight var(--transition-base, 0.25s ease); }
+.animate-scale-in { animation: scaleIn var(--transition-base, 0.25s ease); }
+.animate-scale-out { animation: scaleOut var(--transition-base, 0.25s ease); }
+.animate-bounce { animation: bounce var(--transition-slow, 0.35s ease); }
+.animate-pulse { animation: pulse 2s ease-in-out infinite; }
+.animate-spin { animation: spin 1s linear infinite; }
+.animate-shake { animation: shake var(--transition-base, 0.25s ease); }
+
+/* ========== 悬浮效果 ========== */
+.hover-lift {
+  transition: all var(--transition-base, 0.25s ease);
+}
+
+.hover-lift:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-lg, 0 8px 24px rgba(30, 64, 175, 0.15));
+}
+
+/* ========== 加载动画 ========== */
+@keyframes loading {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.loading-spinner {
+  border: 3px solid var(--border-light, #E2E8F0);
+  border-top-color: var(--primary-blue, #1E40AF);
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  animation: loading 0.8s linear infinite;
+}
+
+/* ========== 骨架屏动画 ========== */
+@keyframes skeleton-loading {
+  0% { background-position: -200px 0; }
+  100% { background-position: calc(200px + 100%) 0; }
+}
+
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--bg-secondary, #F8FAFC) 0%,
+    var(--bg-tertiary, #F1F5F9) 20%,
+    var(--bg-secondary, #F8FAFC) 40%,
+    var(--bg-secondary, #F8FAFC) 100%
+  );
+  background-size: 200px 100%;
+  animation: skeleton-loading 1.5s ease-in-out infinite;
+}

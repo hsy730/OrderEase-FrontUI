@@ -83,8 +83,8 @@ const showBackButton = computed(() => {
 <style>
 .app-container {
   min-height: 100vh;
-  height: 100vh; /* 固定高度为视口高度 */
-  background: #f7f8fa;
+  height: 100vh;
+  background: var(--bg-secondary);
   overflow: hidden;
   display: flex;
   flex-direction: column;
@@ -100,5 +100,31 @@ const showBackButton = computed(() => {
 
 .app-container > :not(.van-tabbar)::-webkit-scrollbar {
   display: none;
+}
+
+/* 底部导航栏样式 */
+:deep(.van-tabbar) {
+  background: var(--bg-primary);
+  border-top: 1px solid var(--border-light);
+  box-shadow: var(--shadow-float);
+}
+
+:deep(.van-tabbar-item) {
+  color: var(--text-tertiary);
+  transition: all var(--transition-base);
+}
+
+:deep(.van-tabbar-item--active) {
+  color: var(--primary-blue);
+  font-weight: 600;
+}
+
+:deep(.van-tabbar-item__icon) {
+  font-size: 22px;
+  transition: all var(--transition-base);
+}
+
+:deep(.van-tabbar-item--active .van-tabbar-item__icon) {
+  transform: scale(1.1);
 }
 </style>

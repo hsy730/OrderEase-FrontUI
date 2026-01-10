@@ -30,3 +30,27 @@ const handleBack = () => {
   }
 }
 </script>
+
+<style scoped>
+/* 深蓝橙系导航栏样式 */
+:deep(.van-nav-bar) {
+  background: var(--bg-primary);
+  box-shadow: var(--shadow-sm);
+  border-bottom: 1px solid var(--border-light);
+}
+
+:deep(.van-nav-bar__title) {
+  font-weight: 600;
+  color: var(--text-primary);
+  font-size: 18px;
+}
+
+:deep(.van-nav-bar__arrow) {
+  color: var(--primary-blue);
+  font-size: 20px;
+}
+
+:deep(.van-nav-bar__text) {
+  color: var(--primary-blue);
+}
+</style>

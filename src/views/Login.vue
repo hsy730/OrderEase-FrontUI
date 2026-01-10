@@ -153,7 +153,7 @@ const goToTokenLogin = () => {
 <style scoped>
 .login-container {
   min-height: 100vh;
-  background: linear-gradient(135deg, #1989fa 0%, #36a2f7 100%);
+  background: linear-gradient(135deg, #1E40AF 0%, #3B82F6 100%);
   padding-top: 46px;
 }
 
@@ -172,7 +172,7 @@ const goToTokenLogin = () => {
   padding: 48px 32px;
   width: 100%;
   max-width: 440px;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 20px 60px rgba(30, 64, 175, 0.2);
   border: 1px solid rgba(255, 255, 255, 0.3);
 }
 
@@ -186,7 +186,7 @@ const goToTokenLogin = () => {
   font-size: 32px;
   font-weight: 700;
   margin-bottom: 8px;
-  background: linear-gradient(135deg, #1989fa, #36a2f7);
+  background: linear-gradient(135deg, #1E40AF, #3B82F6);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -194,7 +194,7 @@ const goToTokenLogin = () => {
 
 .welcome-subtitle {
   font-size: 16px;
-  color: #7f8c8d;
+  color: var(--text-secondary);
   font-weight: 400;
 }
 
@@ -211,33 +211,33 @@ const goToTokenLogin = () => {
   left: 16px;
   z-index: 2;
   font-size: 20px;
-  color: #1989fa;
+  color: var(--primary-blue);
 }
 
 .custom-field {
   flex: 1;
-  background: #f8f9fa;
+  background: var(--bg-secondary);
   border-radius: 12px;
   border: 2px solid transparent;
-  transition: all 0.3s ease;
+  transition: all var(--transition-base);
   padding-left: 48px;
   min-height: 56px;
 }
 
 .custom-field:focus-within {
-  border-color: #1989fa;
-  background: white;
-  box-shadow: 0 4px 12px rgba(25, 137, 250, 0.2);
+  border-color: var(--primary-blue);
+  background: var(--bg-primary);
+  box-shadow: 0 4px 12px rgba(30, 64, 175, 0.2);
 }
 
-.custom-field .van-field__control {
+.custom-field :deep(.van-field__control) {
   font-size: 16px;
-  color: #2c3e50;
+  color: var(--text-primary);
   font-weight: 500;
 }
 
-.custom-field .van-field__control::placeholder {
-  color: #95a5a6;
+.custom-field :deep(.van-field__control::placeholder) {
+  color: var(--text-tertiary);
   font-weight: 400;
 }
 
@@ -250,15 +250,15 @@ const goToTokenLogin = () => {
   height: 56px;
   font-size: 18px;
   font-weight: 600;
-  background: linear-gradient(135deg, #1989fa, #36a2f7);
+  background: linear-gradient(135deg, #1E40AF, #3B82F6);
   border: none;
-  box-shadow: 0 8px 20px rgba(25, 137, 250, 0.3);
-  transition: all 0.3s ease;
+  box-shadow: 0 8px 20px rgba(30, 64, 175, 0.3);
+  transition: all var(--transition-base);
 }
 
 .login-button:hover {
   transform: translateY(-2px);
-  box-shadow: 0 12px 30px rgba(25, 137, 250, 0.4);
+  box-shadow: 0 12px 30px rgba(30, 64, 175, 0.4);
 }
 
 .login-button:active {
@@ -269,24 +269,24 @@ const goToTokenLogin = () => {
 .register-section {
   text-align: center;
   padding-top: 24px;
-  border-top: 1px solid #ecf0f1;
+  border-top: 1px solid var(--border-light);
 }
 
 .register-text {
-  color: #7f8c8d;
+  color: var(--text-secondary);
   font-size: 14px;
 }
 
 .register-link {
-  color: #1989fa;
+  color: var(--primary-blue);
   font-weight: 600;
   margin-left: 8px;
   cursor: pointer;
-  transition: color 0.3s ease;
+  transition: color var(--transition-base);
 }
 
 .register-link:hover {
-  color: #36a2f7;
+  color: var(--primary-blue-light);
   text-decoration: underline;
 }
 
@@ -295,16 +295,16 @@ const goToTokenLogin = () => {
   .login-content {
     padding: 40px 20px;
   }
-  
+
   .login-form {
     padding: 40px 24px;
     border-radius: 20px;
   }
-  
+
   .welcome-title {
     font-size: 28px;
   }
-  
+
   .welcome-subtitle {
     font-size: 15px;
   }
