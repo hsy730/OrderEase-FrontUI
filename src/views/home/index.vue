@@ -668,6 +668,33 @@ const isOptionSelected = (category, option) => {
   box-shadow: var(--shadow-sm);
 }
 
+/* 弹窗中计数器按钮样式 */
+.quantity-control :deep(.van-stepper__plus) {
+  background: var(--gradient-primary);
+  box-shadow: var(--shadow-sm);
+  transition: all var(--transition-base);
+}
+
+.quantity-control :deep(.van-stepper__minus) {
+  background: var(--bg-primary);
+  color: var(--primary-blue);
+  border: 1px solid var(--primary-blue);
+  box-shadow: var(--shadow-sm);
+  transition: all var(--transition-base);
+}
+
+.quantity-control :deep(.van-stepper__plus):hover {
+  background: var(--gradient-hover);
+  box-shadow: var(--shadow-md);
+  transform: scale(1.05);
+}
+
+.quantity-control :deep(.van-stepper__minus):hover {
+  background: var(--bg-secondary);
+  border-color: var(--primary-blue-light);
+  color: var(--primary-blue-light);
+}
+
 /* 移动端微调 */
 @media (max-width: 420px) {
   .option-item {

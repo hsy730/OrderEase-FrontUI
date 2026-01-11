@@ -62,7 +62,6 @@
         block
         round
         :disabled="totalCount === 0"
-        :color="totalCount === 0 ? '#CBD5E1' : '#1E40AF'"
         @click="$emit('submit')"
       >
         选好了
@@ -337,10 +336,30 @@ const formatPrice = (price) => {
 }
 
 /* 计数器按钮样式 */
-:deep(.van-stepper__plus),
-:deep(.van-stepper__minus) {
+:deep(.van-stepper__plus) {
   background: var(--gradient-primary);
   box-shadow: var(--shadow-sm);
+  transition: all var(--transition-base);
+}
+
+:deep(.van-stepper__minus) {
+  background: var(--bg-primary);
+  color: var(--primary-blue);
+  border: 1px solid var(--primary-blue);
+  box-shadow: var(--shadow-sm);
+  transition: all var(--transition-base);
+}
+
+:deep(.van-stepper__plus):hover {
+  background: var(--gradient-hover);
+  box-shadow: var(--shadow-md);
+  transform: scale(1.05);
+}
+
+:deep(.van-stepper__minus):hover {
+  background: var(--bg-secondary);
+  border-color: var(--primary-blue-light);
+  color: var(--primary-blue-light);
 }
 
 /* 商品项信息样式 */

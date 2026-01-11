@@ -19,25 +19,32 @@
             <span class="text-md font-bold">{{ product.price }}</span>
           </div>
           <div class="stepper-container">
+            <!-- 有选项的商品：始终显示"选规格"按钮 + 数量气泡 -->
+            <van-badge
+              v-if="product.option_categories?.length"
+              :content="product.count > 0 ? product.count : ''"
+              :show-zero="false"
+              :offset="[-2, 4]"
+            >
+              <van-button
+                round
+                size="small"
+                class="spec-button"
+                @click="handleShowOptions(product)"
+              >
+                选规格
+              </van-button>
+            </van-badge>
+            <!-- 无选项的商品：显示计数器 -->
             <van-stepper
-              v-if="product.count > 0"
+              v-else
               :model-value="product.count"
               :min="0"
               theme="round"
               button-size="28"
               disable-input
-              :before-change="(val) => beforeCountChange(product, val)"
-              @update:model-value="(val) => handleCountChange(product, val)"
-            />
-            <van-stepper
-              v-else
-              :model-value="0"
-              :min="0"
-              :show-input="false"
-              :show-minus="false"
-              theme="round"
-              button-size="28"
-              disable-input
+              :show-minus="product.count > 0"
+              :show-input="product.count > 0"
               :before-change="(val) => beforeCountChange(product, val)"
               @update:model-value="(val) => handleCountChange(product, val)"
             />
@@ -60,6 +67,12 @@ defineProps({
 })
 
 const emit = defineEmits(['add-to-cart', 'show-cart-popup', 'show-product-options'])
+
+// 显示商品选项弹窗
+const handleShowOptions = (product) => {
+  product.action = 'add'
+  emit('show-product-options', product)
+}
 
 // 修改事件处理函数
 const handleCountChange = (product, newVal) => {
@@ -174,19 +187,31 @@ const beforeCountChange = (product, newVal) => {
   justify-content: flex-end;
 }
 
-/* 计数器按钮深蓝渐变样式 */
-:deep(.van-stepper__plus),
-:deep(.van-stepper__minus) {
+/* 计数器按钮样式 */
+:deep(.van-stepper__plus) {
   background: var(--gradient-primary);
   box-shadow: var(--shadow-sm);
   transition: all var(--transition-base);
 }
 
-:deep(.van-stepper__plus):hover,
-:deep(.van-stepper__minus):hover {
+:deep(.van-stepper__minus) {
+  background: var(--bg-primary);
+  color: var(--primary-blue);
+  border: 1px solid var(--primary-blue);
+  box-shadow: var(--shadow-sm);
+  transition: all var(--transition-base);
+}
+
+:deep(.van-stepper__plus):hover {
   background: var(--gradient-hover);
-  box-shadow: var(--shadow-orange);
+  box-shadow: var(--shadow-md);
   transform: scale(1.05);
+}
+
+:deep(.van-stepper__minus):hover {
+  background: var(--bg-secondary);
+  border-color: var(--primary-blue-light);
+  color: var(--primary-blue-light);
 }
 
 .image-placeholder {
@@ -210,5 +235,38 @@ const beforeCountChange = (product, newVal) => {
   .product-name {
     font-size: 13px;
   }
+}
+
+/* 选规格按钮样式 */
+.spec-button {
+  min-width: 64px;
+  height: 28px;
+  padding: 0 12px;
+  font-size: 12px;
+  font-weight: 600;
+  background: var(--gradient-primary);
+  border: none;
+  color: var(--text-inverse);
+  box-shadow: var(--shadow-sm);
+  transition: all var(--transition-base);
+}
+
+.spec-button:hover {
+  background: var(--gradient-hover);
+  box-shadow: var(--shadow-md);
+  transform: translateY(-1px);
+}
+
+.spec-button:active {
+  transform: translateY(0);
+}
+
+/* 数量徽章样式 */
+:deep(.van-badge) {
+  background: var(--accent-orange);
+  color: var(--text-inverse);
+  border: 2px solid var(--bg-primary);
+  box-shadow: var(--shadow-sm);
+  font-weight: 600;
 }
 </style>

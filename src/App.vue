@@ -75,8 +75,9 @@ const navBarTitle = computed(() => {
 })
 
 const showBackButton = computed(() => {
-  // 只在首页显示返回按钮
-  return route.name === 'Home'
+  // 主标签页不显示返回按钮，其他页面显示
+  const mainPages = ['Home', 'Orders', 'Mine']
+  return !mainPages.includes(route.name)
 })
 </script>
 
