@@ -1,0 +1,19 @@
+name: Trigger Deploy Build
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  trigger:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger Deploy Repository
+        uses: peter-evans/repository-dispatch@v3
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          repository: hsy730/OrderEase-Deploy
+          event-type: triggered-by-code-change
+          client-payload: '{"source": "OrderEase-FrontUI", "ref": "${{ github.ref }}", "sha": "${{ github.sha }}"}'
