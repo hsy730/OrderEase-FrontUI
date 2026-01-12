@@ -126,3 +126,62 @@ The `@` alias is configured to resolve to `src/` directory (in `vite.config.js`)
 3. Register with `app.use()`
 
 **Element Plus** is also available with all icons pre-registered globally.
+
+### State Management
+
+No centralized state management (no Pinia/Vuex). Uses:
+- Component-level `ref()` and `reactive()` for local state
+- localStorage for persistence (token, user_info, shop_id, user_id)
+- Props/events and `$emit()` for component communication
+
+### Available API Endpoints
+
+Located in `src/api/index.js`:
+- `getTagBoundProducts(params)` - Products by category
+- `createOrder(data)` - Submit order
+- `getOrders(params)` - Order history with pagination
+- `getShopDetail()` - Shop information
+- `getOrderDetail(orderId)` - Single order details
+- `userRegister(userData)` - User registration
+- `userLogin(userData)` - Standard login
+- `userLoginByToken(tokenData)` - Token-based login
+- `getTags()` - Category list
+
+### Image Handling
+
+Backend images use the utility in `src/utils/image.js`:
+```javascript
+getImageUrl(imagePath) // Returns full backend URL
+```
+Converts relative paths to `${API_BASE_URL}/product/image?path=${imagePath}`.
+
+### Cart Interaction Patterns
+
+**Products WITH Options**:
+- Always show "选规格" (Select Options) button
+- Quantity badge shows total in cart across all variants
+- Clicking opens options popup
+- Cannot decrement from product list (must use cart popup)
+
+**Products WITHOUT Options**:
+- Direct stepper control for increment/decrement
+- Changes sync immediately to cart
+
+**Cart Item Identification**:
+Same product with different option combinations creates separate cart items. The unique `cartItemId` key includes serialized option data:
+```javascript
+const getCartItemKey = (item) => {
+  if (item.selectedOptions?.length > 0) {
+    return `${item.id}-${JSON.stringify(sortedOptions)}`
+  }
+  return `${item.id}`
+}
+```
+
+### Router Redirect Preservation
+
+Protected routes preserve intended destination after login:
+```javascript
+next({ path: '/login', query: { redirect: to.fullPath }})
+```
+After successful login, users are redirected back to their original destination.
