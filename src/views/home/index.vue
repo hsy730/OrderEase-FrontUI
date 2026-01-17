@@ -122,7 +122,11 @@ onMounted(async () => {
   try {
     // 获取店铺详情及分类
     const { data: shopRes } = await getShopDetail()
+    
     if (shopRes) {
+      if (shopRes.tags==null) {
+        shopRes.tags = [];
+      }
       shopRes.tags.push({id: -1, name: "未分类"})
       shopDetail.value = shopRes;
       // 分类数据已整合至shopDetail

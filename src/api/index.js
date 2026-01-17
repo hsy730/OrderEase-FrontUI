@@ -25,7 +25,7 @@ api.interceptors.request.use(config => {
   if (isFormData) {
     // FormData类型（文件上传）：将参数添加到query参数中
     config.params = {...config.params};
-    if (shop_id) config.params.shop_id = Number(shop_id);
+    if (shop_id) config.params.shop_id = shop_id;
     if (user_id) config.params.user_id = user_id;
   } else {
     // 检查是否有body数据
@@ -34,12 +34,12 @@ api.interceptors.request.use(config => {
     if (hasBodyData) {
       // 有body数据且非FormData：将参数添加到body中
       config.data = {...config.data};
-      if (shop_id) config.data.shop_id = Number(shop_id);
+      if (shop_id) config.data.shop_id = shop_id;
       if (user_id) config.data.user_id = user_id;
     }
     // 无body数据：将参数添加到query参数中
     config.params = {...config.params};
-    if (shop_id) config.params.shop_id = Number(shop_id);
+    if (shop_id) config.params.shop_id = shop_id;
     if (user_id) config.params.user_id = user_id;
   }
   
