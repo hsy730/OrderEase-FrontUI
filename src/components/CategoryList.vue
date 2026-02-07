@@ -1,17 +1,18 @@
 <template>
-  <van-sidebar v-model="activeIndex">
-    <van-sidebar-item 
-      v-for="category in categories" 
+  <scroll-view class="category-list" scroll-y>
+    <view 
+      v-for="(category, index) in categories" 
       :key="category.id"
-      :title="category.name"
-      @click="() => $emit('select', category)"
-    />
-  </van-sidebar>
+      class="category-item"
+      :class="{ 'active': activeCategory === category.id }"
+      @click="handleSelect(category)"
+    >
+      <text class="category-text">{{ category.name }}</text>
+    </view>
+  </scroll-view>
 </template>
 
 <script setup>
-import { ref, watch } from 'vue'
-
 const props = defineProps({
   categories: {
     type: Array,
@@ -23,47 +24,38 @@ const props = defineProps({
   }
 })
 
-defineEmits(['select'])
+const emit = defineEmits(['select'])
 
-const activeIndex = ref(0)
-
-watch(() => props.activeCategory, (newVal) => {
-  const index = props.categories.findIndex(c => c.id === newVal)
-  if (index !== -1) {
-    activeIndex.value = index
-  }
-})
+const handleSelect = (category) => {
+  emit('select', category)
+}
 </script>
 
 <style scoped>
-/* 深蓝橙系分类菜单样式 */
-:deep(.van-sidebar-item) {
+.category-list {
+  width: 100%;
+  height: 100%;
+  background: var(--bg-muted);
+}
+
+.category-item {
+  padding: 16px 12px;
   background: transparent;
   color: var(--text-secondary);
   transition: all var(--transition-base);
+  border-left: 4px solid transparent;
+  text-align: center;
 }
 
-:deep(.van-sidebar-item--selected) {
+.category-item.active {
   background: var(--gradient-primary);
   color: var(--text-inverse);
   font-weight: 600;
-  position: relative;
+  border-left-color: var(--accent-orange);
 }
 
-:deep(.van-sidebar-item--selected)::before {
-  content: '';
-  position: absolute;
-  left: 0;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 4px;
-  height: 60%;
-  background: var(--accent-orange);
-  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
-}
-
-:deep(.van-sidebar-item:hover:not(.van-sidebar-item--selected)) {
-  background: var(--bg-blue-tint);
-  color: var(--primary-blue);
+.category-text {
+  font-size: 14px;
+  line-height: 1.4;
 }
 </style>

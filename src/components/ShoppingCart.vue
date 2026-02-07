@@ -1,84 +1,80 @@
 <template>
-  <div class="cart-bar" v-if="totalCount > 0">
-    <div class="cart-info">
-      <van-badge :content="totalCount" :show="totalCount > 0">
-        <!-- 添加点击事件 -->
-        <van-icon
-          name="shopping-cart-o"
-          size="24"
-          :class="totalCount > 0 ? 'text-[var(--primary-blue)]' : 'text-gray-500'"
-          @click="toggleCartList"
-        />
-      </van-badge>
-      <div class="price-info" v-if="totalAmount > 0">
-        <span class="symbol">¥</span>
-        <span class="amount">{{ totalAmount }}</span>
-      </div>
-    </div>
-    <!-- 遮罩层 -->
-    <div v-if="show" class="overlay" @click="toggleCartList"></div>
-    <!-- 新增购物车列表 -->
-    <div v-if="show" class="cart-list">
-      <div class="cart-list-header">
-        <span class="header-title">已选商品</span>
-        <div class="clear-cart" @click="$emit('clear')" :class="{ disabled: totalCount === 0 }">
-          <van-icon name="delete-o" size="16" class="clear-icon" />
-          <span class="clear-text">清空</span>
-        </div>
-      </div>
-      <ul style="margin: 10px;">
-        <li v-for="(item, index) in props.cartItems" :key="`${item.id}-${index}`">
-          <div class="cart-item">
-            <div class="item-info">
-              <div class="item-details">
-                <div class="item-name">{{ item.name }}</div>
-                <!-- 显示选项信息 -->
-                <div v-if="item.selectedOptions && item.selectedOptions.length" class="options">
-                  {{ item.selectedOptions.map(option => option.options.join(', ')).join(', ') }}
-                </div>
-                <div v-else class="options-placeholder"></div>
-                <!-- 显示商品价格 -->
-                <div class="item-price">
-                  ¥ {{ formatPrice(item.finalPrice || item.price || 0) }}
-                </div>
-              </div>
-            </div>
-            <div class="controls">
-              <van-stepper
-                :model-value="item.count"
-                :min="0"
-                theme="round"
-                button-size="28"
-                disable-input
-                @update:model-value="handleCountChange(item, $event)"
-              />
-            </div>
-          </div>
-        </li>
-      </ul>
-    </div>
-    <div class="submit-btn">
-      <van-button
-        block
-        round
+  <view class="cart-bar" v-if="totalCount > 0">
+    <view class="cart-info" @click="toggleCartList">
+      <view class="cart-icon-wrapper">
+        <view v-if="totalCount > 0" class="cart-badge">{{ totalCount }}</view>
+        <text class="cart-icon">🛒</text>
+      </view>
+      <view class="price-info" v-if="totalAmount > 0">
+        <text class="symbol">¥</text>
+        <text class="amount">{{ totalAmount }}</text>
+      </view>
+    </view>
+    
+    <view v-if="show" class="overlay" @click="toggleCartList"></view>
+    
+    <view v-if="show" class="cart-list">
+      <view class="cart-list-header">
+        <text class="header-title">已选商品</text>
+        <view class="clear-cart" @click="$emit('clear')">
+          <text class="clear-icon">🗑️</text>
+          <text class="clear-text">清空</text>
+        </view>
+      </view>
+      <scroll-view class="cart-list-content" scroll-y>
+        <view v-for="(item, index) in props.cartItems" :key="`${item.id}-${index}`" class="cart-item">
+          <view class="item-info">
+            <view class="item-details">
+              <text class="item-name">{{ item.name }}</text>
+              <view v-if="item.selectedOptions && item.selectedOptions.length" class="options">
+                {{ item.selectedOptions.map(option => option.options.join(', ')).join(', ') }}
+              </view>
+              <view v-else class="options-placeholder"></view>
+              <text class="item-price">¥{{ formatPrice(item.finalPrice || item.price || 0) }}</text>
+            </view>
+          </view>
+          <view class="controls">
+            <view class="stepper-wrapper">
+              <view
+                v-if="item.count > 0"
+                class="stepper-btn stepper-minus"
+                @click="handleCountChange(item, item.count - 1)"
+              >
+                -
+              </view>
+              <view v-if="item.count > 0" class="stepper-value">{{ item.count }}</view>
+              <view
+                class="stepper-btn stepper-plus"
+                @click="handleCountChange(item, item.count + 1)"
+              >
+                +
+              </view>
+            </view>
+          </view>
+        </view>
+      </scroll-view>
+    </view>
+    <view class="submit-btn">
+      <button
+        class="submit-button"
         :disabled="totalCount === 0"
         @click="$emit('submit')"
       >
         选好了
-      </van-button>
-    </div>
-  </div>
+      </button>
+    </view>
+  </view>
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { computed } from 'vue'
 
 const props = defineProps({
   cartItems: {
     type: Array,
     required: true
   },
-  show: { // 接收父组件传递的show值
+  show: {
     type: Boolean,
     default: false
   },
@@ -92,28 +88,23 @@ const totalCount = computed(() => {
 
 const totalAmount = computed(() => {
   return props.cartItems.reduce((sum, item) => {
-    // 使用finalPrice（如果存在）否则使用基础价格
     const price = item.finalPrice || item.price || 0
     return sum + price * item.count
   }, 0)
 })
-
 
 const toggleCartList = () => {
   emit('update:show', !props.show)
 }
 
 const handleCountChange = (item, count) => {
-  // 总是发送更新事件，包括数量为0的情况
   emit('update:count', item.cartItemId || item.id, count)
 }
 
 const formatPrice = (price) => {
-  // 如果价格是整数，不显示小数部分
   if (Number.isInteger(price)) {
     return price.toString()
   } else {
-    // 否则保留两位小数
     return price.toFixed(2)
   }
 }
@@ -142,14 +133,36 @@ const formatPrice = (price) => {
   gap: 12px;
 }
 
-.cart-info :deep(.van-icon) {
-  color: var(--primary-blue);
-  transition: all var(--transition-base);
+.cart-icon-wrapper {
+  position: relative;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.cart-info :deep(.van-icon):hover {
-  transform: scale(1.1);
-  color: var(--primary-blue-light);
+.cart-icon {
+  font-size: 24px;
+  color: var(--primary-blue);
+}
+
+.cart-badge {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  background: var(--accent-orange);
+  color: var(--text-inverse);
+  border: 2px solid var(--bg-primary);
+  border-radius: 10px;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  font-size: 11px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .price-info {
@@ -175,25 +188,22 @@ const formatPrice = (price) => {
   width: 120px;
 }
 
-.submit-btn :deep(.van-button) {
+.submit-button {
+  width: 100%;
+  height: 36px;
   background: var(--gradient-primary);
+  color: white;
   border: none;
+  border-radius: 18px;
+  font-size: 14px;
+  font-weight: 600;
   box-shadow: var(--shadow-md);
-  transition: all var(--transition-base);
 }
 
-.submit-btn :deep(.van-button:not(.van-button--disabled)):hover {
-  background: var(--gradient-hover);
-  box-shadow: var(--shadow-lg);
-  transform: translateY(-2px);
+.submit-button:active {
+  transform: translateY(0);
 }
 
-.submit-btn :deep(.van-button--disabled) {
-  background: var(--text-tertiary);
-  box-shadow: none;
-}
-
-/* 遮罩层样式 */
 .overlay {
   position: fixed;
   top: 0;
@@ -204,7 +214,6 @@ const formatPrice = (price) => {
   z-index: var(--z-modal-backdrop);
 }
 
-/* 购物车列表样式 */
 .cart-list {
   position: absolute;
   bottom: 50px;
@@ -216,10 +225,9 @@ const formatPrice = (price) => {
   max-height: min(80vh, 600px);
   height: fit-content;
   min-height: 100px;
-  overflow-y: auto;
+  overflow: hidden;
   z-index: var(--z-modal);
   box-shadow: var(--shadow-xl);
-  animation: slideUp var(--transition-base) ease-out;
 }
 
 .cart-list-header {
@@ -228,9 +236,6 @@ const formatPrice = (price) => {
   align-items: center;
   padding: var(--spacing-md);
   background-color: var(--bg-secondary);
-  margin: 0;
-  border-top-left-radius: var(--radius-xl);
-  border-top-right-radius: var(--radius-xl);
 }
 
 .header-title {
@@ -242,19 +247,7 @@ const formatPrice = (price) => {
 .clear-cart {
   display: flex;
   align-items: center;
-  cursor: pointer;
   padding: var(--spacing-sm);
-  border-radius: var(--radius-sm);
-  transition: all var(--transition-base);
-}
-
-.clear-cart:not(.disabled):hover {
-  background-color: var(--bg-tertiary);
-}
-
-.clear-cart.disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
 }
 
 .clear-icon {
@@ -267,14 +260,9 @@ const formatPrice = (price) => {
   color: var(--color-danger);
 }
 
-.cart-list ul {
-  list-style-type: none;
+.cart-list-content {
+  max-height: 50vh;
   padding: 0;
-  margin: 0;
-}
-
-.cart-list li {
-  padding: 5px 0;
 }
 
 .cart-item {
@@ -283,11 +271,6 @@ const formatPrice = (price) => {
   align-items: center;
   padding: var(--spacing-md);
   border-bottom: 1px solid var(--border-light);
-  transition: background var(--transition-fast);
-}
-
-.cart-item:hover {
-  background: var(--bg-secondary);
 }
 
 .controls {
@@ -314,55 +297,43 @@ const formatPrice = (price) => {
   margin: 2px 0;
 }
 
-.options span {
-  display: block;
-  margin-bottom: 2px;
-}
-
-.van-stepper {
-  vertical-align: middle;
-}
-
-.count-input {
-  width: 40px;
-  text-align: center;
-  padding: 2px;
-}
-
-.stepper-container {
-  margin-top: 8px;
+.stepper-wrapper {
   display: flex;
-  justify-content: flex-end;
+  align-items: center;
+  gap: 4px;
 }
 
-/* 计数器按钮样式 */
-:deep(.van-stepper__plus) {
-  background: var(--gradient-primary);
+.stepper-btn {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  font-weight: bold;
   box-shadow: var(--shadow-sm);
-  transition: all var(--transition-base);
 }
 
-:deep(.van-stepper__minus) {
+.stepper-plus {
+  background: var(--gradient-primary);
+  color: var(--text-inverse);
+}
+
+.stepper-minus {
   background: var(--bg-primary);
   color: var(--primary-blue);
   border: 1px solid var(--primary-blue);
-  box-shadow: var(--shadow-sm);
-  transition: all var(--transition-base);
 }
 
-:deep(.van-stepper__plus):hover {
-  background: var(--gradient-hover);
-  box-shadow: var(--shadow-md);
-  transform: scale(1.05);
+.stepper-value {
+  width: 24px;
+  text-align: center;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-primary);
 }
 
-:deep(.van-stepper__minus):hover {
-  background: var(--bg-secondary);
-  border-color: var(--primary-blue-light);
-  color: var(--primary-blue-light);
-}
-
-/* 商品项信息样式 */
 .item-details {
   display: flex;
   flex-direction: column;
@@ -382,7 +353,6 @@ const formatPrice = (price) => {
   margin-top: 2px;
 }
 
-/* 移动端微调 */
 @media (max-width: 420px) {
   .price-info .amount {
     font-size: 18px;
