@@ -50,13 +50,14 @@
   }
 }
 
-*,
+/* 微信小程序不支持通配符选择器，已注释 */
+/* *,
 *::before,
 *::after {
   box-sizing: border-box;
   margin: 0;
   font-weight: normal;
-}
+} */
 
 body {
   min-height: 100vh;

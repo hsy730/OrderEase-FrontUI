@@ -32,7 +32,7 @@
 
     <uni-popup ref="popup" type="bottom" :safe-area="false">
       <view class="popup-content">
-        <view class="popup-header">{{ selectedProduct.name }}</view>
+        <view class="popup-header">{{ selectedProduct?.name }}</view>
         <view class="popup-body">
           <view v-if="selectedProduct" v-for="category in selectedProduct.option_categories || []" :key="category.id" class="category-section">
             <view class="category-title">{{ category.name }}<text v-if="category.is_required" class="required">*</text></view>

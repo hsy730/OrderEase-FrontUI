@@ -22,7 +22,7 @@
         </view>
       </view>
       <scroll-view class="cart-list-content" scroll-y>
-        <view v-for="(item, index) in props.cartItems" :key="`${item.id}-${index}`" class="cart-item">
+        <view v-for="(item, index) in props.cartItems" v-if="item" :key="`${item.id}-${index}`" class="cart-item">
           <view class="item-info">
             <view class="item-details">
               <text class="item-name">{{ item.name }}</text>

@@ -1,5 +1,5 @@
 <template>
-  <div class="product-card bg-white rounded-lg p-4 mb-4">
+  <div v-if="product" class="product-card bg-white rounded-lg p-4 mb-4">
     <div class="flex">
       <SmartImage 
         :src="getImageUrl(product.image)" 

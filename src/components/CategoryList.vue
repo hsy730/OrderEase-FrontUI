@@ -2,6 +2,7 @@
   <scroll-view class="category-list" scroll-y>
     <view 
       v-for="(category, index) in categories" 
+      v-if="category"
       :key="category.id"
       class="category-item"
       :class="{ 'active': activeCategory === category.id }"
