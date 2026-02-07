@@ -9,7 +9,7 @@
         />
       </view>
       <view v-else class="image-placeholder">
-        <text class="placeholder-icon">📷</text>
+        <uni-icons type="camera" size="24" color="#F97316"></uni-icons>
       </view>
      
       <view class="product-info">
@@ -131,10 +131,6 @@ const handleCountChange = (product, newVal) => {
   justify-content: center;
   color: var(--accent-orange);
   flex-shrink: 0;
-}
-
-.placeholder-icon {
-  font-size: 24px;
 }
 
 .product-info {

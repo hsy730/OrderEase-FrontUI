@@ -3,7 +3,7 @@
     <view class="cart-info" @click="toggleCartList">
       <view class="cart-icon-wrapper">
         <view v-if="totalCount > 0" class="cart-badge">{{ totalCount }}</view>
-        <text class="cart-icon">🛒</text>
+        <uni-icons type="cart" size="24" color="#1E40AF"></uni-icons>
       </view>
       <view class="price-info" v-if="totalAmount > 0">
         <text class="symbol">¥</text>
@@ -17,7 +17,7 @@
       <view class="cart-list-header">
         <text class="header-title">已选商品</text>
         <view class="clear-cart" @click="$emit('clear')">
-          <text class="clear-icon">🗑️</text>
+          <uni-icons type="trash" size="16" color="#EF4444" style="margin-right: 4px;"></uni-icons>
           <text class="clear-text">清空</text>
         </view>
       </view>
@@ -142,11 +142,6 @@ const formatPrice = (price) => {
   justify-content: center;
 }
 
-.cart-icon {
-  font-size: 24px;
-  color: var(--primary-blue);
-}
-
 .cart-badge {
   position: absolute;
   top: -6px;
@@ -248,11 +243,6 @@ const formatPrice = (price) => {
   display: flex;
   align-items: center;
   padding: var(--spacing-sm);
-}
-
-.clear-icon {
-  color: var(--color-danger);
-  margin-right: 4px;
 }
 
 .clear-text {
