@@ -80,40 +80,16 @@ import ProductList from '@/components/ProductList.vue'
 import ShoppingCart from '@/components/ShoppingCart.vue'
 
 const shopDetail = ref(null)
+const error = ref('')
+const activeCategory = ref(1)
+const products = ref([])
+const cartItems = ref([])
+const showCartPopup = ref(false)
 
 const selectedProduct = ref(null)
 const popup = ref(null)
 const productQuantity = ref(1)
 
-onMounted(async () => {
-  try {
-    const { data: shopRes } = await getShopDetail()
-    
-    if (shopRes) {
-      if (shopRes.tags==null) {
-        shopRes.tags = [];
-      }
-      shopRes.tags.push({id: -1, name: "未分类"})
-      shopDetail.value = shopRes;
-      error.value = ''
-      
-      if (shopRes.tags.length > 0) {
-        activeCategory.value = shopRes.tags[0].id
-        await handleCategorySelect(shopRes.tags[0])
-      }
-    }
-  } catch (error) {
-    console.error('店铺数据加载失败:', error)
-      error.value = '无法加载店铺分类信息'
-  }
-})
-
-const products = ref([])
-
-const activeCategory = ref(1)
-const cartItems = ref([])
-const error = ref('')
-const showCartPopup = ref(false)
 
 const handleCategorySelect = async (category) => {
   activeCategory.value = category.id
@@ -123,6 +99,8 @@ const handleCategorySelect = async (category) => {
       page: 1,
       pageSize: 20
     })
+    
+    console.log('API Response:', response)
     
     if (response.status === 200) {
       products.value = response.data.data.map(p => ({
@@ -134,6 +112,7 @@ const handleCategorySelect = async (category) => {
         count: cartItems.value.find(item => item.id === p.id)?.count || 0,
         option_categories: p.option_categories || []
       }))
+      console.log('Products loaded:', products.value)
       return;
     }
     products.value = []
@@ -142,6 +121,35 @@ const handleCategorySelect = async (category) => {
     products.value = []
   }
 }
+
+onMounted(async () => {
+  try {
+    const { data: shopRes } = await getShopDetail()
+    
+    console.log('Shop detail response:', shopRes)
+    
+    if (shopRes) {
+      if (shopRes.tags==null) {
+        shopRes.tags = [];
+      }
+      shopRes.tags.push({id: -1, name: "未分类"})
+      shopDetail.value = shopRes;
+      error.value = ''
+      
+      console.log('Shop detail set:', shopDetail.value)
+      console.log('Tags:', shopDetail.value.tags)
+      
+      if (shopRes.tags.length > 0) {
+        activeCategory.value = shopRes.tags[0].id
+        console.log('Loading products for category:', shopRes.tags[0])
+        await handleCategorySelect(shopRes.tags[0])
+      }
+    }
+  } catch (error) {
+    console.error('店铺数据加载失败:', error)
+      error.value = '无法加载店铺分类信息'
+  }
+})
 
 const handleSubmitOrder = async () => {
   if (cartItems.value.length === 0) {

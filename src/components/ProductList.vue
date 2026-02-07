@@ -1,6 +1,6 @@
 <template>
   <scroll-view class="product-list" scroll-y>
-    <view v-for="product in products" v-if="product" :key="product.id" class="product-item">
+    <view v-for="product in products" :key="product.id" class="product-item">
       <view v-if="product.image" class="product-image-container">
         <image
           :src="getImageUrl(product.image)"

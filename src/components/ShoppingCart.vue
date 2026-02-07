@@ -22,7 +22,7 @@
         </view>
       </view>
       <scroll-view class="cart-list-content" scroll-y>
-        <view v-for="(item, index) in props.cartItems" v-if="item" :key="`${item.id}-${index}`" class="cart-item">
+        <view v-for="(item, index) in props.cartItems" :key="`${item.id}-${index}`" class="cart-item">
           <view class="item-info">
             <view class="item-details">
               <text class="item-name">{{ item.name }}</text>
@@ -173,10 +173,7 @@ const formatPrice = (price) => {
 .price-info .amount {
   font-size: 20px;
   font-weight: bold;
-  background: var(--gradient-accent);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  color: var(--primary-blue);
 }
 
 .submit-btn {
@@ -186,7 +183,7 @@ const formatPrice = (price) => {
 .submit-button {
   width: 100%;
   height: 36px;
-  background: var(--gradient-primary);
+  background: linear-gradient(135deg, #1E40AF 0%, #3B82F6 100%);
   color: white;
   border: none;
   border-radius: 18px;
