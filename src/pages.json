@@ -44,6 +44,7 @@
     "selectedColor": "#1E40AF",
     "backgroundColor": "#ffffff",
     "borderStyle": "black",
+    "iconWidth": "24px",
     "list": [
       {
         "pagePath": "pages/home/index",
