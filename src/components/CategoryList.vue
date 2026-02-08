@@ -35,23 +35,23 @@ const handleSelect = (category) => {
 .category-list {
   width: 100%;
   height: 100%;
-  background: var(--bg-muted);
+  background: #FDFDFD;
 }
 
 .category-item {
   padding: 16px 12px;
   background: transparent;
-  color: var(--text-secondary);
-  transition: all var(--transition-base);
+  color: #475569;
+  transition: all 0.25s ease;
   border-left: 4px solid transparent;
   text-align: center;
 }
 
 .category-item.active {
-  background: var(--gradient-primary);
-  color: var(--text-inverse);
+  background: linear-gradient(135deg, #1E40AF 0%, #3B82F6 100%);
+  color: #FFFFFF;
   font-weight: 600;
-  border-left-color: var(--accent-orange);
+  border-left-color: #F97316;
 }
 
 .category-text {

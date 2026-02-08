@@ -99,13 +99,13 @@ const handleCountChange = (product, newVal) => {
 .product-item {
   display: flex;
   margin-bottom: 16px;
-  background: var(--bg-primary);
+  background: #FFFFFF;
   padding: 8px;
-  border-radius: var(--radius-md);
+  border-radius: 8px;
   align-items: center;
-  border: 1px solid var(--border-light);
-  box-shadow: var(--shadow-sm);
-  transition: all var(--transition-base);
+  border: 1px solid #E2E8F0;
+  box-shadow: 0 2px 8px rgba(30, 64, 175, 0.08);
+  transition: all 0.25s ease;
 }
 
 .product-image-container {
@@ -117,19 +117,19 @@ const handleCountChange = (product, newVal) => {
 .product-image {
   width: 60px;
   height: 60px;
-  border-radius: var(--radius-sm);
+  border-radius: 6px;
 }
 
 .image-placeholder {
   width: 60px;
   height: 60px;
-  background: var(--gradient-subtle);
-  border: 2px dashed var(--accent-orange-light);
-  border-radius: var(--radius-md);
+  background: linear-gradient(180deg, #DBEAFE 0%, #ffffff 100%);
+  border: 2px dashed #FB923C;
+  border-radius: 8px;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--accent-orange);
+  color: #F97316;
   flex-shrink: 0;
 }
 
@@ -144,7 +144,7 @@ const handleCountChange = (product, newVal) => {
 .product-name {
   font-size: 15px;
   font-weight: 500;
-  color: var(--text-primary);
+  color: #0F172A;
   overflow: hidden;
   text-overflow: ellipsis;
   display: -webkit-box;
@@ -160,14 +160,14 @@ const handleCountChange = (product, newVal) => {
 }
 
 .product-price {
-  color: var(--price-primary);
+  color: #EA580C;
   font-weight: bold;
   display: flex;
   align-items: baseline;
 }
 
 .price-symbol {
-  color: var(--price-secondary);
+  color: #C2410C;
   font-size: 12px;
 }
 
@@ -188,9 +188,9 @@ const handleCountChange = (product, newVal) => {
   position: absolute;
   top: -8px;
   right: -8px;
-  background: var(--accent-orange);
-  color: var(--text-inverse);
-  border: 2px solid var(--bg-primary);
+  background: #F97316;
+  color: #FFFFFF;
+  border: 2px solid #FFFFFF;
   border-radius: 10px;
   min-width: 18px;
   height: 18px;
@@ -208,13 +208,13 @@ const handleCountChange = (product, newVal) => {
   padding: 0 12px;
   font-size: 12px;
   font-weight: 600;
-  background: var(--gradient-primary);
-  color: var(--text-inverse);
+  background: linear-gradient(135deg, #1E40AF 0%, #3B82F6 100%);
+  color: #FFFFFF;
   border-radius: 14px;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: var(--shadow-sm);
+  box-shadow: 0 2px 8px rgba(30, 64, 175, 0.08);
 }
 
 .stepper-wrapper {
@@ -232,18 +232,18 @@ const handleCountChange = (product, newVal) => {
   justify-content: center;
   font-size: 16px;
   font-weight: bold;
-  box-shadow: var(--shadow-sm);
+  box-shadow: 0 2px 8px rgba(30, 64, 175, 0.08);
 }
 
 .stepper-plus {
-  background: var(--gradient-primary);
-  color: var(--text-inverse);
+  background: linear-gradient(135deg, #1E40AF 0%, #3B82F6 100%);
+  color: #FFFFFF;
 }
 
 .stepper-minus {
-  background: var(--bg-primary);
-  color: var(--primary-blue);
-  border: 1px solid var(--primary-blue);
+  background: #FFFFFF;
+  color: #1E40AF;
+  border: 1px solid #1E40AF;
 }
 
 .stepper-value {
@@ -251,7 +251,7 @@ const handleCountChange = (product, newVal) => {
   text-align: center;
   font-size: 14px;
   font-weight: 500;
-  color: var(--text-primary);
+  color: #0F172A;
 }
 
 @media (max-width: 420px) {

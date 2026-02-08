@@ -1,5 +1,8 @@
 <template>
   <view class="order-page">
+    <view class="shop-header">
+      <text class="shop-name">{{ shopDetail?.name || '未命名' }}</text>
+    </view>
     <view class="content-container">
       <view class="category-menu">
         <category-list
@@ -457,9 +460,29 @@ const isOptionSelected = (category, option) => {
 <style scoped>
 .order-page {
   min-height: 100vh;
-  background: var(--bg-secondary);
+  background: #F8FAFC;
   overflow: hidden;
   position: relative;
+}
+
+.shop-header {
+  height: 44px;
+  background: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  border-bottom: 1px solid #E2E8F0;
+}
+
+.shop-name {
+  font-size: 18px;
+  font-weight: 600;
+  color: #0F172A;
 }
 
 .content-container {
@@ -472,7 +495,7 @@ const isOptionSelected = (category, option) => {
 .category-menu {
   width: 80px;
   flex-shrink: 0;
-  background: var(--bg-muted);
+  background: #FDFDFD;
   overflow-y: auto;
   height: 100%;
 }
@@ -482,11 +505,11 @@ const isOptionSelected = (category, option) => {
   overflow-y: auto;
   height: 100%;
   padding: 12px;
-  background: var(--bg-primary);
+  background: #FFFFFF;
 }
 
 .popup-content {
-  background: var(--bg-primary);
+  background: #FFFFFF;
   border-radius: 16px 16px 0 0;
   padding: 16px;
   max-height: 60vh;
@@ -530,16 +553,16 @@ const isOptionSelected = (category, option) => {
 .option-item {
   white-space: nowrap;
   padding: 12px 16px;
-  background-color: var(--bg-secondary);
-  border: 2px solid var(--border-default);
-  border-radius: var(--radius-sm);
+  background-color: #F8FAFC;
+  border: 2px solid #E2E8F0;
+  border-radius: 6px;
   margin: 4px;
-  transition: all var(--transition-base);
+  transition: all 0.25s ease;
 }
 
 .option-item.selected {
-  border-color: var(--primary-blue);
-  color: var(--primary-blue);
+  border-color: #1E40AF;
+  color: #1E40AF;
   background: linear-gradient(135deg,
     rgba(30, 64, 175, 0.08) 0%,
     rgba(249, 115, 22, 0.05) 100%
@@ -549,18 +572,18 @@ const isOptionSelected = (category, option) => {
 .footer-actions {
   position: sticky;
   bottom: 0;
-  padding: var(--spacing-lg);
-  background: var(--bg-primary);
-  border-top: 1px solid var(--border-light);
+  padding: 16px;
+  background: #FFFFFF;
+  border-top: 1px solid #E2E8F0;
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-lg);
+  gap: 16px;
 }
 
 .price-display {
   font-size: 18px;
   font-weight: bold;
-  background: var(--gradient-accent);
+  background: linear-gradient(135deg, #F97316 0%, #FB923C 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -585,7 +608,7 @@ const isOptionSelected = (category, option) => {
 .confirm-btn {
   width: 100%;
   height: 44px;
-  background: var(--gradient-primary);
+  background: linear-gradient(135deg, #1E40AF 0%, #3B82F6 100%);
   color: white;
   border: none;
   border-radius: 22px;

@@ -113,8 +113,8 @@ const formatPrice = (price) => {
 <style scoped>
 .cart-bar {
   height: 50px;
-  background: var(--bg-primary);
-  border-top: 1px solid var(--border-light);
+  background: #FFFFFF;
+  border-top: 1px solid #E2E8F0;
   position: fixed;
   bottom: 0;
   left: 0;
@@ -123,8 +123,8 @@ const formatPrice = (price) => {
   align-items: center;
   justify-content: space-between;
   padding: 0 16px;
-  z-index: var(--z-fixed);
-  box-shadow: var(--shadow-float);
+  z-index: 100;
+  box-shadow: 0 8px 32px rgba(30, 64, 175, 0.15);
 }
 
 .cart-info {
@@ -146,9 +146,9 @@ const formatPrice = (price) => {
   position: absolute;
   top: -6px;
   right: -6px;
-  background: var(--accent-orange);
-  color: var(--text-inverse);
-  border: 2px solid var(--bg-primary);
+  background: #F97316;
+  color: #FFFFFF;
+  border: 2px solid #FFFFFF;
   border-radius: 10px;
   min-width: 18px;
   height: 18px;
@@ -167,13 +167,13 @@ const formatPrice = (price) => {
 
 .price-info .symbol {
   font-size: 12px;
-  color: var(--text-secondary);
+  color: #475569;
 }
 
 .price-info .amount {
   font-size: 20px;
   font-weight: bold;
-  color: var(--primary-blue);
+  color: #1E40AF;
 }
 
 .submit-btn {
@@ -189,7 +189,7 @@ const formatPrice = (price) => {
   border-radius: 18px;
   font-size: 14px;
   font-weight: 600;
-  box-shadow: var(--shadow-md);
+  box-shadow: 0 4px 12px rgba(30, 64, 175, 0.12);
 }
 
 .submit-button:active {
@@ -202,8 +202,8 @@ const formatPrice = (price) => {
   left: 0;
   width: 100%;
   height: calc(100% - 100px);
-  background-color: var(--bg-overlay);
-  z-index: var(--z-modal-backdrop);
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 500;
 }
 
 .cart-list {
@@ -211,40 +211,40 @@ const formatPrice = (price) => {
   bottom: 50px;
   left: 0;
   right: 0;
-  background-color: var(--bg-primary);
-  border-top-left-radius: var(--radius-xl);
-  border-top-right-radius: var(--radius-xl);
+  background-color: #FFFFFF;
+  border-top-left-radius: 16px;
+  border-top-right-radius: 16px;
   max-height: min(80vh, 600px);
   height: fit-content;
   min-height: 100px;
   overflow: hidden;
-  z-index: var(--z-modal);
-  box-shadow: var(--shadow-xl);
+  z-index: 1000;
+  box-shadow: 0 16px 48px rgba(30, 64, 175, 0.18);
 }
 
 .cart-list-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: var(--spacing-md);
-  background-color: var(--bg-secondary);
+  padding: 12px;
+  background-color: #F8FAFC;
 }
 
 .header-title {
   font-size: 16px;
   font-weight: 700;
-  color: var(--text-primary);
+  color: #0F172A;
 }
 
 .clear-cart {
   display: flex;
   align-items: center;
-  padding: var(--spacing-sm);
+  padding: 8px;
 }
 
 .clear-text {
   font-size: 14px;
-  color: var(--color-danger);
+  color: #EF4444;
 }
 
 .cart-list-content {
@@ -256,8 +256,8 @@ const formatPrice = (price) => {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: var(--spacing-md);
-  border-bottom: 1px solid var(--border-light);
+  padding: 12px;
+  border-bottom: 1px solid #E2E8F0;
 }
 
 .controls {
@@ -275,7 +275,7 @@ const formatPrice = (price) => {
 
 .options {
   font-size: 12px;
-  color: var(--text-tertiary);
+  color: #94A3B8;
   margin-top: 4px;
 }
 
@@ -299,18 +299,18 @@ const formatPrice = (price) => {
   justify-content: center;
   font-size: 16px;
   font-weight: bold;
-  box-shadow: var(--shadow-sm);
+  box-shadow: 0 2px 8px rgba(30, 64, 175, 0.08);
 }
 
 .stepper-plus {
-  background: var(--gradient-primary);
-  color: var(--text-inverse);
+  background: linear-gradient(135deg, #1E40AF 0%, #3B82F6 100%);
+  color: #FFFFFF;
 }
 
 .stepper-minus {
-  background: var(--bg-primary);
-  color: var(--primary-blue);
-  border: 1px solid var(--primary-blue);
+  background: #FFFFFF;
+  color: #1E40AF;
+  border: 1px solid #1E40AF;
 }
 
 .stepper-value {
@@ -318,7 +318,7 @@ const formatPrice = (price) => {
   text-align: center;
   font-size: 14px;
   font-weight: 500;
-  color: var(--text-primary);
+  color: #0F172A;
 }
 
 .item-details {
@@ -330,13 +330,13 @@ const formatPrice = (price) => {
 .item-name {
   font-size: 14px;
   font-weight: 600;
-  color: var(--text-primary);
+  color: #0F172A;
 }
 
 .item-price {
   font-size: 14px;
   font-weight: bold;
-  color: var(--price-primary);
+  color: #EA580C;
   margin-top: 2px;
 }
 
