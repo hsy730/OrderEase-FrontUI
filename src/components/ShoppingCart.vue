@@ -123,7 +123,7 @@ const formatPrice = (price) => {
   align-items: center;
   justify-content: space-between;
   padding: 0 16px;
-  z-index: 100;
+  z-index: 10;
   box-shadow: 0 8px 32px rgba(30, 64, 175, 0.15);
 }
 
@@ -297,8 +297,9 @@ const formatPrice = (price) => {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 16px;
+  font-size: 20px;
   font-weight: bold;
+  line-height: 1;
   box-shadow: 0 2px 8px rgba(30, 64, 175, 0.08);
 }
 

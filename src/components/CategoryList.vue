@@ -48,8 +48,6 @@ const handleSelect = (category) => {
 }
 
 .category-item.active {
-  background: linear-gradient(135deg, #1E40AF 0%, #3B82F6 100%);
-  color: #FFFFFF;
   font-weight: 600;
   border-left-color: #F97316;
 }

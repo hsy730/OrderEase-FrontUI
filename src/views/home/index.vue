@@ -37,8 +37,9 @@
   <van-popup 
     v-model:show="showOptionsPopup"
     position="bottom"
-    style="height: 60%;"
+    style="height: 60%; z-index: 99999 !important;"
     closeable
+    :overlay-style="{ zIndex: 99998 }"
   >
     <div class="popup-content">
       <h4 style="text-align: left; font-size: 20px; border-bottom: 1px solid #eee; padding-bottom: 10px;">{{ selectedProduct.name }}</h4>
@@ -71,15 +72,22 @@
         </div>
         <!-- 计数器 -->
         <div class="quantity-control" v-if="selectedProduct">
-          <!-- <span class="quantity-label">数量</span> -->
-          <van-stepper
-            v-model="productQuantity"
-            integer
-            :min="1"
-            :max="99"
-            theme="round"
-            button-size="28"
-          />
+          <div class="stepper-wrapper">
+            <view
+              v-if="productQuantity > 1"
+              class="stepper-btn stepper-minus"
+              @click="productQuantity--"
+            >
+              -
+            </view>
+            <view class="stepper-value">{{ productQuantity }}</view>
+            <view
+              class="stepper-btn stepper-plus"
+              @click="productQuantity++"
+            >
+              +
+            </view>
+          </div>
         </div>
       </div>
       <div class="button-container">
@@ -103,12 +111,11 @@ import { getShopDetail, getTagBoundProducts, createOrder } from '@/api'
 import CategoryList from '@/components/CategoryList.vue'
 import ProductList from '@/components/ProductList.vue'
 import ShoppingCart from '@/components/ShoppingCart.vue'
-import { Popup, Stepper } from 'vant'
+import { Popup } from 'vant'
 // 在顶部添加 Toast 方法引入
 import { showSuccessToast, showFailToast, showToast } from 'vant'
 const components = {
-  VanPopup: Popup,
-  VanStepper: Stepper
+  VanPopup: Popup
 }
 
 const router = useRouter()
@@ -614,13 +621,18 @@ const isOptionSelected = (category, option) => {
 </style>
 
 <style scoped>
+/* 确保选规格弹窗覆盖购物车结算栏 */
+:deep(.van-popup) {
+  z-index: 99999 !important;
+}
+
 .footer-actions {
   position: fixed;
   bottom: 0;
   padding: var(--spacing-lg);
   background: var(--bg-primary);
   border-top: 1px solid var(--border-light);
-  z-index: var(--z-fixed);
+  z-index: 99999;
   width: inherit;
   display: flex;
   flex-direction: column;
@@ -640,12 +652,44 @@ const isOptionSelected = (category, option) => {
 .quantity-control {
   display: flex;
   align-items: center;
-  gap: 12px;
 }
 
-.quantity-label {
+.stepper-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.stepper-btn {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  font-weight: bold;
+  line-height: 1;
+  box-shadow: 0 2px 8px rgba(30, 64, 175, 0.08);
+}
+
+.stepper-plus {
+  background: linear-gradient(135deg, #1E40AF 0%, #3B82F6 100%);
+  color: #FFFFFF;
+}
+
+.stepper-minus {
+  background: #FFFFFF;
+  color: #1E40AF;
+  border: 1px solid #1E40AF;
+}
+
+.stepper-value {
+  width: 24px;
+  text-align: center;
   font-size: 14px;
-  color: var(--text-primary);
+  font-weight: 500;
+  color: #0F172A;
 }
 
 .price-quantity-container {
@@ -672,33 +716,6 @@ const isOptionSelected = (category, option) => {
   box-shadow: var(--shadow-sm);
 }
 
-/* 弹窗中计数器按钮样式 */
-.quantity-control :deep(.van-stepper__plus) {
-  background: var(--gradient-primary);
-  box-shadow: var(--shadow-sm);
-  transition: all var(--transition-base);
-}
-
-.quantity-control :deep(.van-stepper__minus) {
-  background: var(--bg-primary);
-  color: var(--primary-blue);
-  border: 1px solid var(--primary-blue);
-  box-shadow: var(--shadow-sm);
-  transition: all var(--transition-base);
-}
-
-.quantity-control :deep(.van-stepper__plus):hover {
-  background: var(--gradient-hover);
-  box-shadow: var(--shadow-md);
-  transform: scale(1.05);
-}
-
-.quantity-control :deep(.van-stepper__minus):hover {
-  background: var(--bg-secondary);
-  border-color: var(--primary-blue-light);
-  color: var(--primary-blue-light);
-}
-
 /* 移动端微调 */
 @media (max-width: 420px) {
   .option-item {
@@ -714,5 +731,12 @@ const isOptionSelected = (category, option) => {
   .price-display {
     font-size: 16px;
   }
+}
+</style>
+
+<style>
+/* 确保弹窗的遮罩层也在最高层级 - 全局样式 */
+.van-overlay {
+  z-index: 99998 !important;
 }
 </style>

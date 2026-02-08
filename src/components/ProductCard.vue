@@ -17,7 +17,7 @@
             <span class="text-xl font-bold">{{ product.price }}</span>
             <span class="text-sm">起</span>
           </div>
-          <van-button round size="small" color="#C3A87C">选规格</van-button>
+          <van-button round size="small" color="#C3A87C" class="spec-button">选规格</van-button>
         </div>
       </div>
     </div>
@@ -35,3 +35,10 @@ defineProps({
   }
 })
 </script>
+
+<style scoped>
+.spec-button {
+  padding: 0 16px;
+  min-width: 60px;
+}
+</style>
