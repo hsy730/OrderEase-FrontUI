@@ -25,6 +25,7 @@ export const mockData = {
             id: 1,
             name: '辣度',
             is_required: true,
+            is_multiple: false,
             options: [
               { id: 1, name: '不辣', price_adjustment: 0 },
               { id: 2, name: '微辣', price_adjustment: 0 },
@@ -36,6 +37,7 @@ export const mockData = {
             id: 2,
             name: '份量',
             is_required: true,
+            is_multiple: false,
             options: [
               { id: 5, name: '小份', price_adjustment: -5 },
               { id: 6, name: '标准份', price_adjustment: 0 },
@@ -55,6 +57,7 @@ export const mockData = {
             id: 3,
             name: '辣度',
             is_required: true,
+            is_multiple: false,
             options: [
               { id: 8, name: '不辣', price_adjustment: 0 },
               { id: 9, name: '微辣', price_adjustment: 0 },
@@ -84,6 +87,7 @@ export const mockData = {
             id: 4,
             name: '加料',
             is_required: false,
+            is_multiple: true,
             options: [
               { id: 11, name: '加蛋', price_adjustment: 2 },
               { id: 12, name: '加火腿', price_adjustment: 5 },
@@ -113,6 +117,7 @@ export const mockData = {
             id: 5,
             name: '甜度',
             is_required: true,
+            is_multiple: false,
             options: [
               { id: 14, name: '无糖', price_adjustment: 0 },
               { id: 15, name: '三分糖', price_adjustment: 0 },
@@ -125,10 +130,24 @@ export const mockData = {
             id: 6,
             name: '冰度',
             is_required: true,
+            is_multiple: false,
+
             options: [
               { id: 19, name: '去冰', price_adjustment: 0 },
               { id: 20, name: '少冰', price_adjustment: 0 },
               { id: 21, name: '正常冰', price_adjustment: 0 }
+            ]
+          },
+          {
+            id: 8,
+            name: '加料',
+            is_required: false,
+            is_multiple: true,
+
+            options: [
+              { id: 25, name: '珍珠', price_adjustment: 0 },
+              { id: 26, name: '椰果', price_adjustment: 1 },
+              { id: 27, name: '布丁', price_adjustment: 2 }
             ]
           }
         ]
@@ -154,6 +173,8 @@ export const mockData = {
             id: 7,
             name: '口味',
             is_required: true,
+            is_multiple: false,
+
             options: [
               { id: 22, name: '原味', price_adjustment: 0 },
               { id: 23, name: '香辣', price_adjustment: 0 },

@@ -59,11 +59,22 @@
               ¥{{ (selectedProduct?.price || 0) + optionTotal }}
             </view>
             <view class="quantity-control" v-if="selectedProduct">
-              <uni-number-box 
-                v-model="productQuantity"
-                :min="1"
-                :max="99"
-              />
+              <view class="stepper-wrapper">
+                <view
+                  v-if="productQuantity > 1"
+                  class="stepper-btn stepper-minus"
+                  @click="productQuantity--"
+                >
+                  -
+                </view>
+                <view class="stepper-value">{{ productQuantity }}</view>
+                <view
+                  class="stepper-btn stepper-plus"
+                  @click="productQuantity++"
+                >
+                  +
+                </view>
+              </view>
             </view>
           </view>
           <view class="button-container">
@@ -76,7 +87,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from 'vue'
+import { ref, onMounted, computed, watch } from 'vue'
 import { getShopDetail, getTagBoundProducts, createOrder } from '@/api'
 import CategoryList from '@/components/CategoryList.vue'
 import ProductList from '@/components/ProductList.vue'
@@ -310,6 +321,11 @@ const handleShowProductOptions = (product) => {
 const confirmSelection = () => {
   if (!selectedProduct.value) return
 
+  // 校验必填选项
+  if (!validateOptions()) {
+    return
+  }
+
   const finalPrice = selectedProduct.value.price + optionTotal.value
 
   const productWithOptions = {
@@ -435,12 +451,64 @@ const optionTotal = computed(() => {
     .reduce((sum, opt) => sum + (opt.price_adjustment || 0), 0)
 })
 
+// 初始化默认选项
+const initDefaultOptions = () => {
+  selectedOptions.value.clear()
+
+  if (!selectedProduct.value?.option_categories) return
+
+  for (const category of selectedProduct.value.option_categories) {
+    // 多选模式：如果是必填且只有一个选项，自动勾选
+    if (category.is_multiple) {
+      if (category.is_required && category.options.length === 1) {
+        selectedOptions.value.set(category.id, [category.options[0]])
+      }
+    } else {
+      // 单选模式：如果是必填且只有一个选项，自动选择
+      if (category.is_required && category.options.length === 1) {
+        const defaultOption = category.options[0]
+        if (defaultOption) {
+          selectedOptions.value.set(category.id, [defaultOption])
+        }
+      }
+    }
+  }
+}
+
+// 监听弹窗打开，初始化默认选项
+watch(() => selectedProduct.value, (newProduct) => {
+  if (newProduct && newProduct.option_categories) {
+    initDefaultOptions()
+  }
+})
+
+// 验证必填选项是否已选
+const validateOptions = () => {
+  if (!selectedProduct.value?.option_categories) {
+    return true
+  }
+
+  for (const category of selectedProduct.value.option_categories) {
+    const selected = selectedOptions.value.get(category.id) || []
+
+    // 检查必填项
+    if (category.is_required && selected.length === 0) {
+      uni.showToast({
+        title: `请选择${category.name}`,
+        icon: 'none'
+      })
+      return false
+    }
+  }
+
+  return true
+}
+
 const toggleOption = (category, option) => {
   const categoryOptions = selectedOptions.value.get(category.id) || []
-  
-  if (category.is_required) {
-    selectedOptions.value.set(category.id, [option])
-  } else {
+
+  if (category.is_multiple) {
+    // 多选模式：切换选项
     const index = categoryOptions.findIndex(o => o.id === option.id)
     if (index > -1) {
       categoryOptions.splice(index, 1)
@@ -448,6 +516,9 @@ const toggleOption = (category, option) => {
       categoryOptions.push(option)
     }
     selectedOptions.value.set(category.id, categoryOptions)
+  } else {
+    // 单选模式：直接替换
+    selectedOptions.value.set(category.id, [option])
   }
 }
 
@@ -592,7 +663,44 @@ const isOptionSelected = (category, option) => {
 .quantity-control {
   display: flex;
   align-items: center;
-  gap: 12px;
+}
+
+.stepper-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.stepper-btn {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  font-weight: bold;
+  line-height: 1;
+  box-shadow: 0 2px 8px rgba(30, 64, 175, 0.08);
+}
+
+.stepper-plus {
+  background: linear-gradient(135deg, #1E40AF 0%, #3B82F6 100%);
+  color: #FFFFFF;
+}
+
+.stepper-minus {
+  background: #FFFFFF;
+  color: #1E40AF;
+  border: 1px solid #1E40AF;
+}
+
+.stepper-value {
+  width: 24px;
+  text-align: center;
+  font-size: 14px;
+  font-weight: 500;
+  color: #0F172A;
 }
 
 .price-quantity-container {
