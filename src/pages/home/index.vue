@@ -31,6 +31,7 @@
       @remove="handleRemoveItem"
       @update:count="handleCountUpdate"
       @clear="handleClearCart"
+      @recalculate="recalculateProductCounts"
     />
 
     <uni-popup ref="popup" type="bottom" :safe-area="false">

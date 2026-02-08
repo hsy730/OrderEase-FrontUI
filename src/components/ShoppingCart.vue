@@ -80,7 +80,7 @@ const props = defineProps({
   },
 })
 
-const emit = defineEmits(['submit', 'increase', 'decrease', 'remove', 'update:count', 'update:show', 'clear'])
+const emit = defineEmits(['submit', 'increase', 'decrease', 'remove', 'update:count', 'update:show', 'clear', 'recalculate'])
 
 const totalCount = computed(() => {
   return props.cartItems.reduce((sum, item) => sum + item.count, 0)
@@ -98,7 +98,9 @@ const toggleCartList = () => {
 }
 
 const handleCountChange = (item, count) => {
+  item.count = count
   emit('update:count', item.cartItemId || item.id, count)
+  emit('recalculate')
 }
 
 const formatPrice = (price) => {
