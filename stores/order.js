@@ -41,6 +41,12 @@ export const useOrderStore = defineStore('order', () => {
 
   const getOrderStatusText = (status) => {
     const statusMap = {
+      0: '待支付',
+      1: '已支付',
+      2: '制作中',
+      3: '待取餐',
+      4: '已完成',
+      5: '已取消',
       'pending': '待支付',
       'paid': '已支付',
       'preparing': '制作中',
@@ -53,6 +59,12 @@ export const useOrderStore = defineStore('order', () => {
 
   const getStatusIcon = (status) => {
     const iconMap = {
+      0: '⏰',
+      1: '💰',
+      2: '👨‍🍳',
+      3: '📦',
+      4: '✅',
+      5: '❌',
       'pending': '⏰',
       'paid': '💰',
       'preparing': '👨‍🍳',

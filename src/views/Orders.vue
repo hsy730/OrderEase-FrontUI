@@ -1,3 +1,12 @@
+<!--
+  ⚠️ 此文件已废弃
+  ================================
+  此 H5 版本界面已废弃，不再维护和更新。
+  当前项目使用 uni-app 版本（pages/ 和 src/pages/ 目录）。
+  如需修改相关功能，请更新对应的 uni-app 版本文件。
+  
+  废弃时间：2026-02-09
+-->
 <template>
     <div class="orders-page">
       <div class="orders-list p-4" ref="ordersListRef" @scroll="handleScroll">
@@ -10,17 +19,17 @@
           :thumb="getImageUrl(order.items[0]?.image)"
         >
           <template #tags>
-            <van-tag :type="getStatusType(order.status)">{{ order.status }}</van-tag>
+            <van-tag :type="getStatusType(order.status)">{{ getStatusText(order.status) }}</van-tag>
           </template>
           <template #footer>
             <!-- <div class="text-sm text-gray-500">
               共{{ order.items.length }}件商品
             </div> -->
-            <div class="order-actions" style="margin-top: 10px;">
+            <div class="order-actions">
               <van-button
                 size="small"
-                type="text"
-                style="color: #1E40AF; background: transparent; border: none; padding: 0; --van-button-active-background: transparent"
+                type="primary"
+                plain
                 @click="viewOrderDetail(order)">详情</van-button>
             </div>
           </template>
@@ -47,7 +56,7 @@
               <van-cell title="下单时间" :value="formatDate(selectedOrder.created_at)" />
               <van-cell title="订单状态">
                 <template #value>
-                  <van-tag :type="getStatusType(selectedOrder.status)">{{ selectedOrder.status }}</van-tag>
+                  <van-tag :type="getStatusType(selectedOrder.status)">{{ getStatusText(selectedOrder.status) }}</van-tag>
                 </template>
               </van-cell>
               <van-cell title="总计" :value="`¥${selectedOrder.total_price}`" />
@@ -180,11 +189,22 @@
   
   const getStatusType = (status) => {
     const typeMap = {
-      '待取餐': 'warning',
-      '已完成': 'success',
-      '已取消': 'danger'
+      0: 'primary',
+      1: 'warning',
+      2: 'success',
+      3: 'danger'
     }
     return typeMap[status] || 'default'
+  }
+
+  const getStatusText = (status) => {
+    const textMap = {
+      0: '待支付',
+      1: '待取餐',
+      2: '已完成',
+      3: '已取消'
+    }
+    return textMap[status] || '未知'
   }
   
   // 格式化日期
@@ -245,14 +265,14 @@
   }
 
   :deep(.van-card) {
-    background: var(--bg-primary);
-    margin-bottom: var(--spacing-md);
-    border-radius: var(--radius-lg);
-    border: 1px solid var(--border-light);
-    box-shadow: var(--shadow-card);
-    transition: all var(--transition-base);
-    overflow: hidden;
-  }
+  background: var(--bg-primary);
+  margin-bottom: 4px;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-light);
+  box-shadow: var(--shadow-card);
+  transition: all var(--transition-base);
+  overflow: hidden;
+}
 
   :deep(.van-card:hover) {
     border-color: var(--primary-blue-light);
@@ -261,20 +281,40 @@
   }
 
   :deep(.van-card__title) {
-    font-weight: 600;
-    color: var(--text-primary);
-  }
+  font-weight: 600;
+  color: var(--text-primary);
+  font-size: 14px;
+  line-height: 1.2;
+  margin-bottom: 2px;
+}
 
   :deep(.van-card__desc) {
-    color: var(--text-secondary);
-  }
+  color: var(--text-secondary);
+  font-size: 12px;
+  line-height: 1.1;
+  margin-bottom: 4px;
+}
 
   :deep(.van-card__price) {
-    color: var(--price-primary);
-    font-weight: bold;
-  }
+  color: var(--price-primary);
+  font-weight: bold;
+}
 
-  /* 订单详情按钮样式 */
+:deep(.van-card__content) {
+  padding: 8px 10px;
+}
+
+:deep(.van-card__footer) {
+  padding: 6px 10px;
+}
+
+:deep(.van-card__thumb) {
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius-sm);
+}
+
+/* 订单详情按钮样式 */
   .order-actions :deep(.van-button) {
     color: var(--primary-blue);
     transition: all var(--transition-base);
@@ -313,14 +353,14 @@
   }
 
   .order-info {
-    margin-top: var(--spacing-xl);
-  }
+  margin-top: 12px;
+}
 
   .loading-more, .no-more-data {
-    text-align: center;
-    padding: var(--spacing-lg);
-    color: var(--text-tertiary);
-  }
+  text-align: center;
+  padding: 12px;
+  color: var(--text-tertiary);
+}
 
   .orders-list {
     height: calc(100vh - 50px);

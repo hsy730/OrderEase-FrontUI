@@ -40,7 +40,7 @@
               <text class="order-no">订单号：{{ order.order_no }}</text>
               <text class="order-time">{{ formatTime(order.created_at) }}</text>
             </view>
-            <view :class="['order-status', `status-${order.status}`]">
+            <view :class="['order-status', getStatusClass(order.status)]">
               {{ orderStore.getOrderStatusText(order.status) }}
             </view>
           </view>
@@ -84,28 +84,28 @@
             </view>
             <view class="order-actions">
               <button
-                v-if="order.status === 'pending'"
+                v-if="order.status === 0 || order.status === 'pending'"
                 class="action-btn btn-cancel"
                 @click.stop="handleCancel(order)"
               >
                 取消订单
               </button>
               <button
-                v-if="order.status === 'pending'"
+                v-if="order.status === 0 || order.status === 'pending'"
                 class="action-btn btn-pay"
                 @click.stop="handlePay(order)"
               >
                 去支付
               </button>
               <button
-                v-if="order.status === 'paid'"
+                v-if="[1, 2, 3, 'paid', 'preparing', 'ready'].includes(order.status)"
                 class="action-btn btn-default"
                 @click.stop="handleOrderDetail(order)"
               >
                 查看详情
               </button>
               <button
-                v-if="order.status === 'completed'"
+                v-if="order.status === 4 || order.status === 'completed'"
                 class="action-btn btn-default"
                 @click.stop="handleOrderDetail(order)"
               >
@@ -140,13 +140,16 @@ const orderStore = useOrderStore()
 // 订单数据（使用 orderStore）
 const statusTabs = ref([
   { label: '全部', value: 'all', count: 0 },
-  { label: '待支付', value: 'pending', count: 0 },
-  { label: '已支付', value: 'paid', count: 0 },
-  { label: '已完成', value: 'completed', count: 0 },
-  { label: '已取消', value: 'cancelled', count: 0 }
+  { label: '待支付', value: 0, count: 0 },
+  { label: '已支付', value: 1, count: 0 },
+  { label: '制作中', value: 2, count: 0 },
+  { label: '待取餐', value: 3, count: 0 },
+  { label: '已完成', value: 4, count: 0 },
+  { label: '已取消', value: 5, count: 0 }
 ])
 
 const activeTab = ref('all')
+const refreshing = ref(false)
 
 // 加载订单列表
 const loadOrders = async (page = 1) => {
@@ -156,6 +159,8 @@ const loadOrders = async (page = 1) => {
     orderStore.setLoading(true)
 
     const userId = uni.getStorageSync('user_id')
+    const shopId = uni.getStorageSync('shop_id')
+
     if (!userId) {
       uni.showToast({
         title: '请先登录',
@@ -164,11 +169,20 @@ const loadOrders = async (page = 1) => {
       return
     }
 
+    if (!shopId) {
+      uni.showToast({
+        title: '缺少店铺信息',
+        icon: 'none'
+      })
+      return
+    }
+
     const params = {
       user_id: userId,
+      shop_id: shopId,
       page,
       pageSize: orderStore.pageSize,
-      status: activeTab.value === 'all' ? '' : activeTab.value
+      status: activeTab.value === 'all' ? undefined : activeTab.value
     }
 
     const res = await getOrders(params)
@@ -201,19 +215,21 @@ const updateTabCounts = () => {
   // 临时处理：使用本地数据统计
   statusTabs.value.forEach(tab => {
     if (tab.value === 'all') {
-      tab.count = orders.value.length
+      tab.count = orderStore.orders.length
     } else {
-      tab.count = orders.value.filter(order => order.status === tab.value).length
+      tab.count = orderStore.orders.filter(order => order.status === tab.value).length
     }
   })
 }
 
 // 下拉刷新
 const onRefresh = async () => {
-  refreshing.value = true
-  orderStore.setCurrentPage(1)
-  await loadOrders(1)
-  refreshing.value = false
+  if (!refreshing.value) {
+    refreshing.value = true
+    orderStore.setCurrentPage(1)
+    await loadOrders(1)
+    refreshing.value = false
+  }
 }
 
 // 加载更多
@@ -285,6 +301,19 @@ const formatTime = (timestamp) => {
   const hours = String(date.getHours()).padStart(2, '0')
   const minutes = String(date.getMinutes()).padStart(2, '0')
   return `${month}-${day} ${hours}:${minutes}`
+}
+
+// 获取状态样式类名
+const getStatusClass = (status) => {
+  const statusMap = {
+    0: 'status-pending',
+    1: 'status-paid',
+    2: 'status-preparing',
+    3: 'status-ready',
+    4: 'status-completed',
+    5: 'status-cancelled'
+  }
+  return statusMap[status] || ''
 }
 
 // 页面加载
@@ -363,7 +392,7 @@ onMounted(() => {
   flex: 1;
   height: 0;
   overflow-y: auto;
-  padding: 24rpx;
+  padding: 16rpx 24rpx;
 }
 
 .empty-state {
@@ -387,7 +416,7 @@ onMounted(() => {
 .order-list {
   display: flex;
   flex-direction: column;
-  gap: 24rpx;
+  gap: 16rpx;
 }
 
 .order-card {
@@ -401,14 +430,14 @@ onMounted(() => {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 24rpx;
+  padding: 20rpx 24rpx;
   border-bottom: 1rpx solid var(--border-light);
 }
 
 .order-info {
   display: flex;
   flex-direction: column;
-  gap: 8rpx;
+  gap: 4rpx;
 }
 
 .order-no {
@@ -434,6 +463,14 @@ onMounted(() => {
   color: #4caf50;
 }
 
+.order-status.status-preparing {
+  color: #2196f3;
+}
+
+.order-status.status-ready {
+  color: #9c27b0;
+}
+
 .order-status.status-completed {
   color: #2196f3;
 }
@@ -443,14 +480,14 @@ onMounted(() => {
 }
 
 .order-items {
-  padding: 24rpx;
+  padding: 20rpx 24rpx;
   border-bottom: 1rpx solid var(--border-light);
 }
 
 .order-item {
   display: flex;
   gap: 24rpx;
-  margin-bottom: 24rpx;
+  margin-bottom: 12rpx;
 }
 
 .order-item:last-child {
@@ -517,7 +554,7 @@ onMounted(() => {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 24rpx;
+  padding: 20rpx 24rpx;
 }
 
 .order-total {

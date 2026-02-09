@@ -34,19 +34,39 @@ export const mockApi = {
 
   async getOrders(params) {
     await delay()
-    const { user_id, page = 1, pageSize = 10 } = params
-    
-    const userOrders = mockData.orders.filter(order => order.user_id === user_id)
+    const { page = 1, pageSize = 10 } = params
+
     const start = (page - 1) * pageSize
     const end = start + pageSize
-    const paginatedOrders = userOrders.slice(start, end)
-    
+    const paginatedOrders = mockData.orders.slice(start, end)
+
     return {
       status: 200,
       data: {
         code: 200,
         data: paginatedOrders,
-        total: userOrders.length,
+        total: mockData.orders.length,
+        page,
+        pageSize
+      }
+    }
+  },
+
+  async getShopOrders(params) {
+    await delay()
+    const { shop_id, page = 1, pageSize = 10 } = params
+
+    const shopOrders = mockData.orders.filter(o => o.shop_id == shop_id)
+    const start = (page - 1) * pageSize
+    const end = start + pageSize
+    const paginatedOrders = shopOrders.slice(start, end)
+
+    return {
+      status: 200,
+      data: {
+        code: 200,
+        data: paginatedOrders,
+        total: shopOrders.length,
         page,
         pageSize
       }
@@ -69,38 +89,46 @@ export const mockApi = {
     
     return {
       status: 200,
-      data: order
+      data: {
+        code: 200,
+        data: order
+      }
     }
   },
 
   async createOrder(orderData) {
     await delay()
-    
+
     const newOrder = {
       id: Date.now(),
       user_id: orderData.user_id,
-      status: '待取餐',
+      shop_id: orderData.shop_id || 1234567890,
+      status: 0,
       total_price: orderData.items.reduce((sum, item) => sum + (item.price * item.quantity), 0),
+      remark: orderData.remark || '',
       created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
       items: orderData.items.map(item => {
         const product = Object.values(mockData.products)
           .flat()
           .find(p => p.id === item.product_id)
-        
+
         return {
+          id: Date.now() + Math.random(),
+          order_id: Date.now(),
           product_id: item.product_id,
           product_name: product?.name || '未知商品',
+          product_image: product?.image_url || '',
           quantity: item.quantity,
           price: item.price,
-          total_price: item.price * item.quantity,
-          image_url: product?.image_url || '',
+          subtotal: item.price * item.quantity,
           options: item.options || []
         }
       })
     }
-    
+
     mockData.orders.unshift(newOrder)
-    
+
     return {
       status: 200,
       data: {

@@ -224,61 +224,223 @@ export const mockData = {
 
   orders: [
     {
-      id: 1001,
-      user_id: 1,
-      status: '待取餐',
+      id: 1111111111111111111,
+      user_id: 9876543210987654321,
+      shop_id: 1234567890,
       total_price: 76,
-      created_at: '2024-01-15T10:30:00Z',
+      status: 2,
+      remark: '',
+      created_at: '2025-02-06T10:30:00Z',
+      updated_at: '2025-02-06T10:30:00Z',
       items: [
         {
+          id: 2222222222222222222,
+          order_id: 1111111111111111111,
           product_id: 1,
           product_name: '招牌红烧肉',
+          product_image: 'https://via.placeholder.com/200x200/FF6B6B/FFFFFF?text=红烧肉',
           quantity: 2,
           price: 38,
-          total_price: 76,
-          image_url: 'https://via.placeholder.com/200x200/FF6B6B/FFFFFF?text=红烧肉'
+          subtotal: 76,
+          options: [
+            {
+              id: 3333333333333333333,
+              item_id: 2222222222222222222,
+              category_name: '辣度',
+              option_name: '中辣',
+              price_adjustment: 0
+            },
+            {
+              id: 4444444444444444444,
+              item_id: 2222222222222222222,
+              category_name: '份量',
+              option_name: '大份',
+              price_adjustment: 8
+            }
+          ]
         }
       ]
     },
     {
-      id: 1002,
-      user_id: 1,
-      status: '已完成',
-      total_price: 54,
-      created_at: '2024-01-14T18:20:00Z',
+      id: 5555555555555555555,
+      user_id: 9876543210987654321,
+      shop_id: 1234567890,
+      total_price: 89.80,
+      status: 1,
+      remark: '请尽快处理',
+      created_at: '2025-02-06T10:30:00Z',
+      updated_at: '2025-02-06T10:30:00Z',
       items: [
         {
-          product_id: 2,
-          product_name: '宫保鸡丁',
-          quantity: 1,
-          price: 32,
-          total_price: 32,
-          image_url: 'https://via.placeholder.com/200x200/4ECDC4/FFFFFF?text=宫保鸡丁'
-        },
-        {
-          product_id: 4,
-          product_name: '扬州炒饭',
-          quantity: 1,
-          price: 22,
-          total_price: 22,
-          image_url: 'https://via.placeholder.com/200x200/95E1D3/FFFFFF?text=扬州炒饭'
-        }
-      ]
-    },
-    {
-      id: 1003,
-      user_id: 1,
-      status: '已取消',
-      total_price: 15,
-      created_at: '2024-01-13T12:00:00Z',
-      items: [
-        {
+          id: 6666666666666666666,
+          order_id: 5555555555555555555,
           product_id: 6,
           product_name: '珍珠奶茶',
+          product_image: 'https://via.placeholder.com/200x200/A8E6CF/FFFFFF?text=珍珠奶茶',
+          quantity: 2,
+          price: 28,
+          subtotal: 56,
+          options: [
+            {
+              id: 7777777777777777777,
+              item_id: 6666666666666666666,
+              category_name: '杯型',
+              option_name: '大杯',
+              price_adjustment: 5
+            },
+            {
+              id: 8888888888888888888,
+              item_id: 6666666666666666666,
+              category_name: '甜度',
+              option_name: '五分糖',
+              price_adjustment: 0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      id: 2222222222222222222,
+      user_id: 9876543210987654321,
+      shop_id: 1234567890,
+      total_price: 54,
+      status: 3,
+      remark: '',
+      created_at: '2025-02-05T18:20:00Z',
+      updated_at: '2025-02-05T18:20:00Z',
+      items: [
+        {
+          id: 9999999999999999999,
+          order_id: 2222222222222222222,
+          product_id: 2,
+          product_name: '宫保鸡丁',
+          product_image: 'https://via.placeholder.com/200x200/4ECDC4/FFFFFF?text=宫保鸡丁',
+          quantity: 1,
+          price: 32,
+          subtotal: 32,
+          options: [
+            {
+              id: 1000000000000000000,
+              item_id: 9999999999999999999,
+              category_name: '辣度',
+              option_name: '微辣',
+              price_adjustment: 0
+            }
+          ]
+        },
+        {
+          id: 1111111111111111112,
+          order_id: 2222222222222222222,
+          product_id: 4,
+          product_name: '扬州炒饭',
+          product_image: 'https://via.placeholder.com/200x200/95E1D3/FFFFFF?text=扬州炒饭',
+          quantity: 1,
+          price: 22,
+          subtotal: 22,
+          options: []
+        }
+      ]
+    },
+    {
+      id: 3333333333333333333,
+      user_id: 9876543210987654321,
+      shop_id: 1234567890,
+      total_price: 15,
+      status: 3,
+      remark: '',
+      created_at: '2025-02-04T12:00:00Z',
+      updated_at: '2025-02-04T12:00:00Z',
+      items: [
+        {
+          id: 1222222222222222222,
+          order_id: 3333333333333333333,
+          product_id: 6,
+          product_name: '珍珠奶茶',
+          product_image: 'https://via.placeholder.com/200x200/A8E6CF/FFFFFF?text=珍珠奶茶',
           quantity: 1,
           price: 15,
-          total_price: 15,
-          image_url: 'https://via.placeholder.com/200x200/A8E6CF/FFFFFF?text=珍珠奶茶'
+          subtotal: 15,
+          options: [
+            {
+              id: 1333333333333333333,
+              item_id: 1222222222222222222,
+              category_name: '甜度',
+              option_name: '七分糖',
+              price_adjustment: 0
+            },
+            {
+              id: 1444444444444444444,
+              item_id: 1222222222222222222,
+              category_name: '冰度',
+              option_name: '少冰',
+              price_adjustment: 0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      id: 4444444444444444444,
+      user_id: 9876543210987654321,
+      shop_id: 1234567890,
+      total_price: 42,
+      status: 0,
+      remark: '',
+      created_at: '2025-02-07T09:00:00Z',
+      updated_at: '2025-02-07T09:00:00Z',
+      items: [
+        {
+          id: 1555555555555555555,
+          order_id: 4444444444444444444,
+          product_id: 3,
+          product_name: '糖醋排骨',
+          product_image: 'https://via.placeholder.com/200x200/FFE66D/FFFFFF?text=糖醋排骨',
+          quantity: 1,
+          price: 42,
+          subtotal: 42,
+          options: []
+        }
+      ]
+    },
+    {
+      id: 6666666666666666666,
+      user_id: 9876543210987654321,
+      shop_id: 1234567890,
+      total_price: 37,
+      status: 1,
+      remark: '少放辣',
+      created_at: '2025-02-07T11:30:00Z',
+      updated_at: '2025-02-07T11:30:00Z',
+      items: [
+        {
+          id: 1666666666666666666,
+          order_id: 6666666666666666666,
+          product_id: 2,
+          product_name: '宫保鸡丁',
+          product_image: 'https://via.placeholder.com/200x200/4ECDC4/FFFFFF?text=宫保鸡丁',
+          quantity: 1,
+          price: 32,
+          subtotal: 32,
+          options: [
+            {
+              id: 1777777777777777777,
+              item_id: 1666666666666666666,
+              category_name: '辣度',
+              option_name: '不辣',
+              price_adjustment: 0
+            }
+          ]
+        },
+        {
+          id: 1888888888888888888,
+          order_id: 6666666666666666666,
+          product_id: 5,
+          product_name: '牛肉面',
+          product_image: 'https://via.placeholder.com/200x200/F38181/FFFFFF?text=牛肉面',
+          quantity: 1,
+          price: 5,
+          subtotal: 5,
+          options: []
         }
       ]
     }

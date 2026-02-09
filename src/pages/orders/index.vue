@@ -7,11 +7,11 @@
           <text class="order-time">{{ order.createTime }}</text>
         </view>
         <view class="order-content">
-          <image class="order-image" :src="getImageUrl(order.items[0]?.image)" mode="aspectFill" />
+          <image class="order-image" :src="getImageUrl(order.items[0]?.product_image)" mode="aspectFill" />
           <view class="order-info">
             <text class="order-amount">¥{{ order.totalAmount }}</text>
             <view class="order-status" :class="'status-' + getStatusType(order.status)">
-              {{ order.status }}
+              {{ getStatusText(order.status) }}
             </view>
           </view>
         </view>
@@ -44,7 +44,7 @@
           <view class="detail-item">
             <text class="label">订单状态</text>
             <view class="order-status" :class="'status-' + getStatusType(selectedOrder.status)">
-              {{ selectedOrder.status }}
+              {{ getStatusText(selectedOrder.status) }}
             </view>
           </view>
           <view class="detail-item">
@@ -54,11 +54,16 @@
           
           <view class="detail-section-title">商品列表</view>
           <view v-for="(item, index) in selectedOrder.items" :key="index" class="product-item">
-            <image class="product-image" :src="getImageUrl(item.image || item.product_image_url)" mode="aspectFill" />
+            <image class="product-image" :src="getImageUrl(item.product_image)" mode="aspectFill" />
             <view class="product-info">
-              <text class="product-name">{{ item.name || item.product_name }}</text>
-              <text class="product-price">¥{{ item.total_price }}</text>
+              <text class="product-name">{{ item.product_name }}</text>
+              <text class="product-price">¥{{ item.subtotal }}</text>
               <text class="product-quantity">数量: {{ item.quantity }}</text>
+              <view v-if="item.options && item.options.length > 0" class="product-options">
+                <text v-for="(option, optIndex) in item.options" :key="optIndex" class="option-tag">
+                  {{ option.category_name }}: {{ option.option_name }}
+                </text>
+              </view>
             </view>
           </view>
         </view>
@@ -100,12 +105,7 @@ const loadOrders = async (page = 1) => {
         createTime: formatDate(order.created_at),
         status: order.status,
         totalAmount: order.total_price,
-        items: order.items || [{
-          name: order.product_name,
-          price: order.total_price,
-          quantity: 1,
-          image: order.image_url || ''
-        }]
+        items: order.items || []
       }))
       
       if (page === 1) {
@@ -149,11 +149,22 @@ const loadMore = () => {
 
 const getStatusType = (status) => {
   const typeMap = {
-    '待取餐': 'warning',
-    '已完成': 'success',
-    '已取消': 'danger'
+    0: 'primary',
+    1: 'warning',
+    2: 'success',
+    3: 'danger'
   }
   return typeMap[status] || 'default'
+}
+
+const getStatusText = (status) => {
+  const textMap = {
+    0: '待支付',
+    1: '待取餐',
+    2: '已完成',
+    3: '已取消'
+  }
+  return textMap[status] || '未知'
 }
 
 const formatDate = (dateString) => {
@@ -168,8 +179,8 @@ const viewOrderDetail = async (order) => {
   try {
     const response = await getOrderDetail(order.id)
     
-    if (response.data && response.status === 200) {
-      selectedOrder.value = response.data
+    if (response.data && response.data.code === 200) {
+      selectedOrder.value = response.data.data
       detailPopup.value.open()
     } else {
       uni.showToast({
@@ -258,6 +269,11 @@ const viewOrderDetail = async (order) => {
   padding: 4px 12px;
   border-radius: 12px;
   font-size: 12px;
+}
+
+.status-primary {
+  background: #e6f7ff;
+  color: #1890ff;
 }
 
 .status-warning {
@@ -386,5 +402,20 @@ const viewOrderDetail = async (order) => {
 .product-quantity {
   font-size: 12px;
   color: var(--text-secondary);
+}
+
+.product-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 4px;
+}
+
+.option-tag {
+  font-size: 11px;
+  padding: 2px 6px;
+  background: var(--bg-secondary);
+  color: var(--text-secondary);
+  border-radius: 4px;
 }
 </style>
