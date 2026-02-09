@@ -1,226 +1,282 @@
 <template>
-  <div class="smart-image-container">
+  <view class="smart-image-container" :style="containerStyle">
     <!-- 加载状态 -->
-    <div v-if="isLoading" class="loading-placeholder" :style="style">
-      加载中...
-    </div>
+    <view v-if="isLoading" class="loading-placeholder" :style="placeholderStyle">
+      <view class="loading-spinner"></view>
+    </view>
     
     <!-- 错误状态 -->
-    <div v-else-if="hasError" class="error-placeholder" :style="style" @click="retryLoad">
-      图片加载失败，点击重试
-    </div>
+    <view v-else-if="hasError" class="error-placeholder" :style="placeholderStyle" @click="retryLoad">
+      <text class="error-icon">📷</text>
+      <text class="error-text">加载失败</text>
+    </view>
     
     <!-- 正常显示 -->
-    <img 
+    <image 
       v-else
-      v-show="!isLoading && !hasError"
       :src="imageUrl" 
-      :alt="alt" 
-      :class="className"
-      :style="style"
+      :mode="mode" 
+      :lazy-load="lazyLoad"
+      :show-menu-by-longpress="showMenuByLongpress"
+      class="smart-image"
+      :class="{ 'image-loaded': !isLoading && !hasError }"
+      :style="imageStyle"
       @click="handleClick"
       @error="handleError"
       @load="handleLoad"
     />
-  </div>
+  </view>
 </template>
 
-<script>
-import api from '@/api'
-import axios from 'axios'
+<script setup>
+import { ref, watch, computed } from 'vue'
+import { API_BASE_URL } from '@/utils/constants'
 
-export default {
-  name: 'SmartImage',
-  props: {
-    src: {
-      type: String,
-      required: true
-    },
-    alt: {
-      type: String,
-      default: ''
-    },
-    className: {
-      type: String,
-      default: ''
-    },
-    style: {
-      type: Object,
-      default: () => ({})
-    }
+const props = defineProps({
+  src: {
+    type: String,
+    default: ''
   },
-  data() {
-    return { 
-      imageUrl: '',
-      isLoading: false,
-      hasError: false,
-      currentRequest: null // 跟踪当前请求
-    }
+  mode: {
+    type: String,
+    default: 'aspectFill'
   },
-  watch: {
-    src: {
-      immediate: true,
-      handler: function(newVal) {
-        // 取消之前的请求
-        if (this.currentRequest) {
-          this.currentRequest.cancel && this.currentRequest.cancel()
-        }
-        
-        // 重置状态
-        this.hasError = false
-        
-        // 释放之前的URL
-        if (this.imageUrl && this.imageUrl.startsWith('blob:')) {
-          URL.revokeObjectURL(this.imageUrl)
-          this.imageUrl = ''
-        }
-        
-        // 加载新图片
-        if (newVal) {
-          this.loadImage()
-        }
-      }
-    }
+  lazyLoad: {
+    type: Boolean,
+    default: true
   },
-  methods: {
-    async loadImage() {
-      if (!this.src) return
-      
-      // 避免重复请求
-      if (this.isLoading) return
-      
-      this.isLoading = true
-      this.hasError = false
+  showMenuByLongpress: {
+    type: Boolean,
+    default: false
+  },
+  width: {
+    type: String,
+    default: '100%'
+  },
+  height: {
+    type: String,
+    default: '100%'
+  }
+})
 
-      try {
-        // 创建取消令牌
-        const CancelToken = axios.CancelToken
-        const source = CancelToken.source()
-        this.currentRequest = source
-        
-        const response = await api({
-          method: 'get',
-          url: this.src,
-          baseURL: '', // 图片请求不使用baseURL
-          responseType: 'blob',
-          cancelToken: source.token,
-          headers: { 'Accept': 'image/*' },
-          timeout: 15000 // 15秒超时
-        })
+const emit = defineEmits(['load', 'error', 'click'])
 
-        // 验证返回的数据确实是图片
-        if (!response.data || !response.data.type.startsWith('image/')) {
-          throw new Error('返回的数据不是有效的图片')
-        }
+const imageUrl = ref('')
+const isLoading = ref(false)
+const hasError = ref(false)
+const tempFilePath = ref('')
+const requestTask = ref(null)
 
-        // 释放之前的URL
-        if (this.imageUrl && this.imageUrl.startsWith('blob:')) {
-          URL.revokeObjectURL(this.imageUrl)
-        }
-        
-        // 创建新的URL
-        const blobUrl = URL.createObjectURL(response.data)
-        this.imageUrl = blobUrl
-        
-        // 清除当前请求引用
-        this.currentRequest = null
-        
-      } catch (error) {
-        // 如果是取消请求，不视为错误
-        if (axios.isCancel(error)) {
-          console.log('请求被取消:', error.message)
-          return
-        }
-        
-        console.error('图片加载失败:', {
-          url: this.src,
-          error: error?.message || error,
-          status: error?.response?.status,
-          statusText: error?.response?.statusText
-        })
-        
-        this.hasError = true
-        this.imageUrl = ''
-        this.$emit('error', error)
-      } finally {
-        this.isLoading = false
-      }
-    },
-    
-    // 手动重试
-    retryLoad() {
-      this.loadImage()
-    },
-    
-    handleClick() {
-      this.$emit('click')
-    },
-    
-    handleError(error) {
-      console.error('图片显示错误:', {
-        url: this.src,
-        blobUrl: this.imageUrl,
-        error: error?.message || error
-      })
-      
-      // 标记错误但不立即重试（可能网络问题）
-      this.hasError = true
-      this.$emit('error', error)
-    },
-    
-    handleLoad() {
-      console.log('图片加载成功:', this.src)
-      this.$emit('load')
-    }
-  },
+// 容器样式
+const containerStyle = computed(() => ({
+  width: props.width,
+  height: props.height,
+  position: 'relative'
+}))
+
+// 占位样式
+const placeholderStyle = computed(() => ({
+  width: props.width,
+  height: props.height
+}))
+
+// 图片样式
+const imageStyle = computed(() => ({
+  width: props.width,
+  height: props.height,
+  opacity: isLoading.value || hasError.value ? 0 : 1
+}))
+
+// 监听 src 变化
+watch(() => props.src, (newVal) => {
+  // 取消之前的请求
+  if (requestTask.value) {
+    requestTask.value.abort()
+    requestTask.value = null
+  }
   
-  beforeDestroy() {
-    // 取消未完成的请求
-    if (this.currentRequest) {
-      this.currentRequest.cancel && this.currentRequest.cancel('组件销毁')
+  // 清理之前的临时文件
+  cleanupTempFile()
+  
+  // 重置状态
+  isLoading.value = false
+  hasError.value = false
+  imageUrl.value = ''
+  
+  // 加载新图片
+  if (newVal) {
+    loadImage()
+  }
+}, { immediate: true })
+
+// 加载图片
+const loadImage = async () => {
+  if (!props.src || isLoading.value) return
+  
+  isLoading.value = true
+  hasError.value = false
+  
+  try {
+    // 获取用户token
+    const token = uni.getStorageSync('token')
+    
+    // 构建完整URL
+    let fullUrl = props.src
+    if (!fullUrl.startsWith('http')) {
+      fullUrl = `${API_BASE_URL}${fullUrl.startsWith('/') ? '' : '/'}${fullUrl}`
     }
     
-    // 释放Blob URL
-    if (this.imageUrl && this.imageUrl.startsWith('blob:')) {
-      URL.revokeObjectURL(this.imageUrl)
+    // 发送请求获取图片
+    requestTask.value = uni.request({
+      url: fullUrl,
+      method: 'GET',
+      responseType: 'arraybuffer',
+      header: {
+        'Authorization': token ? `Bearer ${token}` : '',
+        'Accept': 'image/*'
+      },
+      timeout: 15000
+    })
+    
+    const [error, response] = await requestTask.value
+    requestTask.value = null
+    
+    if (error) {
+      throw new Error(error.errMsg || '请求失败')
     }
+    
+    if (response.statusCode !== 200) {
+      throw new Error(`HTTP ${response.statusCode}`)
+    }
+    
+    // 验证返回数据
+    if (!response.data || response.data.byteLength === 0) {
+      throw new Error('返回数据为空')
+    }
+    
+    // 保存为临时文件
+    const fs = uni.getFileSystemManager()
+    const fileName = `smart_image_${Date.now()}_${Math.random().toString(36).substr(2, 9)}.jpg`
+    const filePath = `${uni.env.USER_DATA_PATH}/${fileName}`
+    
+    fs.writeFileSync(filePath, response.data, 'binary')
+    
+    tempFilePath.value = filePath
+    imageUrl.value = filePath
+    
+  } catch (error) {
+    console.error('图片加载失败:', {
+      url: props.src,
+      error: error.message || error
+    })
+    hasError.value = true
+    emit('error', error)
+  } finally {
+    isLoading.value = false
   }
 }
+
+// 清理临时文件
+const cleanupTempFile = () => {
+  if (tempFilePath.value) {
+    try {
+      const fs = uni.getFileSystemManager()
+      fs.unlinkSync(tempFilePath.value)
+    } catch (e) {
+      // 忽略删除错误
+    }
+    tempFilePath.value = ''
+  }
+}
+
+// 重试加载
+const retryLoad = () => {
+  loadImage()
+}
+
+// 处理点击
+const handleClick = () => {
+  emit('click')
+}
+
+// 处理图片加载错误
+const handleError = (e) => {
+  console.error('图片显示错误:', {
+    url: props.src,
+    tempPath: tempFilePath.value
+  })
+  hasError.value = true
+  emit('error', e)
+}
+
+// 处理图片加载成功
+const handleLoad = (e) => {
+  emit('load', e)
+}
+
+// 组件销毁时清理
+uni.$on('onUnload', () => {
+  if (requestTask.value) {
+    requestTask.value.abort()
+  }
+  cleanupTempFile()
+})
 </script>
 
 <style scoped>
 .smart-image-container {
-  position: relative;
-  display: inline-block;
+  overflow: hidden;
+  background: #f5f5f5;
 }
 
-img {
-  max-width: 100%;
-  height: auto;
-  display: block;
+.smart-image {
+  transition: opacity 0.3s;
+}
+
+.smart-image.image-loaded {
   opacity: 1;
-  transition: opacity 0.3s ease;
 }
 
 .loading-placeholder,
 .error-placeholder {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  min-height: 50px;
-  min-width: 50px;
-  background-color: #f5f5f5;
-  border: 1px dashed #ddd;
-  color: #999;
-  font-size: 12px;
+  background: #f5f5f5;
+}
+
+.loading-spinner {
+  width: 40rpx;
+  height: 40rpx;
+  border: 4rpx solid #e5e7eb;
+  border-top-color: #1890ff;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .error-placeholder {
   cursor: pointer;
-  color: #ff4d4f;
 }
 
-.error-placeholder:hover {
-  background-color: #fff2f0;
+.error-icon {
+  font-size: 48rpx;
+  margin-bottom: 8rpx;
+}
+
+.error-text {
+  font-size: 22rpx;
+  color: #999;
 }
 </style>

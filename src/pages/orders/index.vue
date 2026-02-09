@@ -1,22 +1,34 @@
 <template>
   <view class="orders-page">
     <scroll-view class="orders-list" scroll-y @scrolltolower="loadMore">
-      <view v-for="order in orders" :key="order.id" class="order-card">
+      <view v-for="order in orders" :key="order.id" class="order-card" @click="viewOrderDetail(order)">
         <view class="order-header">
           <text class="order-no">订单号: {{ order.id }}</text>
           <text class="order-time">{{ order.createTime }}</text>
         </view>
         <view class="order-content">
-          <image class="order-image" :src="getImageUrl(order.items[0]?.product_image)" mode="aspectFill" />
-          <view class="order-info">
+          <view class="product-images">
+            <SmartImage 
+              v-for="(item, index) in order.items.slice(0, 4)" 
+              :key="index"
+              class="product-thumb" 
+              :src="getImageUrl(item.product_image)" 
+              mode="aspectFill"
+              width="50px"
+              height="50px"
+            />
+            <view v-if="order.items.length > 4" class="more-items">+{{ order.items.length - 4 }}</view>
+          </view>
+        </view>
+        <view class="order-footer">
+          <text class="order-count">共{{ order.items.reduce((sum, item) => sum + item.quantity, 0) }}件商品</text>
+          <view class="order-info-right">
             <text class="order-amount">¥{{ order.totalAmount }}</text>
             <view class="order-status" :class="'status-' + getStatusType(order.status)">
               {{ getStatusText(order.status) }}
             </view>
+            <button class="detail-btn" size="mini" type="primary" plain @click.stop="viewOrderDetail(order)">详情</button>
           </view>
-        </view>
-        <view class="order-footer">
-          <view class="detail-btn" @click="viewOrderDetail(order)">详情</view>
         </view>
       </view>
       
@@ -54,7 +66,7 @@
           
           <view class="detail-section-title">商品列表</view>
           <view v-for="(item, index) in selectedOrder.items" :key="index" class="product-item">
-            <image class="product-image" :src="getImageUrl(item.product_image)" mode="aspectFill" />
+            <SmartImage class="product-image" :src="getImageUrl(item.product_image)" mode="aspectFill" width="60px" height="60px" />
             <view class="product-info">
               <text class="product-name">{{ item.product_name }}</text>
               <text class="product-price">¥{{ item.subtotal }}</text>
@@ -76,6 +88,7 @@
 import { ref, onMounted } from 'vue'
 import { getOrders, getOrderDetail } from '@/api'
 import { getImageUrl } from '@/utils/image'
+import SmartImage from '@/components/SmartImage.vue'
 
 const orders = ref([])
 const detailPopup = ref(null)
@@ -209,7 +222,7 @@ const viewOrderDetail = async (order) => {
 
 .orders-list {
   height: calc(100vh - 50px);
-  padding: 12px;
+  padding: 8px;
 }
 
 .order-card {
@@ -217,20 +230,21 @@ const viewOrderDetail = async (order) => {
   border-radius: var(--radius-lg);
   border: 1px solid var(--border-light);
   box-shadow: var(--shadow-card);
-  margin-bottom: 12px;
+  margin-bottom: 8px;
   overflow: hidden;
 }
 
 .order-header {
-  padding: 12px;
+  padding: 10px 12px;
   border-bottom: 1px solid var(--border-light);
   display: flex;
-  justify-content: space-between;
-  align-items: center;
+  flex-direction: column;
+  gap: 4px;
 }
 
 .order-no {
   font-weight: 600;
+  font-size: 14px;
   color: var(--text-primary);
 }
 
@@ -240,34 +254,71 @@ const viewOrderDetail = async (order) => {
 }
 
 .order-content {
-  padding: 12px;
+  padding: 10px 12px;
+}
+
+.product-images {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.product-thumb {
+  width: 50px;
+  height: 50px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-light);
+}
+
+.more-items {
+  width: 50px;
+  height: 50px;
+  border-radius: var(--radius-md);
+  background: var(--bg-secondary);
   display: flex;
   align-items: center;
-  gap: 12px;
+  justify-content: center;
+  font-size: 12px;
+  color: var(--text-secondary);
+  border: 1px solid var(--border-light);
 }
 
-.order-image {
-  width: 60px;
-  height: 60px;
-  border-radius: var(--radius-md);
-}
-
-.order-info {
-  flex: 1;
+.order-footer {
+  padding: 10px 12px;
+  border-top: 1px solid var(--border-light);
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
 
+.order-count {
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+.order-info-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.detail-btn {
+  margin: 0;
+  padding: 4px 12px;
+  font-size: 12px;
+  line-height: 1.5;
+  border-radius: 4px;
+}
+
 .order-amount {
-  font-size: 18px;
+  font-size: 16px;
   font-weight: bold;
   color: var(--price-primary);
 }
 
 .order-status {
-  padding: 4px 12px;
-  border-radius: 12px;
+  padding: 3px 10px;
+  border-radius: 10px;
   font-size: 12px;
 }
 
@@ -294,21 +345,6 @@ const viewOrderDetail = async (order) => {
 .status-default {
   background: #f5f5f5;
   color: #999;
-}
-
-.order-footer {
-  padding: 12px;
-  border-top: 1px solid var(--border-light);
-  display: flex;
-  justify-content: flex-end;
-}
-
-.detail-btn {
-  padding: 6px 16px;
-  background: var(--primary-blue);
-  color: white;
-  border-radius: 16px;
-  font-size: 14px;
 }
 
 .loading-more, .no-more-data {
