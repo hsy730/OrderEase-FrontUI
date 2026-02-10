@@ -75,18 +75,9 @@ export const mockApi = {
 
   async getOrderDetail(orderId) {
     await delay()
-    const order = mockData.orders.find(o => o.id === orderId)
-    
-    if (!order) {
-      return {
-        status: 404,
-        data: {
-          code: 404,
-          message: '订单不存在'
-        }
-      }
-    }
-    
+    // 直接返回第一个示例订单，不校验订单ID
+    const order = mockData.orders[0]
+
     return {
       status: 200,
       data: {

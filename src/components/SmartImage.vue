@@ -29,6 +29,10 @@
 </template>
 
 <script setup>
+/**
+ * @deprecated 该组件已废弃，请使用 /components/SmartImage.vue
+ * 此组件仅保留用于兼容，将在未来版本中移除
+ */
 import { ref, watch, computed } from 'vue'
 import { API_BASE_URL } from '@/utils/constants'
 
@@ -87,27 +91,18 @@ const imageStyle = computed(() => ({
   opacity: isLoading.value || hasError.value ? 0 : 1
 }))
 
-// 监听 src 变化
-watch(() => props.src, (newVal) => {
-  // 取消之前的请求
-  if (requestTask.value) {
-    requestTask.value.abort()
-    requestTask.value = null
+// 清理临时文件
+const cleanupTempFile = () => {
+  if (tempFilePath.value) {
+    try {
+      const fs = uni.getFileSystemManager()
+      fs.unlinkSync(tempFilePath.value)
+    } catch (e) {
+      // 忽略删除错误
+    }
+    tempFilePath.value = ''
   }
-  
-  // 清理之前的临时文件
-  cleanupTempFile()
-  
-  // 重置状态
-  isLoading.value = false
-  hasError.value = false
-  imageUrl.value = ''
-  
-  // 加载新图片
-  if (newVal) {
-    loadImage()
-  }
-}, { immediate: true })
+}
 
 // 加载图片
 const loadImage = async () => {
@@ -176,18 +171,27 @@ const loadImage = async () => {
   }
 }
 
-// 清理临时文件
-const cleanupTempFile = () => {
-  if (tempFilePath.value) {
-    try {
-      const fs = uni.getFileSystemManager()
-      fs.unlinkSync(tempFilePath.value)
-    } catch (e) {
-      // 忽略删除错误
-    }
-    tempFilePath.value = ''
+// 监听 src 变化
+watch(() => props.src, (newVal) => {
+  // 取消之前的请求
+  if (requestTask.value) {
+    requestTask.value.abort()
+    requestTask.value = null
   }
-}
+
+  // 清理之前的临时文件
+  cleanupTempFile()
+
+  // 重置状态
+  isLoading.value = false
+  hasError.value = false
+  imageUrl.value = ''
+
+  // 加载新图片
+  if (newVal) {
+    loadImage()
+  }
+}, { immediate: true })
 
 // 重试加载
 const retryLoad = () => {
@@ -221,6 +225,9 @@ uni.$on('onUnload', () => {
   }
   cleanupTempFile()
 })
+
+// 输出废弃警告
+console.warn('[SmartImage] 警告: src/components/SmartImage.vue 已废弃，请迁移到 /components/SmartImage.vue')
 </script>
 
 <style scoped>

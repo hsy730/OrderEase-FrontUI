@@ -87,28 +87,6 @@ const imageStyle = computed(() => ({
   opacity: isLoading.value || hasError.value ? 0 : 1
 }))
 
-// 监听 src 变化
-watch(() => props.src, (newVal) => {
-  // 取消之前的请求
-  if (requestTask.value) {
-    requestTask.value.abort()
-    requestTask.value = null
-  }
-  
-  // 清理之前的临时文件
-  cleanupTempFile()
-  
-  // 重置状态
-  isLoading.value = false
-  hasError.value = false
-  imageUrl.value = ''
-  
-  // 加载新图片
-  if (newVal) {
-    loadImage()
-  }
-}, { immediate: true })
-
 // 加载图片
 const loadImage = async () => {
   if (!props.src || isLoading.value) return
@@ -188,6 +166,28 @@ const cleanupTempFile = () => {
     tempFilePath.value = ''
   }
 }
+
+// 监听 src 变化
+watch(() => props.src, (newVal) => {
+  // 取消之前的请求
+  if (requestTask.value) {
+    requestTask.value.abort()
+    requestTask.value = null
+  }
+
+  // 清理之前的临时文件
+  cleanupTempFile()
+
+  // 重置状态
+  isLoading.value = false
+  hasError.value = false
+  imageUrl.value = ''
+
+  // 加载新图片
+  if (newVal) {
+    loadImage()
+  }
+}, { immediate: true })
 
 // 重试加载
 const retryLoad = () => {

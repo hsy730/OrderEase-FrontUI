@@ -188,14 +188,15 @@ const formatDate = (dateString) => {
 
 const viewOrderDetail = async (order) => {
   uni.showLoading({ title: '加载中...' })
-  
+
   try {
     const response = await getOrderDetail(order.id)
-    
+
     if (response.data && response.data.code === 200) {
       selectedOrder.value = response.data.data
       detailPopup.value.open()
     } else {
+      uni.hideLoading()
       uni.showToast({
         title: '获取订单详情失败',
         icon: 'none'
@@ -203,6 +204,7 @@ const viewOrderDetail = async (order) => {
     }
   } catch (error) {
     console.error('获取订单详情失败:', error)
+    uni.hideLoading()
     uni.showToast({
       title: '获取订单详情失败',
       icon: 'none'
@@ -355,7 +357,7 @@ const viewOrderDetail = async (order) => {
 }
 
 .order-detail {
-  background: var(--bg-primary);
+  background: #ffffff;
   border-radius: 16px 16px 0 0;
   padding: 16px;
   max-height: 80vh;

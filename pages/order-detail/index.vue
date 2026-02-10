@@ -1,3 +1,8 @@
+<!--
+  @deprecated 此文件已废弃，不再使用
+  订单详情功能已迁移到 src/pages/orders/index.vue 中的 uni-popup 弹窗实现
+  保留此文件仅作参考，请勿继续维护
+-->
 <template>
   <view class="order-detail-container">
     <view v-if="!loading" class="detail-content">
@@ -339,7 +344,7 @@ export default {
 <style scoped>
 .order-detail-container {
   min-height: 100vh;
-  background: var(--bg-secondary);
+  background-color: #f5f5f5;
   padding-bottom: 120rpx;
 }
 

@@ -85,9 +85,8 @@ const mockApiRequest = async (config) => {
       return await mockApi.getOrders(params)
     
     case '/order/detail':
-      // 从 URL 中解析 id 参数，因为业务代码将 id 拼接在 URL 中
-      const urlParams = new URLSearchParams(url.split('?')[1])
-      const orderId = urlParams.get('id') || params.id || data.id
+      // 从 params 或 data 中获取 id 参数
+      const orderId = params.id || data.id
       return await mockApi.getOrderDetail(orderId)
     
     case '/order/create':
