@@ -35,7 +35,7 @@ const handleSelect = (category) => {
 .category-list {
   width: 100%;
   height: 100%;
-  background: linear-gradient(180deg, #F1F5F9 0%, #E2E8F0 100%);
+  background: #FFFFFF;
 }
 
 .category-item {
@@ -51,7 +51,7 @@ const handleSelect = (category) => {
 .category-item.active {
   font-weight: 600;
   color: #1E40AF;
-  background: linear-gradient(90deg, #DBEAFE 0%, #FFFFFF 100%);
+  background: #FFFFFF;
   border-left-color: #F97316;
 }
 

@@ -169,13 +169,13 @@ const formatPrice = (price) => {
 
 .price-info .symbol {
   font-size: 12px;
-  color: #475569;
+  color: #EA580C;
 }
 
 .price-info .amount {
   font-size: 20px;
   font-weight: bold;
-  color: #1E40AF;
+  color: #EA580C;
 }
 
 .submit-btn {
@@ -299,15 +299,17 @@ const formatPrice = (price) => {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 16px;
+  font-size: 20px;
   font-weight: bold;
   line-height: 1;
   box-shadow: 0 2px 8px rgba(30, 64, 175, 0.08);
+  box-sizing: border-box;
 }
 
 .stepper-plus {
   background: linear-gradient(135deg, #1E40AF 0%, #3B82F6 100%);
   color: #FFFFFF;
+  border: 1px solid transparent;
 }
 
 .stepper-minus {
