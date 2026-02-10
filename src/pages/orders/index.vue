@@ -306,10 +306,13 @@ const viewOrderDetail = async (order) => {
 
 .detail-btn {
   margin: 0;
-  padding: 4px 12px;
+  padding: 6px 16px;
   font-size: 12px;
   line-height: 1.5;
-  border-radius: 4px;
+  border-radius: 16px;
+  background: linear-gradient(135deg, #1E40AF 0%, #3B82F6 100%);
+  color: #fff;
+  border: none;
 }
 
 .order-amount {
@@ -451,9 +454,10 @@ const viewOrderDetail = async (order) => {
 
 .option-tag {
   font-size: 11px;
-  padding: 2px 6px;
-  background: var(--bg-secondary);
-  color: var(--text-secondary);
-  border-radius: 4px;
+  padding: 4px 8px;
+  background: rgba(30, 64, 175, 0.1);
+  color: var(--primary-blue);
+  border-radius: 6px;
+  border: 1px solid rgba(30, 64, 175, 0.2);
 }
 </style>

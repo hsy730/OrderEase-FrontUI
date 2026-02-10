@@ -525,12 +525,12 @@ onMounted(() => {
 }
 
 .option-tag {
-  padding: 4rpx 12rpx;
-  background: rgba(30, 64, 175, 0.08);
+  padding: 8rpx 16rpx;
+  background: rgba(30, 64, 175, 0.1);
   color: var(--primary-blue);
   font-size: 22rpx;
-  border-radius: 6rpx;
-  border: 1rpx solid rgba(30, 64, 175, 0.15);
+  border-radius: 8rpx;
+  border: 1rpx solid rgba(30, 64, 175, 0.2);
 }
 
 .item-footer {
@@ -598,12 +598,14 @@ onMounted(() => {
 }
 
 .action-btn.btn-pay {
-  background: var(--gradient-primary);
+  background: linear-gradient(135deg, #1E40AF 0%, #3B82F6 100%);
   color: #fff;
   border-color: transparent;
+  box-shadow: 0 4rpx 12rpx rgba(30, 64, 175, 0.3);
 }
 
 .action-btn.btn-default {
+  background: rgba(30, 64, 175, 0.08);
   border-color: var(--primary-blue);
   color: var(--primary-blue);
 }
