@@ -35,21 +35,36 @@ const handleSelect = (category) => {
 .category-list {
   width: 100%;
   height: 100%;
-  background: #FDFDFD;
+  background: linear-gradient(180deg, #F1F5F9 0%, #E2E8F0 100%);
 }
 
 .category-item {
   padding: 16px 12px;
   background: transparent;
-  color: #475569;
+  color: #64748B;
   transition: all 0.25s ease;
   border-left: 4px solid transparent;
   text-align: center;
+  position: relative;
 }
 
 .category-item.active {
   font-weight: 600;
+  color: #1E40AF;
+  background: linear-gradient(90deg, #DBEAFE 0%, #FFFFFF 100%);
   border-left-color: #F97316;
+}
+
+.category-item.active::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 4px;
+  height: 24px;
+  background: linear-gradient(180deg, #F97316 0%, #FB923C 100%);
+  border-radius: 0 2px 2px 0;
 }
 
 .category-text {

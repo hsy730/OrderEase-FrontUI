@@ -3,7 +3,7 @@
     <view class="cart-info" @click="toggleCartList">
       <view class="cart-icon-wrapper">
         <view v-if="totalCount > 0" class="cart-badge">{{ totalCount }}</view>
-        <uni-icons type="cart" size="24" color="#1E40AF"></uni-icons>
+        <uni-icons type="shop-filled" size="24" color="#1E40AF"></uni-icons>
       </view>
       <view class="price-info" v-if="totalAmount > 0">
         <text class="symbol">¥</text>
@@ -299,7 +299,7 @@ const formatPrice = (price) => {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 20px;
+  font-size: 16px;
   font-weight: bold;
   line-height: 1;
   box-shadow: 0 2px 8px rgba(30, 64, 175, 0.08);

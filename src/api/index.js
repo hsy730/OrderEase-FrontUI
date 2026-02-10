@@ -71,7 +71,10 @@ const mockRequest = (config) => {
 const mockApiRequest = async (config) => {
   const { url, method, data, params } = config
   
-  switch (url) {
+  // 提取基础 URL（去掉查询参数）
+  const baseUrl = url.split('?')[0]
+  
+  switch (baseUrl) {
     case '/shop/detail':
       return await mockApi.getShopDetail()
     

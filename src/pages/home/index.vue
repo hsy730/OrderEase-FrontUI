@@ -679,7 +679,7 @@ const isOptionSelected = (category, option) => {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 20px;
+  font-size: 16px;
   font-weight: bold;
   line-height: 1;
   box-shadow: 0 2px 8px rgba(30, 64, 175, 0.08);
