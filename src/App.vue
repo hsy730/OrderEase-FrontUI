@@ -8,9 +8,9 @@
     />
     <router-view></router-view>
     <van-tabbar v-model="active" :route="true" fixed>
-      <van-tabbar-item icon="shop-o" to="/home">首页</van-tabbar-item>
-      <van-tabbar-item icon="orders-o" to="/orders">订单</van-tabbar-item>
-      <van-tabbar-item icon="user-o" to="/mine">我的</van-tabbar-item>
+      <van-tabbar-item :icon="active === 0 ? '/order-ease-iui/static/tabbar/home-active.png' : '/order-ease-iui/static/tabbar/home.png'" to="/home">首页</van-tabbar-item>
+      <van-tabbar-item :icon="active === 1 ? '/order-ease-iui/static/tabbar/orders-active.png' : '/order-ease-iui/static/tabbar/orders.png'" to="/orders">订单</van-tabbar-item>
+      <van-tabbar-item :icon="active === 2 ? '/order-ease-iui/static/tabbar/mine-active.png' : '/order-ease-iui/static/tabbar/mine.png'" to="/mine">我的</van-tabbar-item>
     </van-tabbar>
   </div>
 </template>
