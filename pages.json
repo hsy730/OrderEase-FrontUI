@@ -38,6 +38,12 @@
         "navigationBarTitleText": "订单详情",
         "enablePullDownRefresh": true
       }
+    },
+    {
+      "path": "pages/token-login/index",
+      "style": {
+        "navigationBarTitleText": "令牌登录"
+      }
     }
   ],
   "tabBar": {

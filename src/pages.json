@@ -37,6 +37,12 @@
       "style": {
         "navigationBarTitleText": "注册"
       }
+    },
+    {
+      "path": "pages/token-login/index",
+      "style": {
+        "navigationBarTitleText": "令牌登录"
+      }
     }
   ],
   "tabBar": {

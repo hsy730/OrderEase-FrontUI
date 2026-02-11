@@ -6,17 +6,30 @@
           <text class="order-no">订单号: {{ order.id }}</text>
           <text class="order-time">{{ order.createTime }}</text>
         </view>
-        <view class="order-content">
-          <image class="order-image" :src="getImageUrl(order.items[0]?.image)" mode="aspectFill" />
-          <view class="order-info">
+        
+        <!-- 商品图片横向滚动 -->
+        <scroll-view class="order-images" scroll-x show-scrollbar="false">
+          <view class="images-container">
+            <image 
+              v-for="(item, index) in order.items" 
+              :key="index"
+              class="order-image" 
+              :src="getImageUrl(item.image || item.product_image_url)" 
+              mode="aspectFill" 
+            />
+          </view>
+        </scroll-view>
+        
+        <!-- 底部信息栏 -->
+        <view class="order-footer">
+          <text class="order-count">共{{ order.items.length }}件商品</text>
+          <view class="order-price-status">
             <text class="order-amount">¥{{ order.totalAmount }}</text>
             <view class="order-status" :class="'status-' + getStatusType(order.status)">
               {{ order.status }}
             </view>
           </view>
-        </view>
-        <view class="order-footer">
-          <view class="detail-btn" @click="viewOrderDetail(order)">详情</view>
+          <text class="detail-link" @click="viewOrderDetail(order)">详情</text>
         </view>
       </view>
       
@@ -221,6 +234,7 @@ const viewOrderDetail = async (order) => {
 .order-no {
   font-weight: 600;
   color: var(--text-primary);
+  font-size: 14px;
 }
 
 .order-time {
@@ -228,35 +242,57 @@ const viewOrderDetail = async (order) => {
   color: var(--text-secondary);
 }
 
-.order-content {
+/* 商品图片横向滚动 */
+.order-images {
   padding: 12px;
+  white-space: nowrap;
+}
+
+.images-container {
   display: flex;
-  align-items: center;
-  gap: 12px;
+  flex-direction: row;
+  gap: 8px;
 }
 
 .order-image {
   width: 60px;
   height: 60px;
   border-radius: var(--radius-md);
+  flex-shrink: 0;
+  background-color: #f5f5f5;
 }
 
-.order-info {
-  flex: 1;
+/* 底部信息栏 */
+.order-footer {
+  padding: 12px;
+  border-top: 1px solid var(--border-light);
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
 
+.order-count {
+  font-size: 13px;
+  color: var(--text-secondary);
+  flex: 1;
+}
+
+.order-price-status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-right: 12px;
+}
+
 .order-amount {
-  font-size: 18px;
+  font-size: 16px;
   font-weight: bold;
-  color: var(--price-primary);
+  color: var(--text-primary);
 }
 
 .order-status {
-  padding: 4px 12px;
-  border-radius: 12px;
+  padding: 2px 8px;
+  border-radius: 4px;
   font-size: 12px;
 }
 
@@ -280,19 +316,11 @@ const viewOrderDetail = async (order) => {
   color: #999;
 }
 
-.order-footer {
-  padding: 12px;
-  border-top: 1px solid var(--border-light);
-  display: flex;
-  justify-content: flex-end;
-}
-
-.detail-btn {
-  padding: 6px 16px;
-  background: var(--primary-blue);
-  color: white;
-  border-radius: 16px;
+/* 详情文字链接 */
+.detail-link {
   font-size: 14px;
+  color: #3B82F6;
+  cursor: pointer;
 }
 
 .loading-more, .no-more-data {

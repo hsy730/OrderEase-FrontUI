@@ -35,7 +35,7 @@ const handleSelect = (category) => {
 .category-list {
   width: 100%;
   height: 100%;
-  background: #FDFDFD;
+  background: #F8F9FA;
 }
 
 .category-item {
@@ -50,10 +50,14 @@ const handleSelect = (category) => {
 .category-item.active {
   font-weight: 600;
   border-left-color: #F97316;
+  background-color: #FFFFFF;
 }
 
 .category-text {
   font-size: 14px;
   line-height: 1.4;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 </style>

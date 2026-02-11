@@ -97,20 +97,20 @@
               >
                 去支付
               </button>
-              <button
+              <div
                 v-if="order.status === 'paid'"
-                class="action-btn btn-default"
+                class="spec-button"
                 @click.stop="handleOrderDetail(order)"
               >
                 查看详情
-              </button>
-              <button
+              </div>
+              <div
                 v-if="order.status === 'completed'"
-                class="action-btn btn-default"
+                class="spec-button"
                 @click.stop="handleOrderDetail(order)"
               >
                 再次购买
-              </button>
+              </div>
             </view>
           </view>
         </view>
@@ -431,11 +431,11 @@ onMounted(() => {
 }
 
 .order-status.status-paid {
-  color: #4caf50;
+  color: var(--primary-blue-light);
 }
 
 .order-status.status-completed {
-  color: #2196f3;
+  color: var(--primary-blue-light);
 }
 
 .order-status.status-cancelled {
@@ -569,6 +569,28 @@ onMounted(() => {
 .action-btn.btn-default {
   border-color: var(--primary-blue);
   color: var(--primary-blue);
+}
+
+.spec-button {
+  min-width: 128rpx;
+  height: 56rpx;
+  padding: 0 24rpx;
+  font-size: 26rpx;
+  font-weight: 600;
+  background: var(--gradient-primary);
+  color: #FFFFFF;
+  border-radius: 28rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4rpx 16rpx rgba(30, 64, 175, 0.08);
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.spec-button:hover {
+  transform: translateY(-1rpx);
+  box-shadow: 0 8rpx 24rpx rgba(30, 64, 175, 0.12);
 }
 
 .loading-state {
