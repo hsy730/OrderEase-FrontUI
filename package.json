@@ -5,7 +5,9 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "dev:mp-weixin": "uni",
     "build": "vite build",
+    "build:mp-weixin": "uni build",
     "build:prod": "vite build --mode production",
     "preview": "vite preview"
   },
@@ -18,6 +20,9 @@
     "vue-router": "^4.5.0"
   },
   "devDependencies": {
+    "@dcloudio/types": "^3.4.29",
+    "@dcloudio/uni-mp-weixin": "^2.0.2-4080720251210002",
+    "@dcloudio/vite-plugin-uni": "^3.0.0-alpha-3000020210521001",
     "@vitejs/plugin-vue": "^5.0.5",
     "vite": "^5.3.1"
   }
