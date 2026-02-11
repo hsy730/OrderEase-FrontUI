@@ -460,14 +460,14 @@ const isOptionSelected = (category, option) => {
 <style scoped>
 .order-page {
   min-height: 100vh;
-  background: #F8FAFC;
+  background: var(--bg-secondary);
   overflow: hidden;
   position: relative;
 }
 
 .shop-header {
-  height: 44px;
-  background: #ffffff;
+  height: 88rpx;
+  background: var(--bg-primary);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -476,26 +476,26 @@ const isOptionSelected = (category, option) => {
   left: 0;
   right: 0;
   z-index: 100;
-  border-bottom: 1px solid #E2E8F0;
+  border-bottom: 1rpx solid var(--border-light);
 }
 
 .shop-name {
-  font-size: 18px;
+  font-size: 36rpx;
   font-weight: 600;
-  color: #0F172A;
+  color: var(--text-primary);
 }
 
 .content-container {
   display: flex;
-  height: calc(100vh - 96px);
-  margin-top: 44px;
+  height: calc(100vh - 192rpx);
+  margin-top: 88rpx;
   overflow: hidden;
 }
 
 .category-menu {
-  width: 80px;
+  width: 160rpx;
   flex-shrink: 0;
-  background: #FDFDFD;
+  background: var(--bg-muted);
   overflow-y: auto;
   height: 100%;
 }
@@ -504,25 +504,25 @@ const isOptionSelected = (category, option) => {
   flex: 1;
   overflow-y: auto;
   height: 100%;
-  padding: 12px;
-  background: #FFFFFF;
+  padding: 24rpx;
+  background: var(--bg-primary);
 }
 
 .popup-content {
-  background: #FFFFFF;
-  border-radius: 16px 16px 0 0;
-  padding: 16px;
+  background: var(--bg-primary);
+  border-radius: 32rpx 32rpx 0 0;
+  padding: 32rpx;
   max-height: 60vh;
   overflow-y: auto;
 }
 
 .popup-header {
   text-align: left;
-  font-size: 20px;
+  font-size: 40rpx;
   font-weight: bold;
-  border-bottom: 1px solid #eee;
-  padding-bottom: 10px;
-  margin-bottom: 10px;
+  border-bottom: 1rpx solid var(--border-light);
+  padding-bottom: 20rpx;
+  margin-bottom: 20rpx;
 }
 
 .popup-body {
@@ -531,38 +531,38 @@ const isOptionSelected = (category, option) => {
 }
 
 .category-section {
-  margin-top: 10px;
+  margin-top: 20rpx;
 }
 
 .category-title {
-  font-size: 16px;
+  font-size: 32rpx;
   font-weight: bold;
-  margin-bottom: 8px;
+  margin-bottom: 16rpx;
 }
 
 .required {
-  color: red;
+  color: var(--color-danger);
 }
 
 .options-container {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
+  gap: 16rpx;
 }
 
 .option-item {
   white-space: nowrap;
-  padding: 12px 16px;
-  background-color: #F8FAFC;
-  border: 2px solid #E2E8F0;
-  border-radius: 6px;
-  margin: 4px;
+  padding: 24rpx 32rpx;
+  background-color: var(--bg-secondary);
+  border: 2rpx solid var(--border-light);
+  border-radius: 12rpx;
+  margin: 8rpx;
   transition: all 0.25s ease;
 }
 
 .option-item.selected {
-  border-color: #1E40AF;
-  color: #1E40AF;
+  border-color: var(--primary-blue);
+  color: var(--primary-blue);
   background: linear-gradient(135deg,
     rgba(30, 64, 175, 0.08) 0%,
     rgba(249, 115, 22, 0.05) 100%
@@ -572,18 +572,18 @@ const isOptionSelected = (category, option) => {
 .footer-actions {
   position: sticky;
   bottom: 0;
-  padding: 16px;
-  background: #FFFFFF;
-  border-top: 1px solid #E2E8F0;
+  padding: 32rpx;
+  background: var(--bg-primary);
+  border-top: 1rpx solid var(--border-light);
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 32rpx;
 }
 
 .price-display {
-  font-size: 18px;
+  font-size: 36rpx;
   font-weight: bold;
-  background: linear-gradient(135deg, #F97316 0%, #FB923C 100%);
+  background: linear-gradient(135deg, var(--accent-orange) 0%, var(--accent-orange-light) 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -592,7 +592,7 @@ const isOptionSelected = (category, option) => {
 .quantity-control {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 24rpx;
 }
 
 .price-quantity-container {
@@ -607,16 +607,16 @@ const isOptionSelected = (category, option) => {
 
 .confirm-btn {
   width: 100%;
-  height: 44px;
-  background: linear-gradient(135deg, #1E40AF 0%, #3B82F6 100%);
+  height: 88rpx;
+  background: var(--gradient-primary);
   color: white;
   border: none;
-  border-radius: 22px;
-  font-size: 16px;
+  border-radius: 44rpx;
+  font-size: 32rpx;
   font-weight: 600;
 }
 
 .cart-bar {
-  bottom: 50px;
+  bottom: 100rpx;
 }
 </style>

@@ -1,46 +1,45 @@
 {
+  "easycom": {
+    "autoscan": true,
+    "custom": {
+      "^uni-(.*)": "@dcloudio/uni-ui/lib/uni-$1/uni-$1.vue"
+    }
+  },
   "pages": [
     {
-      "path": "pages/home/index",
+      "path": "src/pages/home/index",
       "style": {
         "navigationBarTitleText": "首页",
         "enablePullDownRefresh": false
       }
     },
     {
-      "path": "pages/orders/index",
+      "path": "src/pages/orders/index",
       "style": {
         "navigationBarTitleText": "订单",
         "enablePullDownRefresh": true
       }
     },
     {
-      "path": "pages/mine/index",
+      "path": "src/pages/mine/index",
       "style": {
         "navigationBarTitleText": "我的"
       }
     },
     {
-      "path": "pages/login/index",
+      "path": "src/pages/login/index",
       "style": {
         "navigationBarTitleText": "登录"
       }
     },
     {
-      "path": "pages/register/index",
+      "path": "src/pages/register/index",
       "style": {
         "navigationBarTitleText": "注册"
       }
     },
     {
-      "path": "pages/order-detail/index",
-      "style": {
-        "navigationBarTitleText": "订单详情",
-        "enablePullDownRefresh": true
-      }
-    },
-    {
-      "path": "pages/token-login/index",
+      "path": "src/pages/token-login/index",
       "style": {
         "navigationBarTitleText": "令牌登录"
       }
@@ -51,24 +50,25 @@
     "selectedColor": "#1E40AF",
     "backgroundColor": "#ffffff",
     "borderStyle": "black",
+    "iconWidth": "24px",
     "list": [
       {
-        "pagePath": "pages/home/index",
+        "pagePath": "src/pages/home/index",
         "text": "首页",
-        "iconPath": "static/tabbar/home.png",
-        "selectedIconPath": "static/tabbar/home-active.png"
+        "iconPath": "src/static/tabbar/home.png",
+        "selectedIconPath": "src/static/tabbar/home-active.png"
       },
       {
-        "pagePath": "pages/orders/index",
+        "pagePath": "src/pages/orders/index",
         "text": "订单",
-        "iconPath": "static/tabbar/orders.png",
-        "selectedIconPath": "static/tabbar/orders-active.png"
+        "iconPath": "src/static/tabbar/orders.png",
+        "selectedIconPath": "src/static/tabbar/orders-active.png"
       },
       {
-        "pagePath": "pages/mine/index",
+        "pagePath": "src/pages/mine/index",
         "text": "我的",
-        "iconPath": "static/tabbar/mine.png",
-        "selectedIconPath": "static/tabbar/mine-active.png"
+        "iconPath": "src/static/tabbar/mine.png",
+        "selectedIconPath": "src/static/tabbar/mine-active.png"
       }
     ]
   },

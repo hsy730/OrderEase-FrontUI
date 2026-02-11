@@ -7,7 +7,6 @@
           <text class="order-time">{{ order.createTime }}</text>
         </view>
         
-        <!-- 商品图片横向滚动 -->
         <scroll-view class="order-images" scroll-x show-scrollbar="false">
           <view class="images-container">
             <image 
@@ -20,7 +19,6 @@
           </view>
         </scroll-view>
         
-        <!-- 底部信息栏 -->
         <view class="order-footer">
           <text class="order-count">共{{ order.items.length }}件商品</text>
           <view class="order-price-status">
@@ -204,28 +202,28 @@ const viewOrderDetail = async (order) => {
 
 <style scoped>
 .orders-page {
-  min-height: calc(100vh - 50px);
+  min-height: calc(100vh - 100rpx);
   background: var(--bg-secondary);
-  padding-bottom: 50px;
+  padding-bottom: 100rpx;
 }
 
 .orders-list {
-  height: calc(100vh - 50px);
-  padding: 12px;
+  height: calc(100vh - 100rpx);
+  padding: 24rpx;
 }
 
 .order-card {
   background: var(--bg-primary);
   border-radius: var(--radius-lg);
-  border: 1px solid var(--border-light);
+  border: 1rpx solid var(--border-light);
   box-shadow: var(--shadow-card);
-  margin-bottom: 12px;
+  margin-bottom: 24rpx;
   overflow: hidden;
 }
 
 .order-header {
-  padding: 12px;
-  border-bottom: 1px solid var(--border-light);
+  padding: 24rpx;
+  border-bottom: 1rpx solid var(--border-light);
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -234,45 +232,43 @@ const viewOrderDetail = async (order) => {
 .order-no {
   font-weight: 600;
   color: var(--text-primary);
-  font-size: 14px;
+  font-size: 28rpx;
 }
 
 .order-time {
-  font-size: 12px;
+  font-size: 24rpx;
   color: var(--text-secondary);
 }
 
-/* 商品图片横向滚动 */
 .order-images {
-  padding: 12px;
+  padding: 24rpx;
   white-space: nowrap;
 }
 
 .images-container {
   display: flex;
   flex-direction: row;
-  gap: 8px;
+  gap: 16rpx;
 }
 
 .order-image {
-  width: 60px;
-  height: 60px;
+  width: 120rpx;
+  height: 120rpx;
   border-radius: var(--radius-md);
   flex-shrink: 0;
   background-color: #f5f5f5;
 }
 
-/* 底部信息栏 */
 .order-footer {
-  padding: 12px;
-  border-top: 1px solid var(--border-light);
+  padding: 24rpx;
+  border-top: 1rpx solid var(--border-light);
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
 
 .order-count {
-  font-size: 13px;
+  font-size: 26rpx;
   color: var(--text-secondary);
   flex: 1;
 }
@@ -280,20 +276,20 @@ const viewOrderDetail = async (order) => {
 .order-price-status {
   display: flex;
   align-items: center;
-  gap: 8px;
-  margin-right: 12px;
+  gap: 16rpx;
+  margin-right: 24rpx;
 }
 
 .order-amount {
-  font-size: 16px;
+  font-size: 32rpx;
   font-weight: bold;
   color: var(--text-primary);
 }
 
 .order-status {
-  padding: 2px 8px;
-  border-radius: 4px;
-  font-size: 12px;
+  padding: 4rpx 16rpx;
+  border-radius: 8rpx;
+  font-size: 24rpx;
 }
 
 .status-warning {
@@ -316,46 +312,45 @@ const viewOrderDetail = async (order) => {
   color: #999;
 }
 
-/* 详情文字链接 */
 .detail-link {
-  font-size: 14px;
+  font-size: 28rpx;
   color: #3B82F6;
   cursor: pointer;
 }
 
 .loading-more, .no-more-data {
   text-align: center;
-  padding: 20px;
+  padding: 40rpx;
   color: var(--text-tertiary);
-  font-size: 14px;
+  font-size: 28rpx;
 }
 
 .order-detail {
   background: var(--bg-primary);
-  border-radius: 16px 16px 0 0;
-  padding: 16px;
+  border-radius: 32rpx 32rpx 0 0;
+  padding: 32rpx;
   max-height: 80vh;
   overflow-y: auto;
 }
 
 .detail-header {
   text-align: center;
-  font-size: 18px;
+  font-size: 36rpx;
   font-weight: bold;
-  margin-bottom: 20px;
-  padding-bottom: 12px;
-  border-bottom: 1px solid var(--border-light);
+  margin-bottom: 40rpx;
+  padding-bottom: 24rpx;
+  border-bottom: 1rpx solid var(--border-light);
 }
 
 .detail-content {
-  padding: 12px 0;
+  padding: 24rpx 0;
 }
 
 .detail-item {
   display: flex;
   justify-content: space-between;
-  padding: 12px 0;
-  border-bottom: 1px solid var(--border-light);
+  padding: 24rpx 0;
+  border-bottom: 1rpx solid var(--border-light);
 }
 
 .detail-item .label {
@@ -373,24 +368,24 @@ const viewOrderDetail = async (order) => {
 }
 
 .detail-section-title {
-  font-size: 16px;
+  font-size: 32rpx;
   font-weight: bold;
-  margin: 20px 0 12px;
+  margin: 40rpx 0 24rpx;
   color: var(--text-primary);
 }
 
 .product-item {
   display: flex;
-  gap: 12px;
-  padding: 12px;
+  gap: 24rpx;
+  padding: 24rpx;
   background: var(--bg-secondary);
   border-radius: var(--radius-md);
-  margin-bottom: 8px;
+  margin-bottom: 16rpx;
 }
 
 .product-image {
-  width: 60px;
-  height: 60px;
+  width: 120rpx;
+  height: 120rpx;
   border-radius: var(--radius-sm);
 }
 
@@ -398,7 +393,7 @@ const viewOrderDetail = async (order) => {
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 8rpx;
 }
 
 .product-name {
@@ -412,7 +407,7 @@ const viewOrderDetail = async (order) => {
 }
 
 .product-quantity {
-  font-size: 12px;
+  font-size: 24rpx;
   color: var(--text-secondary);
 }
 </style>
