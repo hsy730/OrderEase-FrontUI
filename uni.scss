@@ -1,0 +1,77 @@
+/* ============================================
+   OrderEase 微信小程序全局样式 - uni.scss
+   基于 rpx 响应式单位
+   ============================================ */
+
+/* ========== 主色调 - 深蓝色系 ========== */
+$uni-color-primary: #1E40AF;
+$uni-color-primary-light: #3B82F6;
+$uni-color-primary-lighter: #60A5FA;
+$uni-color-primary-lightest: #DBEAFE;
+
+/* ========== 强调色 - 橙色系 ========== */
+$uni-color-accent: #F97316;
+$uni-color-accent-light: #FB923C;
+$uni-color-accent-lighter: #FDBA74;
+$uni-color-accent-lightest: #FFEDD5;
+
+/* ========== 价格色 ========== */
+$uni-color-price-primary: #EA580C;
+$uni-color-price-secondary: #C2410C;
+
+/* ========== 背景色 ========== */
+$uni-bg-color: #FFFFFF;
+$uni-bg-color-grey: #F8FAFC;
+$uni-bg-color-hover: #F1F5F9;
+
+/* ========== 文本色 ========== */
+$uni-text-color: #0F172A;
+$uni-text-color-grey: #475569;
+$uni-text-color-placeholder: #94A3B8;
+
+/* ========== 功能色 ========== */
+$uni-color-success: #10B981;
+$uni-color-warning: #F59E0B;
+$uni-color-error: #EF4444;
+
+/* ========== 边框色 ========== */
+$uni-border-color: #E2E8F0;
+
+/* ========== 基础单位切换 ========== */
+$uni-font-size-sm: 24rpx;
+$uni-font-size-base: 28rpx;
+$uni-font-size-lg: 32rpx;
+$uni-font-size-xlg: 36rpx;
+$uni-font-size-xxlg: 40rpx;
+
+$uni-spacing-row-sm: 8rpx;
+$uni-spacing-row-base: 16rpx;
+$uni-spacing-row-lg: 24rpx;
+
+$uni-spacing-col-sm: 8rpx;
+$uni-spacing-col-base: 16rpx;
+$uni-spacing-col-lg: 24rpx;
+
+/* ========== 圆角 ========== */
+$uni-border-radius-sm: 8rpx;
+$uni-border-radius-base: 16rpx;
+$uni-border-radius-lg: 24rpx;
+$uni-border-radius-circle: 50%;
+
+/* ========== 阴影 ========== */
+$uni-shadow-sm: 0 2rpx 8rpx rgba(30, 64, 175, 0.08);
+$uni-shadow-base: 0 4rpx 12rpx rgba(30, 64, 175, 0.12);
+$uni-shadow-lg: 0 8rpx 24rpx rgba(30, 64, 175, 0.15);
+
+/* ========== 字体粗细 ========== */
+$uni-font-weight-light: 300;
+$uni-font-weight-normal: 400;
+$uni-font-weight-medium: 500;
+$uni-font-weight-bold: 700;
+
+/* ========== 主题色变量 ========== */
+$theme-primary: #1E40AF;
+$theme-primary-light: #3B82F6;
+$theme-accent: #F97316;
+$theme-accent-light: #FB923C;
+$theme-gradient: linear-gradient(135deg, #1E40AF 0%, #3B82F6 100%);
