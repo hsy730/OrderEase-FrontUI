@@ -40,4 +40,4 @@ coverage/
 # 临时文件
 *.tmp
 *.temp
-.cache 
+.cache nul
