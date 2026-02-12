@@ -1,5 +1,5 @@
 // 使用 uni.request 替代 axios，适配小程序环境
-import { API_BASE_URL } from '@/utils/constants'
+import { API_BASE_URL } from '../src/utils/constants'
 
 // 请求拦截器封装
 function requestInterceptor(options) {

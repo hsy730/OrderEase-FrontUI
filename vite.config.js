@@ -39,7 +39,7 @@ export default defineConfig(async () => {
 
   // H5 build configuration (web app with Vue Router and Vant)
   return {
-    base: '/order-ease-iui/',
+    base: '/',
     plugins: [vue()],
     resolve: {
       alias: {
