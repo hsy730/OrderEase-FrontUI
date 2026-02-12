@@ -1,9 +1,10 @@
 import { createRouter, createWebHistory } from 'vue-router'
+import { storage } from '@/store'
 
 // 检查用户是否已登录
 const isAuthenticated = () => {
-  const token = localStorage.getItem('token')
-  const userInfo = localStorage.getItem('user_info')
+  const token = storage.getItem('token')
+  const userInfo = storage.getItem('user_info')
   return !!(token && userInfo)
 }
 
@@ -12,7 +13,7 @@ const authRequiredRoutes = ['/orders', '/mine']
 
 // 修改路由配置
 const router = createRouter({
-  history: createWebHistory('/order-ease-iui/'), // 设置基础路径
+  history: createWebHistory('/'), // 设置基础路径为根路径
   routes: [
     {
       path: '/', // 匹配部署路径根目录
@@ -74,14 +75,14 @@ router.beforeEach((to, from, next) => {
   // 检查URL参数
   const shopId = to.query.shop_id;
   const userId = to.query.user_id;
-  
+
   if (shopId) {
-    localStorage.setItem('shop_id', shopId);
+    storage.setItem('shop_id', shopId);
   }
   if (userId) {
-    localStorage.setItem('user_id', userId);
+    storage.setItem('user_id', userId);
   }
-  
+
   next();
 });
 
