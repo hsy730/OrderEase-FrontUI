@@ -1,16 +1,19 @@
 <template>
-  <van-nav-bar
-    :title="title"
-    :left-arrow="showBack"
-    @click-left="handleBack"
-    fixed
-    placeholder
-  />
+  <view class="nav-bar-wrapper">
+    <view class="nav-bar" :class="{ 'has-back': showBack }">
+      <view v-if="showBack" class="nav-bar-left" @click="handleBack">
+        <text class="back-icon">‹</text>
+      </view>
+      <view class="nav-bar-title">
+        <text>{{ title }}</text>
+      </view>
+      <view class="nav-bar-right"></view>
+    </view>
+    <view class="nav-bar-placeholder"></view>
+  </view>
 </template>
 
 <script setup>
-import { useRouter } from 'vue-router'
-
 const props = defineProps({
   title: {
     type: String,
@@ -22,35 +25,66 @@ const props = defineProps({
   }
 })
 
-const router = useRouter()
-
 const handleBack = () => {
   if (props.showBack) {
-    router.back()
+    // 使用 uni-app API 返回上一页
+    uni.navigateBack({
+      delta: 1
+    })
   }
 }
 </script>
 
 <style scoped>
-/* 深蓝橙系导航栏样式 */
-:deep(.van-nav-bar) {
-  background: var(--bg-primary);
-  box-shadow: var(--shadow-sm);
-  border-bottom: 1px solid var(--border-light);
+.nav-bar-wrapper {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 999;
 }
 
-:deep(.van-nav-bar__title) {
+.nav-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 88rpx;
+  padding: 0 32rpx;
+  padding-top: env(safe-area-inset-top);
+  background: var(--bg-primary, #FFFFFF);
+  box-shadow: 0 2rpx 16rpx rgba(0, 0, 0, 0.05);
+  border-bottom: 1rpx solid var(--border-light, #E2E8F0);
+}
+
+.nav-bar-left {
+  width: 80rpx;
+  display: flex;
+  align-items: center;
+}
+
+.back-icon {
+  font-size: 48rpx;
+  color: var(--primary-blue, #1E40AF);
+  font-weight: 300;
+}
+
+.nav-bar-title {
+  flex: 1;
+  text-align: center;
+}
+
+.nav-bar-title text {
+  font-size: 32rpx;
   font-weight: 600;
-  color: var(--text-primary);
-  font-size: 18px;
+  color: var(--text-primary, #0F172A);
 }
 
-:deep(.van-nav-bar__arrow) {
-  color: var(--primary-blue);
-  font-size: 20px;
+.nav-bar-right {
+  width: 80rpx;
 }
 
-:deep(.van-nav-bar__text) {
-  color: var(--primary-blue);
+.nav-bar-placeholder {
+  height: 88rpx;
+  padding-top: env(safe-area-inset-top);
 }
 </style>

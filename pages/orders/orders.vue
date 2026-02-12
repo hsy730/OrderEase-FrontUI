@@ -119,7 +119,8 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onPullDownRefresh } from '@dcloudio/uni-app'
+import { ref, onMounted } from 'vue'
+import { onPullDownRefresh } from '@dcloudio/uni-app'
 import { getOrders, getOrderDetail } from '@/utils/api'
 import { getImageUrl } from '@/utils/image'
 
