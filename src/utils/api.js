@@ -1,12 +1,13 @@
 // 使用 uni.request 替代 axios，适配小程序环境
 import { API_BASE_URL } from './constants'
+import { storage } from '@/store'
 
 // 请求拦截器封装
 function requestInterceptor(options) {
-  // 获取本地存储参数 (uni.getStorageSync)
-  const shop_id = uni.getStorageSync('shop_id') || ''
-  const user_id = uni.getStorageSync('user_id') || ''
-  const token = uni.getStorageSync('token') || ''
+  // 获取本地存储参数
+  const shop_id = storage.getItem('shop_id') || ''
+  const user_id = storage.getItem('user_id') || ''
+  const token = storage.getItem('token') || ''
 
   // 构建请求头
   const headers = {
@@ -73,8 +74,8 @@ function responseInterceptor(response) {
     if (!isLoginRequest) {
       console.log('收到401错误，准备跳转到登录页面')
       // 清除本地存储的登录信息
-      uni.removeStorageSync('token')
-      uni.removeStorageSync('user_info')
+      storage.removeItem('token')
+      storage.removeItem('user_info')
       // 跳转到登录页面
       uni.reLaunch({ url: '/pages/login/login' })
     }

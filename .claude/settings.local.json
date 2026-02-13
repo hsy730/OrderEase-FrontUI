@@ -1,7 +1,11 @@
 {
   "permissions": {
     "allow": [
-      "Bash(cat:*)"
+      "Bash(cat:*)",
+      "Bash(npm install --save-dev @dcloudio/uni-cli-shared)",
+      "Bash(dir \"D:\\\\selfcoding\\\\jswork\\\\OrderEase-FrontUI\\\\node_modules\\\\@dcloudio\")",
+      "Bash(npm run build:mp-weixin)",
+      "Bash(findstr /C:\"exports\" /C:\"main\" /C:\"module\")"
     ]
   }
 }
