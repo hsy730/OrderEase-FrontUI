@@ -1,3 +1,4 @@
+/* #ifdef H5 */
 /* color palette from <https://github.com/vuejs/theme> */
 :root {
   --vt-c-white: #ffffff;
@@ -49,7 +50,9 @@
     --color-text: var(--vt-c-text-dark-2);
   }
 }
+/* #endif */
 
+/* #ifdef H5 */
 *,
 *::before,
 *::after {
@@ -84,3 +87,4 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
+/* #endif */

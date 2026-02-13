@@ -9,7 +9,9 @@
   font-weight: normal;
 }
 
+/* #ifdef H5 */
 a,
+/* #endif */
 .green {
   text-decoration: none;
   color: hsla(160, 100%, 37%, 1);
@@ -17,11 +19,13 @@ a,
   padding: 3px;
 }
 
+/* #ifdef H5 */
 @media (hover: hover) {
   a:hover {
     background-color: hsla(160, 100%, 37%, 0.2);
   }
 }
+/* #endif */
 
 @media (min-width: 1024px) {
   body {
