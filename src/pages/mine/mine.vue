@@ -4,7 +4,7 @@
     <view v-if="isLoggedIn" class="user-info">
       <image
         class="user-avatar"
-        src="https://fastly.jsdelivr.net/npm/@vant/assets/cat.jpeg"
+        src="/static/user-avatar.svg"
         mode="aspectFill"
       />
       <view class="user-details">

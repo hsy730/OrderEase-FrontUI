@@ -1,6 +1,7 @@
 /* ============================================
    OrderEase 动画系统
    深蓝橙系过渡动画效果
+   适配 H5 和小程序 (使用 rpx 单位)
    ============================================ */
 
 /* ========== 淡入淡出 ========== */
@@ -18,7 +19,7 @@
 @keyframes slideUp {
   from {
     opacity: 0;
-    transform: translateY(20px);
+    transform: translateY(20rpx);
   }
   to {
     opacity: 1;
@@ -29,7 +30,7 @@
 @keyframes slideDown {
   from {
     opacity: 0;
-    transform: translateY(-20px);
+    transform: translateY(-20rpx);
   }
   to {
     opacity: 1;
@@ -40,7 +41,7 @@
 @keyframes slideLeft {
   from {
     opacity: 0;
-    transform: translateX(20px);
+    transform: translateX(20rpx);
   }
   to {
     opacity: 1;
@@ -51,7 +52,7 @@
 @keyframes slideRight {
   from {
     opacity: 0;
-    transform: translateX(-20px);
+    transform: translateX(-20rpx);
   }
   to {
     opacity: 1;
@@ -85,7 +86,7 @@
 /* ========== 弹跳动画 ========== */
 @keyframes bounce {
   0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-5px); }
+  50% { transform: translateY(-5rpx); }
 }
 
 @keyframes pulse {
@@ -102,33 +103,35 @@
 /* ========== 抖动动画 ========== */
 @keyframes shake {
   0%, 100% { transform: translateX(0); }
-  10%, 30%, 50%, 70%, 90% { transform: translateX(-2px); }
-  20%, 40%, 60%, 80% { transform: translateX(2px); }
+  10%, 30%, 50%, 70%, 90% { transform: translateX(-2rpx); }
+  20%, 40%, 60%, 80% { transform: translateX(2rpx); }
 }
 
 /* ========== 工具类 ========== */
-.animate-fade-in { animation: fadeIn var(--transition-base, 0.25s ease); }
-.animate-fade-out { animation: fadeOut var(--transition-base, 0.25s ease); }
-.animate-slide-up { animation: slideUp var(--transition-base, 0.25s ease); }
-.animate-slide-down { animation: slideDown var(--transition-base, 0.25s ease); }
-.animate-slide-left { animation: slideLeft var(--transition-base, 0.25s ease); }
-.animate-slide-right { animation: slideRight var(--transition-base, 0.25s ease); }
-.animate-scale-in { animation: scaleIn var(--transition-base, 0.25s ease); }
-.animate-scale-out { animation: scaleOut var(--transition-base, 0.25s ease); }
-.animate-bounce { animation: bounce var(--transition-slow, 0.35s ease); }
+.animate-fade-in { animation: fadeIn 0.25s ease; }
+.animate-fade-out { animation: fadeOut 0.25s ease; }
+.animate-slide-up { animation: slideUp 0.25s ease; }
+.animate-slide-down { animation: slideDown 0.25s ease; }
+.animate-slide-left { animation: slideLeft 0.25s ease; }
+.animate-slide-right { animation: slideRight 0.25s ease; }
+.animate-scale-in { animation: scaleIn 0.25s ease; }
+.animate-scale-out { animation: scaleOut 0.25s ease; }
+.animate-bounce { animation: bounce 0.35s ease; }
 .animate-pulse { animation: pulse 2s ease-in-out infinite; }
 .animate-spin { animation: spin 1s linear infinite; }
-.animate-shake { animation: shake var(--transition-base, 0.25s ease); }
+.animate-shake { animation: shake 0.25s ease; }
 
-/* ========== 悬浮效果 ========== */
+/* ========== 悬浮效果 (仅 H5) ========== */
+/* #ifdef H5 */
 .hover-lift {
-  transition: all var(--transition-base, 0.25s ease);
+  transition: all 0.25s ease;
 }
 
 .hover-lift:hover {
-  transform: translateY(-4px);
-  box-shadow: var(--shadow-lg, 0 8px 24px rgba(30, 64, 175, 0.15));
+  transform: translateY(-4rpx);
+  box-shadow: 0 8rpx 24rpx rgba(30, 64, 175, 0.15);
 }
+/* #endif */
 
 /* ========== 加载动画 ========== */
 @keyframes loading {
@@ -137,28 +140,28 @@
 }
 
 .loading-spinner {
-  border: 3px solid var(--border-light, #E2E8F0);
-  border-top-color: var(--primary-blue, #1E40AF);
+  border: 3rpx solid #E2E8F0;
+  border-top-color: #1E40AF;
   border-radius: 50%;
-  width: 40px;
-  height: 40px;
+  width: 80rpx;
+  height: 80rpx;
   animation: loading 0.8s linear infinite;
 }
 
 /* ========== 骨架屏动画 ========== */
 @keyframes skeleton-loading {
-  0% { background-position: -200px 0; }
-  100% { background-position: calc(200px + 100%) 0; }
+  0% { background-position: -200rpx 0; }
+  100% { background-position: calc(200rpx + 100%) 0; }
 }
 
 .skeleton {
   background: linear-gradient(
     90deg,
-    var(--bg-secondary, #F8FAFC) 0%,
-    var(--bg-tertiary, #F1F5F9) 20%,
-    var(--bg-secondary, #F8FAFC) 40%,
-    var(--bg-secondary, #F8FAFC) 100%
+    #F8FAFC 0%,
+    #F1F5F9 20%,
+    #F8FAFC 40%,
+    #F8FAFC 100%
   );
-  background-size: 200px 100%;
+  background-size: 200rpx 100%;
   animation: skeleton-loading 1.5s ease-in-out infinite;
 }
