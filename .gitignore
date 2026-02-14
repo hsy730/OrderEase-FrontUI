@@ -39,5 +39,7 @@ coverage/
 
 # 临时文件
 *.tmp
+nul
 *.temp
+tmpclaude*
 .cache nul

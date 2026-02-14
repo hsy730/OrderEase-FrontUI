@@ -199,4 +199,9 @@ export const submitOrder = (orderData) => {
   return api.post('/order', orderData)
 }
 
+// 微信小程序授权登录
+export const userWeChatLogin = (wechatData) => {
+  return api.post('/user/wechat-login', wechatData)
+}
+
 export default api

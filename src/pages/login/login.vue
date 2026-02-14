@@ -9,7 +9,8 @@
           <text class="welcome-subtitle">请登录您的账户</text>
         </view>
 
-        <!-- 表单输入 -->
+        <!-- #ifdef H5 -->
+        <!-- H5 表单输入 -->
         <view class="form-group">
           <view class="input-group">
             <text class="input-icon">👤</text>
@@ -33,13 +34,61 @@
           </view>
         </view>
 
-        <!-- 登录按钮 -->
+        <!-- H5 登录按钮 -->
         <view class="button-group">
           <view class="login-button" :class="{ loading: loading }" @click="handleLogin">
             <text v-if="!loading">登录</text>
             <text v-else>登录中...</text>
           </view>
         </view>
+        <!-- #endif -->
+
+        <!-- #ifdef MP-WEIXIN -->
+        <!-- 小程序微信授权登录 -->
+        <view class="button-group">
+          <view class="wechat-login-button" :class="{ loading: loading }" @click="handleWeChatLogin">
+            <text v-if="!loading">微信授权登录</text>
+            <text v-else>登录中...</text>
+          </view>
+        </view>
+
+        <!-- 小程序其他登录方式 -->
+        <view class="other-login-section">
+          <view class="divider">
+            <text class="divider-text">其他登录方式</text>
+          </view>
+
+          <view class="form-group">
+            <view class="input-group">
+              <text class="input-icon">👤</text>
+              <input
+                v-model="form.username"
+                placeholder="请输入用户名"
+                class="custom-input"
+                placeholder-class="input-placeholder"
+              />
+            </view>
+
+            <view class="input-group">
+              <text class="input-icon">🔒</text>
+              <input
+                v-model="form.password"
+                placeholder="请输入密码"
+                type="password"
+                class="custom-input"
+                placeholder-class="input-placeholder"
+              />
+            </view>
+          </view>
+
+          <view class="button-group">
+            <view class="login-button" :class="{ loading: loading }" @click="handleLogin">
+              <text v-if="!loading">账号密码登录</text>
+              <text v-else>登录中...</text>
+            </view>
+          </view>
+        </view>
+        <!-- #endif -->
 
         <!-- 注册和令牌登录链接 -->
         <view class="register-section">
@@ -57,8 +106,11 @@
 
 <script setup>
 import { ref } from 'vue'
-import { userLogin } from '@/utils/api'
-import { storage } from '@/store'
+import { userWeChatLogin } from '@/utils/api'
+import { useAuth } from '@/composables/useAuth'
+
+// 使用登录组合式函数
+const { loading, handlePasswordLogin, handleWeChatLogin } = useAuth()
 
 // 表单数据
 const form = ref({
@@ -66,52 +118,14 @@ const form = ref({
   password: ''
 })
 
-// 登录状态
-const loading = ref(false)
-
-// 登录方法
+// 账号密码登录
 const handleLogin = async () => {
-  // 验证表单
-  if (!form.value.username || !form.value.password) {
-    uni.showToast({ title: '请输入用户名和密码', icon: 'none' })
-    return
-  }
+  await handlePasswordLogin(form.value.username, form.value.password)
+}
 
-  try {
-    loading.value = true
-
-    // 调用登录API
-    const response = await userLogin({
-      username: form.value.username,
-      password: form.value.password
-    })
-
-    if (response.data && response.data.message === '登录成功') {
-      // 存储用户信息和token
-      storage.setItem('user_id', response.data.user.id)
-      storage.setItem('user_info', response.data.user)
-      storage.setItem('token', response.data.token)
-
-      uni.showToast({ title: '登录成功', icon: 'success' })
-
-      // 获取页面栈
-      const pages = getCurrentPages()
-      if (pages.length > 1) {
-        // 有来源页面，返回上一页
-        uni.navigateBack()
-      } else {
-        // 没有来源页面，跳转到首页
-        uni.switchTab({ url: '/pages/index/index' })
-      }
-    } else {
-      uni.showToast({ title: response.data?.error || '登录失败', icon: 'none' })
-    }
-  } catch (error) {
-    console.error('登录失败:', error)
-    uni.showToast({ title: '网络错误，请重试', icon: 'none' })
-  } finally {
-    loading.value = false
-  }
+// 微信授权登录
+const handleWeChatLogin = async () => {
+  await handleWeChatLogin(userWeChatLogin)
 }
 
 // 跳转到注册页面
@@ -243,6 +257,52 @@ const goToTokenLogin = () => {
 
 .login-button.loading {
   opacity: 0.7;
+}
+
+/* 微信登录按钮 */
+.wechat-login-button {
+  height: 112rpx;
+  font-size: 36rpx;
+  font-weight: 600;
+  background: linear-gradient(135deg, #07C160, #10B851);
+  border: none;
+  box-shadow: 0 16rpx 40rpx rgba(7, 193, 96, 0.3);
+  transition: all 0.25s;
+  border-radius: 56rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #FFFFFF;
+}
+
+.wechat-login-button:active {
+  transform: translateY(2rpx);
+  opacity: 0.9;
+}
+
+/* 其他登录方式区域 */
+.other-login-section {
+  margin-top: 48rpx;
+}
+
+.divider {
+  display: flex;
+  align-items: center;
+  margin: 48rpx 0;
+  color: #94A3B8;
+}
+
+.divider::before,
+.divider::after {
+  content: '';
+  flex: 1;
+  height: 1rpx;
+  background: #E2E8F0;
+}
+
+.divider-text {
+  padding: 0 24rpx;
+  font-size: 24rpx;
 }
 
 /* 注册区域 */
