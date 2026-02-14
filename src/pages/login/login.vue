@@ -110,7 +110,7 @@ import { userWeChatLogin } from '@/utils/api'
 import { useAuth } from '@/composables/useAuth'
 
 // 使用登录组合式函数
-const { loading, handlePasswordLogin, handleWeChatLogin } = useAuth()
+const { loading, handlePasswordLogin, handleWeChatLogin: authHandleWeChatLogin } = useAuth()
 
 // 表单数据
 const form = ref({
@@ -125,7 +125,7 @@ const handleLogin = async () => {
 
 // 微信授权登录
 const handleWeChatLogin = async () => {
-  await handleWeChatLogin(userWeChatLogin)
+  await authHandleWeChatLogin(userWeChatLogin)
 }
 
 // 跳转到注册页面
