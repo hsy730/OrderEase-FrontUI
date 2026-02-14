@@ -2,19 +2,37 @@
 
 ## 概述
 
-本文档说明 OrderEase-FrontUI 项目的构建配置、已知问题和解决方案。
+本文档说明 OrderEase-FrontUI 项目的构建配置和解决方案。
 
 ## 构建命令
 
 | 命令 | 说明 | 状态 |
 |------|------|------|
-| `npm run dev:h5` | H5 开发模式 | ⚠️ 已知问题 |
+| `npm run dev:h5` | H5 开发模式 | ✅可用 |
 | `npm run dev:mp-weixin` | 小程序开发模式 | ✅可用 |
-| `npm run build:h5` | H5 生产构建 | ⚠️ 已知问题 |
+| `npm run build:h5` | H5 生产构建 | ✅可用 |
 | `npm run build:mp-weixin` | 小程序生产构建 | ✅可用 |
-| `npm run preview` | H5 预览构建 | ⚠️ 已知问题 |
+| `npm run preview` | H5 预览构建 | ✅可用 |
 
 ## 当前构建状态
+
+### ✅ H5 构建 - 成功
+
+```bash
+npm run build:h5
+```
+
+**输出目录**: `dist/build/h5`
+
+**部署方式**:
+1. 将 `dist/build/h5` 目录内容部署到 Web 服务器
+2. 或使用 `npm run preview` 本地预览
+
+**开发模式**:
+```bash
+npm run dev:h5
+```
+开发服务器默认运行在 `http://localhost:3001`
 
 ### ✅ 微信小程序构建 - 成功
 
@@ -31,18 +49,11 @@ npm run build:mp-weixin
 4. 填入 AppID
 5. 点击"导入"
 
-### ⚠️ H5 构建 - 已知问题
-
+**开发模式**:
 ```bash
-npm run build:h5
+npm run dev:mp-weixin
 ```
-
-**错误信息**:
-```
-"isInSSRComponentSetup" is not exported by "node_modules/vue/dist/vue.runtime.esm-bundler.js"
-```
-
-**问题原因**: uni-app alpha 版本（3.0.0-alpha-5000120260211001）的 H5 编译器代码中引用了 `isInSSRComponentSetup` API，但此 API 在 Vue 3.4.21 中不存在。这是 uni-app alpha 版本本身的 H5 支持问题。
+开发输出目录: `dist/dev/mp-weixin`
 
 ## 依赖版本
 
@@ -50,7 +61,7 @@ npm run build:h5
 
 ```json
 {
-  "vue": "3.4.21",
+  "vue": "3.2.47",
   "@dcloudio/types": "3.4.28",
   "@dcloudio/uni-app": "^3.0.0-alpha-5000120211001",
   "@dcloudio/uni-components": "^3.0.0-alpha-5000120211001",
@@ -61,39 +72,43 @@ npm run build:h5
 
 ### 版本说明
 
-- **Vue 3.4.21**: 当前使用的稳定版本，与 uni-app 小程序兼容
-- **uni-app alpha-5000120260211001**: 测试版本，小程序支持正常，H5 支持存在问题
+- **Vue 3.2.47**: 与 uni-app alpha 版本兼容，解决 H5 构建问题
+- **uni-app alpha-5000120211001**: 测试版本，通过 postinstall 脚本修复 H5 兼容性
 
-### 已测试的组合
+## H5 构建兼容性修复
 
-| Vue 版本 | 小程序构建 | H5 构建 |
-|----------|------------|---------|
-| 3.5.28 | ✅ | ❌ |
-| 3.4.21 | ✅ | ❌ |
+### 问题说明
 
-**结论**: 当前 uni-app alpha 版本的 H5 构建问题与 Vue 版本无关，是 uni-app 自身的 H5 编译器问题。
+uni-app 3.0.0-alpha 版本的 H5 编译器代码中引用了 `isInSSRComponentSetup` 和 `injectHook` API，但这些 API 在 Vue 3.4.21 中不存在。
 
-## 解决方案
+### 解决方案
 
-### 方案 1: 等待 uni-app 正式版（推荐）
+通过以下步骤修复：
 
-uni-app alpha 版本尚未正式完成 H5 支持适配。建议等待 uni-app 3.0 正式版发布。
+1. **降级 Vue 到 3.2.47** - 这个版本与 uni-app alpha 版本更兼容
+2. **创建 postinstall 脚本** - `scripts/postinstall.js` 自动修复 node_modules 中的 `uni-app.es.js` 文件
+3. **配置自动修复** - 在 `package.json` 中添加了 `postinstall` 钩子
 
-### 方案 2: 仅使用小程序开发
+### postinstall 脚本
 
-当前项目主要用于小程序开发，建议专注于小程序构建：
+每次 `npm install` 后，`scripts/postinstall.js` 会自动：
+
+1. 移除 `isInSSRComponentSetup` 导入，替换为 `false`
+2. 移除 `injectHook` 导入，替换为 `undefined`
+3. 修复 node_modules 中的 `uni-app.es.js` 文件
+
+### 验证修复
 
 ```bash
-# 小程序开发
-npm run dev:mp-weixin
+# 重新安装依赖，postinstall 会自动修复
+npm install
 
-# 小程序构建
+# 测试 H5 构建
+npm run build:h5
+
+# 测试小程序构建
 npm run build:mp-weixin
 ```
-
-### 方案 3: 使用旧版 uni-app（不推荐）
-
-如果必须构建 H5，可以尝试使用较旧的 uni-app 版本，但可能会缺少新功能。
 
 ## 开发工具推荐
 
@@ -144,7 +159,7 @@ dist/build/mp-weixin/
 └── static/              # 静态资源
 ```
 
-### H5 输出目录结构（当前不可用）
+### H5 输出目录结构
 
 ```
 dist/build/h5/
@@ -158,11 +173,20 @@ dist/build/h5/
 
 ### Q1: H5 构建失败怎么办？
 
-A: 当前 H5 构建存在 uni-app alpha 版本本身的适配问题，建议使用小程序开发或等待 uni-app 正式版发布。
+A: 确保 Vue 版本为 3.2.47，并且已经运行 `npm install` 触发 postinstall 脚本修复：
 
-### Q2: 已降级 Vue 到 3.4.21，为什么 H5 还是失败？
+```bash
+# 重新安装依赖
+rm -rf node_modules package-lock.json
+npm install
 
-A: uni-app alpha 版本的 H5 编译器代码中引用了 `isInSSRComponentSetup` API，但此 API 在 Vue 3.4.21 中不存在。这不是 Vue 版本问题，而是 uni-app 自身的 H5 支持问题。
+# 测试构建
+npm run build:h5
+```
+
+### Q2: 为什么使用 Vue 3.2.47 而不是最新版？
+
+A: uni-app 3.0.0-alpha 版本的 H5 编译器需要与特定 Vue 版本兼容。Vue 3.2.47 与当前 uni-app alpha 版本配合最稳定。
 
 ### Q3: 小程序构建成功但运行报错？
 
@@ -178,16 +202,29 @@ A: 小程序开发调试：
 ```bash
 npm run dev:mp-weixin
 ```
-
 然后使用微信开发者工具打开 `dist/dev/mp-weixin` 目录。
+
+H5 开发调试：
+```bash
+npm run dev:h5
+```
+访问 `http://localhost:3001`
+
+## 后续计划
+
+uni-app 3.0 正式版发布后应考虑：
+1. 升级到 uni-app 正式版
+2. 移除 postinstall 修复脚本
+3. 尝试升级 Vue 到最新稳定版
 
 ## 更新日志
 
 | 日期 | 更新内容 |
 |------|----------|
-| 2026-02-14 | 初始文档，记录 H5 构建兼容性问题 |
+| 2026-02-14 | 修复 H5 构建问题，添加 postinstall 脚本自动修复兼容性 |
 | 2026-02-14 | 添加微信授权登录功能 |
 | 2026-02-14 | 测试 Vue 3.4.21 降级，确认 H5 问题为 uni-app 自身问题 |
+| 2026-02-14 | 初始文档，记录 H5 构建兼容性问题 |
 
 ## 参考资料
 
