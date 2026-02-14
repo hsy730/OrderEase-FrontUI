@@ -11,22 +11,16 @@
     "preview": "uni build -p h5 && vite preview"
   },
   "dependencies": {
-    "vue": "3.5.28"
+    "vue": "3.4.21"
   },
   "devDependencies": {
-    "@dcloudio/types": "3.4.29",
+    "@dcloudio/types": "3.4.28",
     "@dcloudio/uni-app": "^3.0.0-alpha-5000120260211001",
-    "@dcloudio/uni-components": "^3.0.0-alpha-5000120260211001",
-    "@dcloudio/uni-mp-weixin": "^3.0.0-alpha-5000120260211001",
-    "@dcloudio/vite-plugin-uni": "^3.0.0-alpha-5000120260211001",
+    "@dcloudio/uni-components": "^3.0.0-alpha-5000120211001",
+    "@dcloudio/uni-mp-weixin": "^3.0.0-alpha-5000120211001",
+    "@dcloudio/vite-plugin-uni": "^3.0.0-alpha-5000120211001",
     "@vitejs/plugin-vue": "^5.0.5",
     "sass": "^1.97.3",
     "vite": "5.2.8"
-  },
-  "overrides": {
-    "vue": "3.5.28",
-    "@vue/shared": "3.5.28",
-    "@vue/runtime-core": "3.5.28",
-    "@vue/compiler-core": "3.5.28"
   }
 }

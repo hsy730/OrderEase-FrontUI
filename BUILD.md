@@ -9,9 +9,9 @@
 | 命令 | 说明 | 状态 |
 |------|------|------|
 | `npm run dev:h5` | H5 开发模式 | ⚠️ 已知问题 |
-| `npm run dev:mp-weixin` | 小程序开发模式 | ✅ 可用 |
+| `npm run dev:mp-weixin` | 小程序开发模式 | ✅可用 |
 | `npm run build:h5` | H5 生产构建 | ⚠️ 已知问题 |
-| `npm run build:mp-weixin` | 小程序生产构建 | ✅ 可用 |
+| `npm run build:mp-weixin` | 小程序生产构建 | ✅可用 |
 | `npm run preview` | H5 预览构建 | ⚠️ 已知问题 |
 
 ## 当前构建状态
@@ -42,62 +42,46 @@ npm run build:h5
 "isInSSRComponentSetup" is not exported by "node_modules/vue/dist/vue.runtime.esm-bundler.js"
 ```
 
-**问题原因**: uni-app alpha 版本与 Vue 3.5.x 版本不兼容。
+**问题原因**: uni-app alpha 版本（3.0.0-alpha-5000120260211001）的 H5 编译器代码中引用了 `isInSSRComponentSetup` API，但此 API 在 Vue 3.4.21 中不存在。这是 uni-app alpha 版本本身的 H5 支持问题。
 
-## 依赖版本问题
+## 依赖版本
 
 ### 当前使用的版本
 
 ```json
 {
-  "vue": "3.5.28",
-  "@dcloudio/uni-app": "^3.0.0-alpha-5000120260211001",
-  "@dcloudio/uni-components": "^3.0.0-alpha-5000120260211001",
+  "vue": "3.4.21",
+  "@dcloudio/types": "3.4.28",
+  "@dcloudio/uni-app": "^3.0.0-alpha-5000120211001",
+  "@dcloudio/uni-components": "^3.0.0-alpha-5000120211001",
   "@dcloudio/uni-mp-weixin": "^3.0.0-alpha-5000120211001",
   "@dcloudio/vite-plugin-uni": "^3.0.0-alpha-5000120211001"
 }
 ```
 
-### 问题分析
+### 版本说明
 
-uni-app alpha 版本期望 Vue 3.4.21，但当前安装的是 Vue 3.5.28。
+- **Vue 3.4.21**: 当前使用的稳定版本，与 uni-app 小程序兼容
+- **uni-app alpha-5000120260211001**: 测试版本，小程序支持正常，H5 支持存在问题
 
-- **Vue 3.5.28**: 最新稳定版本
-- **uni-app alpha-5000120260211001**: 测试版本，硬依赖 Vue 3.4.21
+### 已测试的组合
+
+| Vue 版本 | 小程序构建 | H5 构建 |
+|----------|------------|---------|
+| 3.5.28 | ✅ | ❌ |
+| 3.4.21 | ✅ | ❌ |
+
+**结论**: 当前 uni-app alpha 版本的 H5 构建问题与 Vue 版本无关，是 uni-app 自身的 H5 编译器问题。
 
 ## 解决方案
 
 ### 方案 1: 等待 uni-app 正式版（推荐）
 
-uni-app alpha 版本尚未正式发布 H5 支持到 Vue 3.5。建议等待 uni-app 正式版发布。
+uni-app alpha 版本尚未正式完成 H5 支持适配。建议等待 uni-app 3.0 正式版发布。
 
-### 方案 2: 使用兼容版本配置
+### 方案 2: 仅使用小程序开发
 
-如果需要同时构建 H5 和小程序，可以配置 Vue 3.4.21：
-
-```json
-{
-  "dependencies": {
-    "vue": "3.4.21"
-  },
-  "devDependencies": {
-    "@dcloudio/types": "3.4.28"
-  }
-}
-```
-
-**安装命令**:
-```bash
-npm install vue@3.4.21 @dcloudio/types@3.4.28 --save-exact
-rm -rf node_modules package-lock.json
-npm install --legacy-peer-deps
-```
-
-**注意**: 此配置下小程序构建成功，但 H5 仍然存在问题。
-
-### 方案 3: 仅使用小程序开发
-
-目前项目主要用于小程序开发，建议专注于小程序构建：
+当前项目主要用于小程序开发，建议专注于小程序构建：
 
 ```bash
 # 小程序开发
@@ -106,6 +90,10 @@ npm run dev:mp-weixin
 # 小程序构建
 npm run build:mp-weixin
 ```
+
+### 方案 3: 使用旧版 uni-app（不推荐）
+
+如果必须构建 H5，可以尝试使用较旧的 uni-app 版本，但可能会缺少新功能。
 
 ## 开发工具推荐
 
@@ -170,16 +158,11 @@ dist/build/h5/
 
 ### Q1: H5 构建失败怎么办？
 
-A: 当前 H5 构建存在已知兼容问题，建议使用小程序开发。如果必须构建 H5，可以尝试联系 uni-app 官方获取支持。
+A: 当前 H5 构建存在 uni-app alpha 版本本身的适配问题，建议使用小程序开发或等待 uni-app 正式版发布。
 
-### Q2: 如何切换 Vue 版本？
+### Q2: 已降级 Vue 到 3.4.21，为什么 H5 还是失败？
 
-A: 修改 `package.json` 中的版本号，然后重新安装依赖：
-
-```bash
-rm -rf node_modules package-lock.json
-npm install --legacy-peer-deps
-```
+A: uni-app alpha 版本的 H5 编译器代码中引用了 `isInSSRComponentSetup` API，但此 API 在 Vue 3.4.21 中不存在。这不是 Vue 版本问题，而是 uni-app 自身的 H5 支持问题。
 
 ### Q3: 小程序构建成功但运行报错？
 
@@ -204,6 +187,7 @@ npm run dev:mp-weixin
 |------|----------|
 | 2026-02-14 | 初始文档，记录 H5 构建兼容性问题 |
 | 2026-02-14 | 添加微信授权登录功能 |
+| 2026-02-14 | 测试 Vue 3.4.21 降级，确认 H5 问题为 uni-app 自身问题 |
 
 ## 参考资料
 
