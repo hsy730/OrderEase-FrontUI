@@ -27,8 +27,10 @@ function copyStaticPlugin() {
 
 export default defineConfig(({ command, mode }) => {
   const platform = process.env.UNI_PLATFORM || 'h5'
+  const isH5 = platform === 'h5'
 
   return {
+    base: isH5 ? '/order-ease-iui/' : '/',
     plugins: [
       uniPlugin,
       // 只在小程序平台添加静态资源复制插件
