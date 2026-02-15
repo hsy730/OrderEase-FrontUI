@@ -18,6 +18,7 @@
     "@dcloudio/types": "3.4.28",
     "@dcloudio/uni-app": "^3.0.0-alpha-5000120260211001",
     "@dcloudio/uni-components": "^3.0.0-alpha-5000120211001",
+    "@dcloudio/uni-h5": "^3.0.0-alpha-5000120260211001",
     "@dcloudio/uni-mp-weixin": "^3.0.0-alpha-5000120211001",
     "@dcloudio/vite-plugin-uni": "^3.0.0-alpha-5000120211001",
     "@vitejs/plugin-vue": "^5.0.5",

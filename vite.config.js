@@ -1,12 +1,15 @@
 import { defineConfig } from 'vite'
 import path from 'path'
+import { fileURLToPath } from 'url'
 import { createRequire } from 'module'
 
-const require = createRequire(import.meta.url)
-const uni = require('@dcloudio/vite-plugin-uni')
-const uniPlugin = typeof uni.default === 'function' ? uni.default() : uni
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = path.dirname(__filename)
 
-// Vite 插件：复制 static 目录到输出目录
+process.env.UNI_INPUT_DIR = process.env.UNI_INPUT_DIR || path.resolve(__dirname, 'src')
+
+const require = createRequire(import.meta.url)
+
 function copyStaticPlugin() {
   return {
     name: 'copy-static-plugin',
@@ -29,11 +32,13 @@ export default defineConfig(({ command, mode }) => {
   const platform = process.env.UNI_PLATFORM || 'h5'
   const isH5 = platform === 'h5'
 
+  const uni = require('@dcloudio/vite-plugin-uni')
+  const uniPlugin = typeof uni.default === 'function' ? uni.default() : uni
+
   return {
     base: isH5 ? '/order-ease-iui/' : '/',
     plugins: [
       uniPlugin,
-      // 只在小程序平台添加静态资源复制插件
       platform.includes('mp') ? copyStaticPlugin() : null
     ].filter(Boolean),
     resolve: {
@@ -52,7 +57,6 @@ export default defineConfig(({ command, mode }) => {
         }
       }
     },
-    // 确保 public 目录被复制
     publicDir: 'public'
   }
 })
