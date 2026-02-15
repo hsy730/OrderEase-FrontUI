@@ -2,11 +2,23 @@
 @import './animations.css';
 @import './base.css';
 
+/* H5 page height fix - required for full viewport height */
+html,
+body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+}
+
 #app {
   max-width: 1280px;
   margin: 0 auto;
   /* padding: 2rem; */
   font-weight: normal;
+  height: 100.1vh;
+  min-height: 100vh;
+  overflow: hidden;
 }
 
 /* #ifdef H5 */
@@ -27,15 +39,4 @@ a,
 }
 /* #endif */
 
-@media (min-width: 1024px) {
-  body {
-    display: flex;
-    place-items: center;
-  }
-
-  #app {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    padding: 0 2rem;
-  }
-}
+/* Removed media query that interfered with uni-app H5 layout */

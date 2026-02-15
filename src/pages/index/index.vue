@@ -487,21 +487,15 @@ const handleSubmitOrder = async () => {
 .order-page {
   height: 100vh;
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   background: #F8FAFC;
-}
-
-.content-wrapper {
-  flex: 1;
-  display: flex;
-  overflow: hidden;
 }
 
 /* 左侧分类菜单 */
 .category-menu {
   width: 160rpx;
   background: #FDFDFD;
-  height: calc(100vh - 50px);
+  height: 100vh;
 }
 
 .category-item {
@@ -527,7 +521,7 @@ const handleSubmitOrder = async () => {
 
 .product-container {
   flex: 1;
-  height: calc(100vh - 50px);
+  height: 100vh;
   padding: 24rpx;
   overflow-y: auto;
 }
