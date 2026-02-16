@@ -8,6 +8,7 @@ yarn-error.log
 .env
 .env.local
 .env.*.local
+.env.production
 
 # 编辑器目录和文件
 .idea/

@@ -1,4 +1,4 @@
-import { defineConfig } from 'vite'
+import { defineConfig, loadEnv } from 'vite'
 import path from 'path'
 import { fileURLToPath } from 'url'
 import { createRequire } from 'module'
@@ -29,6 +29,9 @@ function copyStaticPlugin() {
 }
 
 export default defineConfig(({ command, mode }) => {
+  // 加载环境变量
+  const env = loadEnv(mode, process.cwd())
+
   const platform = process.env.UNI_PLATFORM || 'h5'
   const isH5 = platform === 'h5'
 
@@ -45,6 +48,10 @@ export default defineConfig(({ command, mode }) => {
       alias: {
         '@': path.resolve(__dirname, 'src')
       }
+    },
+    define: {
+      // 将环境变量注入到代码中，供 manifest.json 使用
+      'import.meta.env.VITE_MP_WEIXIN_APP_ID': JSON.stringify(env.VITE_MP_WEIXIN_APP_ID || '')
     },
     server: {
       host: "0.0.0.0",
