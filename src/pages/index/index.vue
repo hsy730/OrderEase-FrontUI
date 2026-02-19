@@ -17,6 +17,9 @@
     <scroll-view class="product-container" scroll-y>
       <!-- 商品列表 -->
       <view class="product-list">
+        <view v-if="products.length === 0" class="empty-tip">
+          <text class="empty-text">该分类下暂无商品</text>
+        </view>
         <view v-for="product in products" :key="product.id" class="product-item">
           <image
             v-if="product.image"
@@ -164,6 +167,7 @@
           </view>
         </scroll-view>
         <view class="footer-actions">
+          <view v-if="errorMessage" class="error-message">{{ errorMessage }}</view>
           <view class="left-section">
             <text class="price-display">
               ¥{{ (selectedProduct.price || 0) + optionTotal }}
@@ -200,6 +204,7 @@ const selectedProduct = ref(null)
 const showOptionsPopup = ref(false)
 const productQuantity = ref(1)
 const selectedOptions = ref(new Map())
+const errorMessage = ref('')
 
 onMounted(async () => {
   try {
@@ -284,11 +289,13 @@ const handleShowOptions = (product) => {
   selectedProduct.value = product
   selectedOptions.value = new Map()
   productQuantity.value = 1
+  errorMessage.value = ''
   showOptionsPopup.value = true
 }
 
 const closeOptionsPopup = () => {
   showOptionsPopup.value = false
+  errorMessage.value = ''
 }
 
 const changeQuantity = (delta) => {
@@ -298,6 +305,16 @@ const changeQuantity = (delta) => {
 const confirmSelection = () => {
   if (!selectedProduct.value) return
 
+  const requiredCategories = (selectedProduct.value.option_categories || []).filter(c => c.is_required === true || c.is_required === 1)
+  for (const category of requiredCategories) {
+    const selected = selectedOptions.value.get(category.id)
+    if (!selected || selected.length === 0) {
+      errorMessage.value = `请选择${category.name}`
+      return
+    }
+  }
+
+  errorMessage.value = ''
   const finalPrice = selectedProduct.value.price + optionTotal.value
   const productWithOptions = {
     ...selectedProduct.value,
@@ -550,6 +567,18 @@ const handleSubmitOrder = async () => {
   height: 100vh;
   padding: 24rpx;
   overflow-y: auto;
+}
+
+.empty-tip {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 80rpx 0;
+}
+
+.empty-text {
+  font-size: 28rpx;
+  color: #94A3B8;
 }
 
 .product-item {
@@ -926,6 +955,7 @@ const handleSubmitOrder = async () => {
 }
 
 .footer-actions {
+  position: relative;
   padding: 32rpx;
   border-top: 1rpx solid #E2E8F0;
   display: flex;
@@ -952,6 +982,20 @@ const handleSubmitOrder = async () => {
   border-radius: 56rpx;
   font-size: 28rpx;
   font-weight: 600;
+}
+
+.error-message {
+  position: absolute;
+  top: -60rpx;
+  left: 32rpx;
+  right: 32rpx;
+  background: #FEF2F2;
+  border: 1rpx solid #FECACA;
+  color: #DC2626;
+  padding: 16rpx 24rpx;
+  border-radius: 12rpx;
+  font-size: 26rpx;
+  text-align: center;
 }
 
 .close-btn {
