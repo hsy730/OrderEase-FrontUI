@@ -144,7 +144,7 @@ const loadOrders = async (page = 1, isRefresh = false) => {
   try {
     const userId = storage.getItem('user_id')
     if (!userId) {
-      uni.redirectTo({ url: '/pages/login/login' })
+      uni.redirectTo({ url: '/pages/login/index' })
       return
     }
 

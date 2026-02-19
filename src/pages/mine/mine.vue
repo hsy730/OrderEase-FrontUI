@@ -80,7 +80,7 @@ const formatPhone = (phone) => {
 
 // 跳转到登录页面
 const goToLogin = () => {
-  uni.navigateTo({ url: '/pages/login/login' })
+  uni.navigateTo({ url: '/pages/login/index' })
 }
 
 // 退出登录

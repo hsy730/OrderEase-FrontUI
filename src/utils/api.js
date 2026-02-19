@@ -77,7 +77,7 @@ function responseInterceptor(response) {
       storage.removeItem('token')
       storage.removeItem('user_info')
       // 跳转到登录页面
-      uni.reLaunch({ url: '/pages/login/login' })
+      uni.reLaunch({ url: '/pages/login/index' })
     }
   }
 

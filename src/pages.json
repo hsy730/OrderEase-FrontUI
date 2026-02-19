@@ -22,7 +22,7 @@
       }
     },
     {
-      "path": "pages/login/login",
+      "path": "pages/login/index",
       "style": {
         "navigationBarTitleText": "登录"
       }

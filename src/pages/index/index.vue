@@ -354,11 +354,37 @@ const addToCart = (product) => {
 }
 
 const handleStepperChange = (product, delta) => {
-  const newCount = product.count + delta
-  product.count = newCount
-  product.lastCount = newCount
+  const productKey = `${product.id}`
+  const existingIndex = cartItems.value.findIndex(
+    item => (item.cartItemId || `${item.id}`) === productKey
+  )
 
-  addToCart({ ...product, count: newCount })
+  let newCount
+  if (existingIndex > -1) {
+    newCount = cartItems.value[existingIndex].count + delta
+  } else {
+    newCount = delta
+  }
+
+  if (newCount <= 0) {
+    if (existingIndex > -1) {
+      cartItems.value.splice(existingIndex, 1)
+    }
+    product.count = 0
+    product.lastCount = 0
+  } else {
+    if (existingIndex > -1) {
+      cartItems.value[existingIndex].count = newCount
+    } else {
+      cartItems.value.push({
+        ...product,
+        count: newCount,
+        cartItemId: productKey
+      })
+    }
+    product.count = newCount
+    product.lastCount = newCount
+  }
 }
 
 const handleCountChange = (id, delta) => {

@@ -120,7 +120,7 @@ const handleRegister = async () => {
 
       // 跳转到登录页面
       setTimeout(() => {
-        uni.redirectTo({ url: '/pages/login/login' })
+        uni.redirectTo({ url: '/pages/login/index' })
       }, 1500)
     } else {
       uni.showToast({ title: response.data?.error || '注册失败', icon: 'none' })
