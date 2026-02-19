@@ -122,7 +122,7 @@
       <view class="cart-info" @click="toggleCartList">
         <view class="cart-icon-wrapper">
           <view v-if="totalCount > 0" class="cart-badge">{{ totalCount }}</view>
-          <text class="cart-icon">🛒</text>
+          <text class="cart-icon">🛍️</text>
         </view>
         <view class="price-info">
           <text class="symbol">¥</text>
@@ -179,7 +179,7 @@
             </view>
           </view>
           <view class="add-cart-btn" @click="confirmSelection">
-            加入购物车
+            加入福袋
           </view>
         </view>
         <view class="close-btn" @click="closeOptionsPopup">×</view>
@@ -334,7 +334,7 @@ const confirmSelection = () => {
   showOptionsPopup.value = false
   productQuantity.value = 1
   selectedOptions.value = new Map()
-  uni.showToast({ title: '已加入购物车', icon: 'success' })
+  uni.showToast({ title: '已加入福袋', icon: 'success' })
 }
 
 const addToCart = (product) => {
@@ -441,9 +441,11 @@ const toggleCartList = () => {
 }
 
 const handleClearCart = () => {
+  // 先关闭购物车弹窗，再显示确认弹窗
+  showCartPopup.value = false
   uni.showModal({
     title: '确认',
-    content: '确定清空购物车吗?',
+    content: '确定清空福袋吗?',
     success: (res) => {
       if (res.confirm) {
         cartItems.value = []
@@ -451,7 +453,6 @@ const handleClearCart = () => {
           p.count = 0
           p.lastCount = 0
         })
-        showCartPopup.value = false
       }
     }
   })
@@ -470,7 +471,7 @@ const totalAmount = computed(() => {
 
 const handleSubmitOrder = async () => {
   if (cartItems.value.length === 0) {
-    uni.showToast({ title: '购物车为空', icon: 'none' })
+    uni.showToast({ title: '福袋为空', icon: 'none' })
     return
   }
 
@@ -546,14 +547,26 @@ const handleSubmitOrder = async () => {
   text-align: center;
   border-bottom: 1rpx solid #E2E8F0;
   transition: all 0.25s;
+  position: relative;
 }
 
 .category-item.active {
-  background: linear-gradient(135deg, #1E40AF 0%, #3B82F6 100%);
+  background: #F0F7FF;
+}
+
+.category-item.active::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 6rpx;
+  background: linear-gradient(180deg, #1E40AF 0%, #3B82F6 100%);
+  border-radius: 0 4rpx 4rpx 0;
 }
 
 .category-item.active .category-text {
-  color: #FFFFFF;
+  color: #1E40AF;
   font-weight: bold;
 }
 
@@ -768,11 +781,14 @@ const handleSubmitOrder = async () => {
 
 .submit-btn {
   width: 240rpx;
-  height: 100rpx;
-  background: linear-gradient(135deg, #F97316 0%, #FB923C 100%);
+  height: 80rpx;
+  margin: 10rpx 16rpx;
+  background: linear-gradient(135deg, #1E40AF 0%, #3B82F6 100%);
+  border-radius: 40rpx;
   display: flex;
   align-items: center;
   justify-content: center;
+  box-shadow: 0 4rpx 16rpx rgba(30, 64, 175, 0.3);
 }
 
 .submit-text {

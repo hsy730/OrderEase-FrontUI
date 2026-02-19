@@ -35,7 +35,7 @@
         <text class="item-text">联系电话</text>
         <text class="item-arrow">›</text>
       </view>
-      <view v-if="isLoggedIn" class="function-item" @click="logout">
+      <view v-if="isLoggedIn" class="function-item" @click="showToast('功能开发中')">
         <text class="item-icon">⚙️</text>
         <text class="item-text">账户设置</text>
         <text class="item-arrow">›</text>
@@ -127,10 +127,7 @@ onMounted(() => {
   }
 })
 
-// 暂时占位，因为template中写的是 `@click="showToast"` 而不是 `@click="handleLogout"`
-const logout = () => {
-  handleLogout()
-}
+
 </script>
 
 <style scoped>
