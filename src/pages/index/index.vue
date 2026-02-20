@@ -205,7 +205,7 @@
         class="lucky-bag-bubble"
         :style="{ left: `${luckyBagBubble.x}px`, top: `${luckyBagBubble.y}px` }"
       >
-        🧧
+        🛍️
       </view>
     </view>
   </view>
