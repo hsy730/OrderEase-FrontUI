@@ -199,7 +199,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, nextTick } from 'vue'
 import { getShopDetail, getTagBoundProducts, createOrder } from '@/utils/api'
 import { getImageUrl } from '@/utils/image'
 
@@ -425,10 +425,6 @@ const addToCart = (product) => {
 }
 
 const handleStepperChange = (product, delta, event) => {
-  if (delta > 0 && event) {
-    triggerFlyAnimation(event)
-  }
-
   const productKey = `${product.id}`
   const existingIndex = cartItems.value.findIndex(
     item => (item.cartItemId || `${item.id}`) === productKey
@@ -459,6 +455,12 @@ const handleStepperChange = (product, delta, event) => {
     }
     product.count = newCount
     product.lastCount = newCount
+  }
+
+  if (delta > 0 && event) {
+    nextTick(() => {
+      triggerFlyAnimation(event)
+    })
   }
 }
 
@@ -789,6 +791,14 @@ const handleSubmitOrder = async () => {
   align-items: center;
   z-index: 1000;
   box-shadow: 0 8rpx 32rpx rgba(30, 64, 175, 0.15);
+}
+
+.cart-bar-empty {
+  opacity: 0.9;
+}
+
+.cart-bar-empty .cart-info {
+  opacity: 0.5;
 }
 
 .cart-info {
