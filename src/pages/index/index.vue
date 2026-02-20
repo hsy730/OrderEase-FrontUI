@@ -147,8 +147,8 @@
     ></view>
 
     <!-- 商品选项弹窗 -->
-    <view v-if="showOptionsPopup" class="popup-mask" catchtouchmove="false">
-      <view class="popup-bottom">
+    <view v-if="showOptionsPopup" class="popup-mask" @click="closeOptionsPopup">
+      <view class="popup-bottom" @click.stop>
         <view class="popup-header">
           <text class="popup-title">{{ selectedProduct.name }}</text>
         </view>
