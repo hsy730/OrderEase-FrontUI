@@ -147,8 +147,8 @@
     ></view>
 
     <!-- 商品选项弹窗 -->
-    <view v-if="showOptionsPopup" class="popup-mask" @click="closeOptionsPopup">
-      <view class="popup-bottom" @click.stop>
+    <view v-if="showOptionsPopup" class="popup-mask" :class="{ 'popup-closing': popupClosing }" @click="closeOptionsPopup">
+      <view class="popup-bottom" :class="{ 'popup-slide-down': popupClosing }" @click.stop>
         <view class="popup-header">
           <text class="popup-title">{{ selectedProduct.name }}</text>
         </view>
@@ -188,11 +188,24 @@
               <view class="stepper-btn plus" @click="changeQuantity(1)">+</view>
             </view>
           </view>
-          <view class="add-cart-btn" @click="confirmSelection">
+          <view 
+            class="add-cart-btn" 
+            :class="{ 'btn-pulse': addBtnPulsing }"
+            @click="confirmSelection"
+          >
             加入福袋
           </view>
         </view>
         <view class="close-btn" @click="closeOptionsPopup">×</view>
+      </view>
+
+      <!-- 福袋气泡 -->
+      <view
+        v-if="luckyBagBubble.visible"
+        class="lucky-bag-bubble"
+        :style="{ left: `${luckyBagBubble.x}px`, top: `${luckyBagBubble.y}px` }"
+      >
+        🧧
       </view>
     </view>
   </view>
@@ -218,6 +231,16 @@ const flyingDot = ref({
 })
 
 const cartBouncing = ref(false)
+
+const luckyBagBubble = ref({
+  visible: false,
+  x: 0,
+  y: 0
+})
+
+const addBtnPulsing = ref(false)
+
+const popupClosing = ref(false)
 
 const flyingDotStyle = computed(() => ({
   left: `${flyingDot.value.startX}px`,
@@ -356,7 +379,34 @@ const changeQuantity = (delta) => {
   productQuantity.value = Math.max(1, productQuantity.value + delta)
 }
 
-const confirmSelection = () => {
+const triggerLuckyBagAnimation = () => {
+  return new Promise((resolve) => {
+    uni.createSelectorQuery()
+      .select('.add-cart-btn')
+      .boundingClientRect((rect) => {
+        if (rect) {
+          luckyBagBubble.value.x = rect.left + rect.width / 2
+          luckyBagBubble.value.y = rect.top
+          luckyBagBubble.value.visible = true
+        }
+
+        addBtnPulsing.value = true
+
+        setTimeout(() => {
+          luckyBagBubble.value.visible = false
+        }, 1000)
+
+        setTimeout(() => {
+          addBtnPulsing.value = false
+        }, 500)
+
+        resolve()
+      })
+      .exec()
+  })
+}
+
+const confirmSelection = async () => {
   if (!selectedProduct.value) return
 
   const requiredCategories = (selectedProduct.value.option_categories || []).filter(c => c.is_required === true || c.is_required === 1)
@@ -385,9 +435,23 @@ const confirmSelection = () => {
   }
 
   addToCart(productWithOptions)
-  showOptionsPopup.value = false
-  productQuantity.value = 1
-  selectedOptions.value = new Map()
+
+  await triggerLuckyBagAnimation()
+
+  popupClosing.value = true
+
+  setTimeout(() => {
+    showOptionsPopup.value = false
+    popupClosing.value = false
+    productQuantity.value = 1
+    selectedOptions.value = new Map()
+
+    cartBouncing.value = true
+    setTimeout(() => {
+      cartBouncing.value = false
+    }, 400)
+  }, 500)
+
   uni.showToast({ title: '已加入福袋', icon: 'success' })
 }
 
@@ -1090,5 +1154,74 @@ const handleSubmitOrder = async () => {
   color: #94A3B8;
   line-height: 1;
   padding: 8rpx;
+}
+
+.add-cart-btn.btn-pulse {
+  animation: btnPulse 0.5s ease-out;
+}
+
+@keyframes btnPulse {
+  0% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(30, 64, 175, 0.6);
+  }
+  50% {
+    transform: scale(0.92);
+    box-shadow: 0 0 0 24rpx rgba(30, 64, 175, 0);
+  }
+  100% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(30, 64, 175, 0);
+  }
+}
+
+.lucky-bag-bubble {
+  position: fixed;
+  font-size: 64rpx;
+  transform: translate(-50%, -100%);
+  pointer-events: none;
+  z-index: 3000;
+  animation: bubbleFloat 1s ease-out forwards;
+}
+
+@keyframes bubbleFloat {
+  0% {
+    opacity: 1;
+    transform: translate(-50%, -100%) scale(1);
+  }
+  60% {
+    opacity: 0.8;
+    transform: translate(-50%, calc(-100% - 100rpx)) scale(1.1);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, calc(-100% - 160rpx)) scale(0.5);
+  }
+}
+
+.popup-mask.popup-closing {
+  animation: maskFadeOut 0.5s ease-out forwards;
+}
+
+@keyframes maskFadeOut {
+  0% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+.popup-bottom.popup-slide-down {
+  animation: slideDown 0.5s ease-out forwards;
+}
+
+@keyframes slideDown {
+  0% {
+    transform: translateY(0);
+  }
+  100% {
+    transform: translateY(100%);
+  }
 }
 </style>
