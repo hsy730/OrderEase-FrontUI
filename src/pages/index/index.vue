@@ -60,7 +60,10 @@
                   <view v-if="product.count > 0" class="stepper-input">
                     {{ product.count }}
                   </view>
-                  <view class="stepper-btn plus" @click="handleStepperChange(product, 1)">
+                  <view 
+                    class="stepper-btn plus" 
+                    @click="handleStepperChange(product, 1, $event)"
+                  >
                     +
                   </view>
                 </view>
@@ -120,7 +123,7 @@
 
       <!-- 购物车信息栏 -->
       <view class="cart-info" @click="toggleCartList">
-        <view class="cart-icon-wrapper">
+        <view class="cart-icon-wrapper" :class="{ 'cart-bounce': cartBouncing }">
           <view v-if="totalCount > 0" class="cart-badge">{{ totalCount }}</view>
           <text class="cart-icon">🛍️</text>
         </view>
@@ -135,6 +138,13 @@
         <text class="submit-text">选好了</text>
       </view>
     </view>
+
+    <!-- 飞行元素 -->
+    <view
+      v-if="flyingDot.visible"
+      class="flying-dot"
+      :style="flyingDotStyle"
+    ></view>
 
     <!-- 商品选项弹窗 -->
     <view v-if="showOptionsPopup" class="popup-mask" catchtouchmove="false">
@@ -198,6 +208,50 @@ const products = ref([])
 const activeCategory = ref(null)
 const cartItems = ref([])
 const showCartPopup = ref(false)
+
+const flyingDot = ref({
+  visible: false,
+  startX: 0,
+  startY: 0,
+  endX: 0,
+  endY: 0
+})
+
+const cartBouncing = ref(false)
+
+const flyingDotStyle = computed(() => ({
+  left: `${flyingDot.value.startX}px`,
+  top: `${flyingDot.value.startY}px`,
+  '--fly-x': `${flyingDot.value.endX - flyingDot.value.startX}px`,
+  '--fly-y': `${flyingDot.value.endY - flyingDot.value.startY}px`
+}))
+
+const triggerFlyAnimation = (event) => {
+  const touch = event.touches?.[0] || event
+  const startX = touch.clientX || event.clientX
+  const startY = touch.clientY || event.clientY
+
+  uni.createSelectorQuery()
+    .select('.cart-icon-wrapper')
+    .boundingClientRect((rect) => {
+      if (rect) {
+        flyingDot.value.startX = startX
+        flyingDot.value.startY = startY
+        flyingDot.value.endX = rect.left + rect.width / 2
+        flyingDot.value.endY = rect.top + rect.height / 2
+        flyingDot.value.visible = true
+
+        setTimeout(() => {
+          flyingDot.value.visible = false
+          cartBouncing.value = true
+          setTimeout(() => {
+            cartBouncing.value = false
+          }, 400)
+        }, 500)
+      }
+    })
+    .exec()
+}
 
 // 商品选项弹窗相关
 const selectedProduct = ref(null)
@@ -370,7 +424,11 @@ const addToCart = (product) => {
   }
 }
 
-const handleStepperChange = (product, delta) => {
+const handleStepperChange = (product, delta, event) => {
+  if (delta > 0 && event) {
+    triggerFlyAnimation(event)
+  }
+
   const productKey = `${product.id}`
   const existingIndex = cartItems.value.findIndex(
     item => (item.cartItemId || `${item.id}`) === productKey
