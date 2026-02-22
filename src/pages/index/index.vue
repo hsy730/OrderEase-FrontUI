@@ -203,7 +203,7 @@
       <view
         v-if="luckyBagBubble.visible"
         class="lucky-bag-bubble"
-        :style="{ left: `${luckyBagBubble.x}px`, top: `${luckyBagBubble.y}px` }"
+        :style="luckyBagBubbleStyle"
       >
         🛍️
       </view>
@@ -234,8 +234,10 @@ const cartBouncing = ref(false)
 
 const luckyBagBubble = ref({
   visible: false,
-  x: 0,
-  y: 0
+  startX: 0,
+  startY: 0,
+  endX: 0,
+  endY: 0
 })
 
 const addBtnPulsing = ref(false)
@@ -247,6 +249,13 @@ const flyingDotStyle = computed(() => ({
   top: `${flyingDot.value.startY}px`,
   '--fly-x': `${flyingDot.value.endX - flyingDot.value.startX}px`,
   '--fly-y': `${flyingDot.value.endY - flyingDot.value.startY}px`
+}))
+
+const luckyBagBubbleStyle = computed(() => ({
+  left: `${luckyBagBubble.value.startX}px`,
+  top: `${luckyBagBubble.value.startY}px`,
+  '--parabola-x': `${luckyBagBubble.value.endX - luckyBagBubble.value.startX}px`,
+  '--parabola-y': `${luckyBagBubble.value.endY - luckyBagBubble.value.startY}px`
 }))
 
 const triggerFlyAnimation = (event) => {
@@ -383,10 +392,18 @@ const triggerLuckyBagAnimation = () => {
   return new Promise((resolve) => {
     uni.createSelectorQuery()
       .select('.add-cart-btn')
-      .boundingClientRect((rect) => {
-        if (rect) {
-          luckyBagBubble.value.x = rect.left + rect.width / 2
-          luckyBagBubble.value.y = rect.top
+      .boundingClientRect()
+      .select('.cart-icon-wrapper')
+      .boundingClientRect()
+      .exec((rects) => {
+        const btnRect = rects[0]
+        const cartRect = rects[1]
+
+        if (btnRect && cartRect) {
+          luckyBagBubble.value.startX = btnRect.left + btnRect.width / 2
+          luckyBagBubble.value.startY = btnRect.top
+          luckyBagBubble.value.endX = cartRect.left + cartRect.width / 2
+          luckyBagBubble.value.endY = cartRect.top + cartRect.height / 2
           luckyBagBubble.value.visible = true
         }
 
@@ -394,7 +411,7 @@ const triggerLuckyBagAnimation = () => {
 
         setTimeout(() => {
           luckyBagBubble.value.visible = false
-        }, 1000)
+        }, 800)
 
         setTimeout(() => {
           addBtnPulsing.value = false
@@ -402,7 +419,6 @@ const triggerLuckyBagAnimation = () => {
 
         resolve()
       })
-      .exec()
   })
 }
 
@@ -436,21 +452,25 @@ const confirmSelection = async () => {
 
   addToCart(productWithOptions)
 
+  await nextTick()
   await triggerLuckyBagAnimation()
 
-  popupClosing.value = true
+  setTimeout(() => {
+    popupClosing.value = true
+    setTimeout(() => {
+      showOptionsPopup.value = false
+      popupClosing.value = false
+      productQuantity.value = 1
+      selectedOptions.value = new Map()
+    }, 400)
+  }, 800)
 
   setTimeout(() => {
-    showOptionsPopup.value = false
-    popupClosing.value = false
-    productQuantity.value = 1
-    selectedOptions.value = new Map()
-
     cartBouncing.value = true
     setTimeout(() => {
       cartBouncing.value = false
     }, 400)
-  }, 500)
+  }, 800)
 
   uni.showToast({ title: '已加入福袋', icon: 'success' })
 }
@@ -1177,30 +1197,30 @@ const handleSubmitOrder = async () => {
 
 .lucky-bag-bubble {
   position: fixed;
-  font-size: 64rpx;
+  font-size: 48rpx;
   transform: translate(-50%, -100%);
   pointer-events: none;
   z-index: 3000;
-  animation: bubbleFloat 1s ease-out forwards;
+  animation: parabolaFly 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
 }
 
-@keyframes bubbleFloat {
+@keyframes parabolaFly {
   0% {
     opacity: 1;
     transform: translate(-50%, -100%) scale(1);
   }
-  60% {
-    opacity: 0.8;
-    transform: translate(-50%, calc(-100% - 100rpx)) scale(1.1);
+  50% {
+    opacity: 1;
+    transform: translate(calc(-50% + var(--parabola-x) * 0.5), calc(-100% - 150rpx)) scale(1.15);
   }
   100% {
     opacity: 0;
-    transform: translate(-50%, calc(-100% - 160rpx)) scale(0.5);
+    transform: translate(calc(-50% + var(--parabola-x)), calc(-100% + var(--parabola-y))) scale(0.5);
   }
 }
 
 .popup-mask.popup-closing {
-  animation: maskFadeOut 0.5s ease-out forwards;
+  animation: maskFadeOut 0.4s ease-out forwards;
 }
 
 @keyframes maskFadeOut {
