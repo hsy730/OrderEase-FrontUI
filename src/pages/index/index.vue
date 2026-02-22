@@ -95,10 +95,12 @@
           >
             <view class="item-info">
               <text class="item-name">{{ item.name }}</text>
-              <text v-if="item.selectedOptions && item.selectedOptions.length" class="options">
-                {{ item.selectedOptions.map(o => o.options.join(', ')).join(', ') }}
-              </text>
-              <text class="item-price">¥{{ (item.finalPrice || item.price || 0).toFixed(2) }}</text>
+              <view class="item-meta">
+                <text v-if="item.selectedOptions && item.selectedOptions.length" class="options">
+                  {{ item.selectedOptions.map(o => o.options.join(', ')).join(', ') }}
+                </text>
+                <text class="item-price">¥{{ (item.finalPrice || item.price || 0).toFixed(2) }}</text>
+              </view>
             </view>
             <view class="controls">
               <view class="stepper">
@@ -1020,10 +1022,15 @@ const handleSubmitOrder = async () => {
   margin-bottom: 8rpx;
 }
 
+.item-meta {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+}
+
 .options {
   font-size: 24rpx;
   color: #94A3B8;
-  margin-bottom: 8rpx;
 }
 
 .item-price {
