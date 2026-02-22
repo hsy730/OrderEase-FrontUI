@@ -44,20 +44,22 @@
         <!-- #endif -->
 
         <!-- #ifdef MP-WEIXIN -->
-        <!-- 小程序微信授权登录 -->
-        <view class="button-group">
-          <view class="wechat-login-button" :class="{ loading: loading }" @click="handleWeChatLogin">
-            <text v-if="!loading">微信授权登录</text>
-            <text v-else>登录中...</text>
+        <!-- 微信授权登录模式 -->
+        <view v-if="loginMode === 'wechat'" class="login-mode-content">
+          <view class="button-group wechat-button-group">
+            <view class="wechat-login-button" :class="{ loading: loading }" @click="handleWeChatLogin">
+              <text v-if="!loading">微信授权登录</text>
+              <text v-else>登录中...</text>
+            </view>
+          </view>
+
+          <view class="switch-mode-link" @click="switchToPassword">
+            <text class="switch-text">其他登录方式</text>
           </view>
         </view>
 
-        <!-- 小程序其他登录方式 -->
-        <view class="other-login-section">
-          <view class="divider">
-            <text class="divider-text">其他登录方式</text>
-          </view>
-
+        <!-- 账号密码登录模式 -->
+        <view v-else class="login-mode-content">
           <view class="form-group">
             <view class="input-group">
               <text class="input-icon">👤</text>
@@ -83,22 +85,28 @@
 
           <view class="button-group">
             <view class="login-button" :class="{ loading: loading }" @click="handleLogin">
-              <text v-if="!loading">账号密码登录</text>
+              <text v-if="!loading">登录</text>
               <text v-else>登录中...</text>
             </view>
           </view>
+
+          <!-- 注册和令牌登录链接 -->
+          <view class="links-section">
+            <view class="link-row">
+              <text class="link-text">还没有账号？</text>
+              <text class="link-btn" @click="goToRegister">立即注册</text>
+            </view>
+            <view class="link-row">
+              <text class="link-text">使用令牌登录？</text>
+              <text class="link-btn" @click="goToTokenLogin">令牌登录</text>
+            </view>
+          </view>
+
+          <view class="switch-mode-link" @click="switchToWechat">
+            <text class="switch-text">微信授权登录</text>
+          </view>
         </view>
         <!-- #endif -->
-
-        <!-- 注册和令牌登录链接 -->
-        <view class="register-section">
-          <text class="register-text">还没有账号？</text>
-          <text class="register-link" @click="goToRegister">立即注册</text>
-        </view>
-        <view class="register-section">
-          <text class="register-text">使用令牌登录？</text>
-          <text class="register-link" @click="goToTokenLogin">令牌登录</text>
-        </view>
       </view>
     </view>
   </view>
@@ -109,31 +117,35 @@ import { ref } from 'vue'
 import { userWeChatLogin } from '@/utils/api'
 import { useAuth } from '@/composables/useAuth'
 
-// 使用登录组合式函数
 const { loading, handlePasswordLogin, handleWeChatLogin: authHandleWeChatLogin } = useAuth()
 
-// 表单数据
 const form = ref({
   username: '',
   password: ''
 })
 
-// 账号密码登录
+const loginMode = ref('wechat')
+
+const switchToPassword = () => {
+  loginMode.value = 'password'
+}
+
+const switchToWechat = () => {
+  loginMode.value = 'wechat'
+}
+
 const handleLogin = async () => {
   await handlePasswordLogin(form.value.username, form.value.password)
 }
 
-// 微信授权登录
 const handleWeChatLogin = async () => {
   await authHandleWeChatLogin(userWeChatLogin)
 }
 
-// 跳转到注册页面
 const goToRegister = () => {
   uni.navigateTo({ url: '/pages/register/register' })
 }
 
-// 跳转到令牌登录页面
 const goToTokenLogin = () => {
   uni.navigateTo({ url: '/pages/token-login/token-login' })
 }
@@ -164,7 +176,6 @@ const goToTokenLogin = () => {
   border: 1rpx solid rgba(255, 255, 255, 0.3);
 }
 
-/* 欢迎区域 */
 .welcome-section {
   text-align: center;
   margin-bottom: 96rpx;
@@ -187,7 +198,19 @@ const goToTokenLogin = () => {
   display: block;
 }
 
-/* 输入框组 */
+.login-mode-content {
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
 .form-group {
   margin-bottom: 48rpx;
 }
@@ -231,7 +254,6 @@ const goToTokenLogin = () => {
   box-shadow: 0 8rpx 24rpx rgba(30, 64, 175, 0.2);
 }
 
-/* 按钮组 */
 .button-group {
   margin: 64rpx 0 48rpx;
 }
@@ -259,7 +281,6 @@ const goToTokenLogin = () => {
   opacity: 0.7;
 }
 
-/* 微信登录按钮 */
 .wechat-login-button {
   height: 112rpx;
   font-size: 36rpx;
@@ -280,47 +301,49 @@ const goToTokenLogin = () => {
   opacity: 0.9;
 }
 
-/* 其他登录方式区域 */
-.other-login-section {
-  margin-top: 48rpx;
+.wechat-button-group {
+  margin-top: 64rpx;
 }
 
-.divider {
+.switch-mode-link {
   display: flex;
   align-items: center;
-  margin: 48rpx 0;
+  justify-content: center;
+  margin-top: 48rpx;
+  padding: 16rpx 32rpx;
+}
+
+.switch-text {
+  font-size: 24rpx;
   color: #94A3B8;
 }
 
-.divider::before,
-.divider::after {
-  content: '';
-  flex: 1;
-  height: 1rpx;
-  background: #E2E8F0;
-}
-
-.divider-text {
-  padding: 0 24rpx;
-  font-size: 24rpx;
-}
-
-/* 注册区域 */
-.register-section {
-  text-align: center;
+.links-section {
+  margin-top: 48rpx;
   padding-top: 48rpx;
   border-top: 1rpx solid #E2E8F0;
+}
+
+.link-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
   margin-bottom: 24rpx;
 }
 
-.register-text {
-  color: #475569;
-  font-size: 28rpx;
+.link-row:last-child {
+  margin-bottom: 0;
 }
 
-.register-link {
+.link-text {
+  color: #64748B;
+  font-size: 26rpx;
+}
+
+.link-btn {
   color: #1E40AF;
-  font-weight: 600;
-  margin-left: 16rpx;
+  font-weight: 500;
+  margin-left: 12rpx;
+  font-size: 26rpx;
 }
 </style>
