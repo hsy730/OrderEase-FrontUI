@@ -42,9 +42,6 @@
     },
     "usingComponents": true,
     "permission": {},
-    "requiredPrivateInfos": [
-      "getUserProfile"
-    ],
     "lazyCodeLoading": "requiredComponents"
   },
   "mp-alipay": {
