@@ -104,9 +104,12 @@ function request(options) {
     }
     delete finalOptions.params
 
+    console.log('API Request:', finalOptions.url)
+
     uni.request({
       ...finalOptions,
       success: (res) => {
+        console.log('API Response:', finalOptions.url, res.statusCode)
         resolve(responseInterceptor({ ...res, config: options }))
       },
       fail: (err) => {

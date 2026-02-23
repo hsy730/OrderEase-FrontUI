@@ -1,6 +1,6 @@
 <template>
   <view class="orders-page">
-    <scroll-view class="orders-list" scroll-y @scrolltolower="loadMore">
+    <scroll-view v-if="isInitialized" class="orders-list" scroll-y @scrolltolower="loadMore">
       <view v-if="orders.length === 0 && !isLoading" class="empty-state">
         <text class="empty-text">暂无订单</text>
       </view>
@@ -8,32 +8,15 @@
       <view v-for="order in orders" :key="order.id" class="order-card">
         <view class="order-header">
           <text class="order-no">订单号: {{ order.id }}</text>
-          <view :class="['order-status', getStatusClass(order.status)]">
-            <text>{{ order.status }}</text>
-          </view>
         </view>
 
-        <view class="order-items">
-          <view
-            v-for="(item, index) in order.items"
-            :key="index"
-            class="order-item"
-          >
-            <image
-              :src="getImageUrl(item.image || order.items[0]?.image)"
-              class="item-image"
-              mode="aspectFill"
-            />
-            <view class="item-info">
-              <text class="item-name">{{ item.name || item.product_name }}</text>
-              <text class="item-quantity">数量: {{ item.quantity }}</text>
-            </view>
-            <text class="item-price">¥{{ item.price || item.total_price }}</text>
-          </view>
+        <view class="order-times">
+          <text class="time-text">创建时间: {{ formatDate(order.created_at) }}</text>
+          <text v-if="order.updated_at && order.updated_at !== order.created_at" class="time-text">更新时间: {{ formatDate(order.updated_at) }}</text>
         </view>
 
         <view class="order-footer">
-          <text class="order-total">总计: ¥{{ order.total_price }}</text>
+          <text class="order-total">总计: <text class="currency">¥</text>{{ order.total_price }}</text>
           <view class="order-actions">
             <view class="detail-btn" @click="viewOrderDetail(order)">
               <text>详情</text>
@@ -52,6 +35,11 @@
         <text>没有更多订单了</text>
       </view>
     </scroll-view>
+
+    <!-- 初始化加载状态 -->
+    <view v-if="!isInitialized" class="loading-state initializing">
+      <text>加载中...</text>
+    </view>
 
     <!-- 订单详情弹窗 -->
     <view v-if="showDetailPopup" class="popup-mask" @click="closeDetailPopup">
@@ -120,7 +108,6 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
-import { onPullDownRefresh } from '@dcloudio/uni-app'
 import { getOrders, getOrderDetail } from '@/utils/api'
 import { getImageUrl } from '@/utils/image'
 import { storage } from '@/store'
@@ -128,6 +115,8 @@ import { storage } from '@/store'
 const orders = ref([])
 const showDetailPopup = ref(false)
 const selectedOrder = ref(null)
+const isInitialized = ref(false)
+const hasLoaded = ref(false)
 
 // 分页相关状态
 const currentPage = ref(1)
@@ -137,14 +126,17 @@ const noMoreData = ref(false)
 const isLoading = ref(false)
 
 // 获取订单列表
-const loadOrders = async (page = 1, isRefresh = false) => {
-  if (isLoading.value && !isRefresh) return
+const loadOrders = async (page = 1) => {
+  if (isLoading.value) return
   isLoading.value = true
 
   try {
     const userId = storage.getItem('user_id')
+    console.log('loadOrders called, userId:', userId)
     if (!userId) {
-      uni.redirectTo({ url: '/pages/login/index' })
+      console.log('用户未登录，准备跳转登录页')
+      isInitialized.value = true
+      uni.reLaunch({ url: '/pages/login/index' })
       return
     }
 
@@ -154,11 +146,16 @@ const loadOrders = async (page = 1, isRefresh = false) => {
       pageSize: pageSize.value
     })
 
+    console.log('API response:', response)
     if (response.data && response.status === 200) {
-      const newOrders = response.data.map(order => ({
+      const orderList = response.data.data || response.data
+      console.log('orderList:', orderList)
+      const newOrders = orderList.map(order => ({
         id: order.id,
         orderNo: order.id,
         createTime: formatDate(order.created_at),
+        created_at: order.created_at,
+        updated_at: order.updated_at,
         status: order.status,
         total_price: order.total_price,
         items: order.items || [{
@@ -169,13 +166,13 @@ const loadOrders = async (page = 1, isRefresh = false) => {
         }]
       }))
 
-      if (page === 1 || isRefresh) {
+      if (page === 1) {
         orders.value = newOrders
       } else {
         orders.value = [...orders.value, ...newOrders]
       }
 
-      if (newOrders.length < pageSize.value || response.data.data?.length < pageSize.value) {
+      if (newOrders.length < pageSize.value || orderList.length < pageSize.value) {
         noMoreData.value = true
       } else {
         noMoreData.value = false
@@ -192,16 +189,9 @@ const loadOrders = async (page = 1, isRefresh = false) => {
   } finally {
     isLoading.value = false
     loadingMore.value = false
-    if (isRefresh) {
-      uni.stopPullDownRefresh()
-    }
+    isInitialized.value = true
   }
 }
-
-// 下拉刷新
-onPullDownRefresh(() => {
-  loadOrders(1, true)
-})
 
 // 上拉加载更多
 const loadMore = () => {
@@ -272,7 +262,22 @@ const groupOptionsByCategory = (options) => {
 }
 
 onMounted(async () => {
-  await loadOrders(1)
+  console.log('orders onMounted, checking storage...')
+  const userId = storage.getItem('user_id')
+  console.log('user_id from storage:', userId)
+  console.log('token from storage:', storage.getItem('token'))
+
+  if (!userId) {
+    console.log('用户未登录，准备跳转登录页')
+    isInitialized.value = true
+    uni.reLaunch({ url: '/pages/login/index' })
+    return
+  }
+
+  if (!hasLoaded.value) {
+    hasLoaded.value = true
+    await loadOrders(1)
+  }
 })
 </script>
 
@@ -312,8 +317,7 @@ onMounted(async () => {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding-bottom: 20rpx;
-  border-bottom: 1rpx solid #E2E8F0;
+  padding-bottom: 16rpx;
 }
 
 .order-no {
@@ -321,89 +325,32 @@ onMounted(async () => {
   color: #475569;
 }
 
-.order-status {
-  padding: 8rpx 20rpx;
-  border-radius: 20rpx;
-  font-size: 24rpx;
-  font-weight: 600;
+.order-times {
+  padding: 12rpx 0;
 }
 
-.status-warning {
-  background: #FEF3C7;
-  color: #D97706;
-}
-
-.status-success {
-  background: #D1FAE5;
-  color: #059669;
-}
-
-.status-danger {
-  background: #FEE2E2;
-  color: #DC2626;
-}
-
-.status-default {
-  background: #F1F5F9;
-  color: #64748B;
-}
-
-.order-items {
-  padding: 20rpx 0;
-}
-
-.order-item {
-  display: flex;
-  align-items: center;
-  margin-bottom: 20rpx;
-}
-
-.item-image {
-  width: 120rpx;
-  height: 120rpx;
-  border-radius: 16rpx;
-  margin-right: 20rpx;
-}
-
-.item-info {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-}
-
-.item-name {
-  font-size: 28rpx;
-  font-weight: 500;
-  color: #0F172A;
-  margin-bottom: 8rpx;
-}
-
-.item-quantity {
+.time-text {
   font-size: 24rpx;
   color: #94A3B8;
-}
-
-.item-price {
-  font-size: 28rpx;
-  font-weight: bold;
-  color: #EA580C;
+  display: block;
+  margin-bottom: 8rpx;
 }
 
 .order-footer {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding-top: 20rpx;
-  border-top: 1rpx solid #E2E8F0;
+  padding-top: 16rpx;
 }
 
 .order-total {
   font-size: 28rpx;
-  color: #475569;
+  color: #EA580C;
+  font-weight: 600;
 }
 
-.order-total::before {
-  content: '¥';
+.order-total .currency {
+  margin-right: 4rpx;
 }
 
 .order-actions {
@@ -425,6 +372,13 @@ onMounted(async () => {
   text-align: center;
   color: #94A3B8;
   font-size: 26rpx;
+}
+
+.initializing {
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 /* 订单详情弹窗 */
