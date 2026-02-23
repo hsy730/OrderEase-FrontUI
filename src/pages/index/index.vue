@@ -332,7 +332,10 @@ const handleCategorySelect = async (category) => {
         description: p.description,
         count: cartItems.value.find(item => item.id === p.id)?.count || 0,
         lastCount: 0,
-        option_categories: p.option_categories || []
+        option_categories: (p.option_categories || []).map(cat => ({
+          ...cat,
+          options: [...(cat.options || [])].sort((a, b) => (a.display_order || 0) - (b.display_order || 0))
+        }))
       }))
       return
     }

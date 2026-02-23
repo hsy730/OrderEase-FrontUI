@@ -16,6 +16,9 @@ export const storage = {
     if (isH5) {
       const value = localStorage.getItem(key)
       if (!value) return ''
+      if (/^\d{15,}$/.test(value)) {
+        return value
+      }
       try {
         return JSON.parse(value)
       } catch {
