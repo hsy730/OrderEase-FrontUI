@@ -62,7 +62,7 @@
             <view class="detail-row">
               <text class="row-label">订单状态</text>
               <view :class="['status-badge', getStatusClass(selectedOrder.status)]">
-                <text>{{ selectedOrder.status }}</text>
+                <text>{{ getStatusLabel(selectedOrder.status) }}</text>
               </view>
             </view>
             <view class="detail-row">
@@ -108,7 +108,7 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
-import { getOrders, getOrderDetail } from '@/utils/api'
+import { getOrders, getOrderDetail, getShopDetail } from '@/utils/api'
 import { getImageUrl } from '@/utils/image'
 import { storage } from '@/store'
 
@@ -117,6 +117,7 @@ const showDetailPopup = ref(false)
 const selectedOrder = ref(null)
 const isInitialized = ref(false)
 const hasLoaded = ref(false)
+const orderStatusFlow = ref([])
 
 // 分页相关状态
 const currentPage = ref(1)
@@ -202,12 +203,57 @@ const loadMore = () => {
 
 // 获取状态样式类
 const getStatusClass = (status) => {
+  const statusInfo = getStatusInfo(status)
+  if (statusInfo) {
+    const typeClassMap = {
+      'warning': 'status-warning',
+      'primary': 'status-primary',
+      'success': 'status-success',
+      'info': 'status-info',
+      'danger': 'status-danger'
+    }
+    return typeClassMap[statusInfo.type] || 'status-default'
+  }
   const classMap = {
+    '待处理': 'status-warning',
     '待取餐': 'status-warning',
+    '已接单': 'status-primary',
     '已完成': 'status-success',
-    '已取消': 'status-danger'
+    '已取消': 'status-info'
   }
   return classMap[status] || 'status-default'
+}
+
+// 根据状态值获取状态信息
+const getStatusInfo = (status) => {
+  if (typeof status === 'number') {
+    return orderStatusFlow.value.find(s => s.value === status)
+  }
+  return orderStatusFlow.value.find(s => s.label === status || s.value === status)
+}
+
+// 获取状态显示标签
+const getStatusLabel = (status) => {
+  const statusInfo = getStatusInfo(status)
+  if (statusInfo) {
+    return statusInfo.label
+  }
+  return status
+}
+
+// 加载店铺详情获取状态流
+const loadShopDetail = async () => {
+  try {
+    const response = await getShopDetail()
+    if (response.data && response.status === 200) {
+      const shopData = response.data.data || response.data
+      if (shopData.order_status_flow && shopData.order_status_flow.statuses) {
+        orderStatusFlow.value = shopData.order_status_flow.statuses
+      }
+    }
+  } catch (error) {
+    console.error('获取店铺详情失败:', error)
+  }
 }
 
 // 格式化日期
@@ -276,6 +322,7 @@ onMounted(async () => {
 
   if (!hasLoaded.value) {
     hasLoaded.value = true
+    await loadShopDetail()
     await loadOrders(1)
   }
 })
@@ -473,6 +520,36 @@ onMounted(async () => {
   border-radius: 20rpx;
   font-size: 24rpx;
   font-weight: 600;
+}
+
+.status-warning {
+  background-color: #FEF3C7;
+  color: #D97706;
+}
+
+.status-primary {
+  background-color: #DBEAFE;
+  color: #2563EB;
+}
+
+.status-success {
+  background-color: #D1FAE5;
+  color: #059669;
+}
+
+.status-info {
+  background-color: #E0E7FF;
+  color: #4F46E5;
+}
+
+.status-danger {
+  background-color: #FEE2E2;
+  color: #DC2626;
+}
+
+.status-default {
+  background-color: #F1F5F9;
+  color: #64748B;
 }
 
 .detail-item {
