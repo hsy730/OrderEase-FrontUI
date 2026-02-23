@@ -32,18 +32,18 @@ onMounted(async () => {
   left: 0;
   right: 0;
   height: 88rpx;
-  background: linear-gradient(135deg, #1E40AF 0%, #3B82F6 100%);
+  background: #FFFFFF;
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 100;
-  box-shadow: 0 4rpx 16rpx rgba(30, 64, 175, 0.2);
+  box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.08);
 }
 
 .shop-name {
   font-size: 36rpx;
   font-weight: bold;
-  color: #FFFFFF;
+  color: #1E40AF;
   letter-spacing: 2rpx;
 }
 </style>
