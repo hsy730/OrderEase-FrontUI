@@ -96,8 +96,8 @@
             <view class="item-info">
               <text class="item-name">{{ item.name }}</text>
               <view class="item-meta">
-                <text v-if="item.selectedOptions && item.selectedOptions.length" class="options">
-                  {{ item.selectedOptions.map(o => o.options.join(', ')).join(', ') }}
+                <text class="options">
+                  {{ item.selectedOptions && item.selectedOptions.length ? item.selectedOptions.map(o => o.options.join(', ')).join(', ') : '' }}
                 </text>
                 <text class="item-price">¥{{ (item.finalPrice || item.price || 0).toFixed(2) }}</text>
               </view>
@@ -1027,13 +1027,15 @@ const handleSubmitOrder = async () => {
 
 .item-meta {
   display: flex;
-  align-items: center;
-  gap: 12rpx;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8rpx;
 }
 
 .options {
   font-size: 24rpx;
   color: #94A3B8;
+  min-height: 32rpx;
 }
 
 .item-price {
