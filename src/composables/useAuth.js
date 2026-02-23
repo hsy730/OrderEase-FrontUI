@@ -13,12 +13,7 @@ export function useAuth() {
       storage.setItem('token', response.data.token)
       uni.showToast({ title: '登录成功', icon: 'success' })
 
-      const pages = getCurrentPages()
-      if (pages.length > 1) {
-        uni.navigateBack()
-      } else {
-        uni.switchTab({ url: '/pages/index/index' })
-      }
+      uni.reLaunch({ url: '/pages/index/index' })
       return true
     }
     return false
