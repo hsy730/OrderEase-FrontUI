@@ -1,9 +1,7 @@
 <template>
   <view class="order-page">
     <!-- 顶部固定标题栏 -->
-    <view class="header-bar">
-      <text class="shop-name">{{ shopDetail?.name || '点单系统' }}</text>
-    </view>
+    <HeaderBar />
 
     <!-- 内容区域 -->
     <view class="content-wrapper">
@@ -225,6 +223,7 @@
 import { ref, computed, onMounted, nextTick } from 'vue'
 import { getShopDetail, getTagBoundProducts, createOrder } from '@/utils/api'
 import { getImageUrl } from '@/utils/image'
+import HeaderBar from '@/components/HeaderBar.vue'
 
 const shopDetail = ref(null)
 const products = ref([])
@@ -690,27 +689,6 @@ const handleSubmitOrder = async () => {
   display: flex;
   flex-direction: column;
   background: #F8FAFC;
-}
-
-.header-bar {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 88rpx;
-  background: linear-gradient(135deg, #1E40AF 0%, #3B82F6 100%);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 100;
-  box-shadow: 0 4rpx 16rpx rgba(30, 64, 175, 0.2);
-}
-
-.shop-name {
-  font-size: 36rpx;
-  font-weight: bold;
-  color: #FFFFFF;
-  letter-spacing: 2rpx;
 }
 
 /* 左侧分类菜单 */

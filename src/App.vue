@@ -1,15 +1,15 @@
 <script setup>
-import { onLaunch, onShow, onHide } from '@dcloudio/uni-app'
+import { onLaunch as onAppLaunch, onShow as onAppShow, onHide as onAppHide } from '@dcloudio/uni-app'
 
-onLaunch(() => {
+onAppLaunch(() => {
   console.log('App Launch')
 })
 
-onShow(() => {
+onAppShow(() => {
   console.log('App Show')
 })
 
-onHide(() => {
+onAppHide(() => {
   console.log('App Hide')
 })
 </script>

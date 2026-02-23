@@ -1,9 +1,7 @@
 <template>
   <view class="mine-page">
     <!-- 顶部固定标题栏 -->
-    <view class="header-bar">
-      <text class="shop-name">{{ shopName }}</text>
-    </view>
+    <HeaderBar />
 
     <!-- 用户信息 -->
     <view v-if="isLoggedIn" class="user-info">
@@ -67,24 +65,9 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { storage } from '@/store'
-import { getShopDetail } from '@/utils/api'
+import HeaderBar from '@/components/HeaderBar.vue'
 
 const userInfo = ref({})
-const shopName = ref('点单系统')
-
-const loadShopDetail = async () => {
-  try {
-    const response = await getShopDetail()
-    if (response.data && response.status === 200) {
-      const shopData = response.data.data || response.data
-      if (shopData.name) {
-        shopName.value = shopData.name
-      }
-    }
-  } catch (error) {
-    console.error('获取店铺详情失败:', error)
-  }
-}
 
 // 计算属性：是否已登录
 const isLoggedIn = computed(() => {
@@ -138,7 +121,6 @@ const showToast = (message) => {
 
 // 页面加载时获取用户信息
 onMounted(() => {
-  loadShopDetail()
   if (isLoggedIn.value) {
     const userInfoStr = storage.getItem('user_info')
     if (userInfoStr) {
@@ -155,27 +137,6 @@ onMounted(() => {
   min-height: 100vh;
   background: #F8FAFC;
   padding-bottom: 40rpx;
-}
-
-.header-bar {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 88rpx;
-  background: linear-gradient(135deg, #1E40AF 0%, #3B82F6 100%);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 100;
-  box-shadow: 0 4rpx 16rpx rgba(30, 64, 175, 0.2);
-}
-
-.shop-name {
-  font-size: 36rpx;
-  font-weight: bold;
-  color: #FFFFFF;
-  letter-spacing: 2rpx;
 }
 
 /* 用户信息卡片 */
