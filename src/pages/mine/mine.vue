@@ -1,5 +1,10 @@
 <template>
   <view class="mine-page">
+    <!-- 顶部固定标题栏 -->
+    <view class="header-bar">
+      <text class="shop-name">{{ shopName }}</text>
+    </view>
+
     <!-- 用户信息 -->
     <view v-if="isLoggedIn" class="user-info">
       <image
@@ -54,7 +59,6 @@
 
     <!-- 店铺信息 -->
     <view class="shop-info">
-      <text class="shop-name">{{ shopName }}</text>
       <text class="shop-version">V1.0.0</text>
     </view>
   </view>
@@ -63,9 +67,24 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { storage } from '@/store'
+import { getShopDetail } from '@/utils/api'
 
 const userInfo = ref({})
-const shopName = ref('OrderEase 点单系统')
+const shopName = ref('点单系统')
+
+const loadShopDetail = async () => {
+  try {
+    const response = await getShopDetail()
+    if (response.data && response.status === 200) {
+      const shopData = response.data.data || response.data
+      if (shopData.name) {
+        shopName.value = shopData.name
+      }
+    }
+  } catch (error) {
+    console.error('获取店铺详情失败:', error)
+  }
+}
 
 // 计算属性：是否已登录
 const isLoggedIn = computed(() => {
@@ -119,6 +138,7 @@ const showToast = (message) => {
 
 // 页面加载时获取用户信息
 onMounted(() => {
+  loadShopDetail()
   if (isLoggedIn.value) {
     const userInfoStr = storage.getItem('user_info')
     if (userInfoStr) {
@@ -137,11 +157,33 @@ onMounted(() => {
   padding-bottom: 40rpx;
 }
 
+.header-bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 88rpx;
+  background: linear-gradient(135deg, #1E40AF 0%, #3B82F6 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  box-shadow: 0 4rpx 16rpx rgba(30, 64, 175, 0.2);
+}
+
+.shop-name {
+  font-size: 36rpx;
+  font-weight: bold;
+  color: #FFFFFF;
+  letter-spacing: 2rpx;
+}
+
 /* 用户信息卡片 */
 .user-info {
   background: #FFFFFF;
   border-radius: 24rpx;
   margin: 32rpx;
+  margin-top: 120rpx;
   padding: 40rpx 32rpx;
   display: flex;
   align-items: center;
@@ -180,6 +222,7 @@ onMounted(() => {
   background: #FFFFFF;
   border-radius: 24rpx;
   margin: 32rpx;
+  margin-top: 120rpx;
   padding: 60rpx 40rpx;
   text-align: center;
   box-shadow: 0 2rpx 16rpx rgba(45, 52, 54, 0.08);
@@ -251,13 +294,6 @@ onMounted(() => {
   margin: 32rpx;
   padding: 24rpx 32rpx;
   text-align: center;
-}
-
-.shop-name {
-  font-size: 28rpx;
-  color: #94A3B8;
-  display: block;
-  margin-bottom: 8rpx;
 }
 
 .shop-version {

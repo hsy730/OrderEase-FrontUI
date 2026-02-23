@@ -1,20 +1,27 @@
 <template>
   <view class="order-page">
-    <!-- 左侧分类菜单 -->
-    <scroll-view class="category-menu" scroll-y>
-      <view
-        v-for="category in shopDetail?.tags || []"
-        :key="category.id"
-        class="category-item"
-        :class="{ active: activeCategory === category.id }"
-        @click="handleCategorySelect(category)"
-      >
-        <text class="category-text">{{ category.name }}</text>
-      </view>
-    </scroll-view>
+    <!-- 顶部固定标题栏 -->
+    <view class="header-bar">
+      <text class="shop-name">{{ shopDetail?.name || '点单系统' }}</text>
+    </view>
 
-    <!-- 右侧商品列表 -->
-    <scroll-view class="product-container" scroll-y>
+    <!-- 内容区域 -->
+    <view class="content-wrapper">
+      <!-- 左侧分类菜单 -->
+      <scroll-view class="category-menu" scroll-y>
+        <view
+          v-for="category in shopDetail?.tags || []"
+          :key="category.id"
+          class="category-item"
+          :class="{ active: activeCategory === category.id }"
+          @click="handleCategorySelect(category)"
+        >
+          <text class="category-text">{{ category.name }}</text>
+        </view>
+      </scroll-view>
+
+      <!-- 右侧商品列表 -->
+      <scroll-view class="product-container" scroll-y>
       <!-- 商品列表 -->
       <view class="product-list">
         <view v-if="products.length === 0" class="empty-tip">
@@ -73,6 +80,7 @@
         </view>
       </view>
     </scroll-view>
+    </view>
 
     <!-- 底部购物车 -->
     <view v-if="cartItems.length > 0" class="cart-bar">
@@ -680,15 +688,36 @@ const handleSubmitOrder = async () => {
 .order-page {
   height: 100vh;
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
   background: #F8FAFC;
+}
+
+.header-bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 88rpx;
+  background: linear-gradient(135deg, #1E40AF 0%, #3B82F6 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  box-shadow: 0 4rpx 16rpx rgba(30, 64, 175, 0.2);
+}
+
+.shop-name {
+  font-size: 36rpx;
+  font-weight: bold;
+  color: #FFFFFF;
+  letter-spacing: 2rpx;
 }
 
 /* 左侧分类菜单 */
 .category-menu {
   width: 160rpx;
   background: #FDFDFD;
-  height: 100vh;
+  height: 100%;
 }
 
 .category-item {
@@ -724,9 +753,16 @@ const handleSubmitOrder = async () => {
   color: #475569;
 }
 
+.content-wrapper {
+  display: flex;
+  flex: 1;
+  height: calc(100vh - 88rpx);
+  margin-top: 88rpx;
+}
+
 .product-container {
   flex: 1;
-  height: 100vh;
+  height: 100%;
   padding: 24rpx;
   overflow-y: auto;
 }

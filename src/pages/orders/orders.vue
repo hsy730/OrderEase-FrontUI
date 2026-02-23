@@ -1,5 +1,10 @@
 <template>
   <view class="orders-page">
+    <!-- 顶部固定标题栏 -->
+    <view class="header-bar">
+      <text class="shop-name">{{ shopName }}</text>
+    </view>
+
     <scroll-view v-if="isInitialized" class="orders-list" scroll-y @scrolltolower="loadMore">
       <view v-if="orders.length === 0 && !isLoading" class="empty-state">
         <text class="empty-text">暂无订单</text>
@@ -118,6 +123,7 @@ const selectedOrder = ref(null)
 const isInitialized = ref(false)
 const hasLoaded = ref(false)
 const orderStatusFlow = ref([])
+const shopName = ref('点单系统')
 
 // 分页相关状态
 const currentPage = ref(1)
@@ -247,6 +253,9 @@ const loadShopDetail = async () => {
     const response = await getShopDetail()
     if (response.data && response.status === 200) {
       const shopData = response.data.data || response.data
+      if (shopData.name) {
+        shopName.value = shopData.name
+      }
       if (shopData.order_status_flow && shopData.order_status_flow.statuses) {
         orderStatusFlow.value = shopData.order_status_flow.statuses
       }
@@ -335,9 +344,31 @@ onMounted(async () => {
   padding-bottom: 20rpx;
 }
 
+.header-bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 88rpx;
+  background: linear-gradient(135deg, #1E40AF 0%, #3B82F6 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  box-shadow: 0 4rpx 16rpx rgba(30, 64, 175, 0.2);
+}
+
+.shop-name {
+  font-size: 36rpx;
+  font-weight: bold;
+  color: #FFFFFF;
+  letter-spacing: 2rpx;
+}
+
 .orders-list {
-  height: 100vh;
+  height: calc(100vh - 88rpx);
   padding: 20rpx;
+  margin-top: 88rpx;
 }
 
 .empty-state {
