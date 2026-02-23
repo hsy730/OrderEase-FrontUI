@@ -11,6 +11,9 @@
       <view v-for="order in orders" :key="order.id" class="order-card">
         <view class="order-header">
           <text class="order-no">订单号: {{ order.id }}</text>
+          <view :class="['status-badge', getStatusClass(order.status)]">
+            <text>{{ getStatusLabel(order.status) }}</text>
+          </view>
         </view>
 
         <view class="order-times">
@@ -208,7 +211,7 @@ const loadMore = () => {
 // 获取状态样式类
 const getStatusClass = (status) => {
   const statusInfo = getStatusInfo(status)
-  if (statusInfo) {
+  if (statusInfo && statusInfo.type) {
     const typeClassMap = {
       'warning': 'status-warning',
       'primary': 'status-primary',
@@ -218,14 +221,7 @@ const getStatusClass = (status) => {
     }
     return typeClassMap[statusInfo.type] || 'status-default'
   }
-  const classMap = {
-    '待处理': 'status-warning',
-    '待取餐': 'status-warning',
-    '已接单': 'status-primary',
-    '已完成': 'status-success',
-    '已取消': 'status-info'
-  }
-  return classMap[status] || 'status-default'
+  return 'status-default'
 }
 
 // 根据状态值获取状态信息
