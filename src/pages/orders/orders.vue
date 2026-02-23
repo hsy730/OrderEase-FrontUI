@@ -110,7 +110,8 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref } from 'vue'
+import { onShow } from '@dcloudio/uni-app'
 import { getOrders, getOrderDetail, getShopDetail } from '@/utils/api'
 import { getImageUrl } from '@/utils/image'
 import { storage } from '@/store'
@@ -120,7 +121,6 @@ const orders = ref([])
 const showDetailPopup = ref(false)
 const selectedOrder = ref(null)
 const isInitialized = ref(false)
-const hasLoaded = ref(false)
 const orderStatusFlow = ref([])
 
 // 分页相关状态
@@ -311,8 +311,8 @@ const groupOptionsByCategory = (options) => {
   return grouped
 }
 
-onMounted(async () => {
-  console.log('orders onMounted, checking storage...')
+onShow(async () => {
+  console.log('orders onShow, checking storage...')
   const userId = storage.getItem('user_id')
   console.log('user_id from storage:', userId)
   console.log('token from storage:', storage.getItem('token'))
@@ -324,11 +324,12 @@ onMounted(async () => {
     return
   }
 
-  if (!hasLoaded.value) {
-    hasLoaded.value = true
-    await loadShopDetail()
-    await loadOrders(1)
-  }
+  isInitialized.value = false
+  currentPage.value = 1
+  noMoreData.value = false
+  orders.value = []
+  await loadShopDetail()
+  await loadOrders(1)
 })
 </script>
 
@@ -485,6 +486,13 @@ onMounted(async () => {
 
 .detail-section {
   margin-bottom: 40rpx;
+  padding-bottom: 24rpx;
+  border-bottom: 1rpx solid #E2E8F0;
+}
+
+.detail-section:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
 }
 
 .section-title {
@@ -500,7 +508,6 @@ onMounted(async () => {
   justify-content: space-between;
   align-items: center;
   padding: 20rpx 0;
-  border-bottom: 1rpx solid #E2E8F0;
 }
 
 .row-label {
