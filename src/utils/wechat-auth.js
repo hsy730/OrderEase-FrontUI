@@ -1,6 +1,13 @@
-// 微信授权登录工具类
+/**
+ * @fileoverview 微信授权登录工具类
+ * @module utils/wechat-auth
+ */
 
-// 微信登录 - 获取 code
+/**
+ * 微信登录 - 获取 code
+ * @returns {Promise<string>} 返回微信登录 code
+ * @throws {Error} 获取 code 失败时抛出错误
+ */
 export const wxLogin = () => {
   return new Promise((resolve, reject) => {
     uni.login({
@@ -19,10 +26,24 @@ export const wxLogin = () => {
   })
 }
 
-// 获取用户信息 - 使用 getUserProfile (微信小程序新版)
+/**
+ * @typedef {Object} WechatUserInfo
+ * @property {string} nickName - 用户昵称
+ * @property {string} avatarUrl - 用户头像URL
+ * @property {number} gender - 用户性别
+ * @property {string} encryptedData - 加密数据
+ * @property {string} iv - 加密算法初始向量
+ * @property {string} rawData - 原始数据
+ * @property {string} signature - 签名
+ */
+
+/**
+ * 获取用户信息 - 使用 getUserProfile (微信小程序新版)
+ * @returns {Promise<WechatUserInfo>} 返回用户信息对象
+ * @throws {Error} 用户拒绝授权或非微信小程序环境时抛出错误
+ */
 export const getUserProfile = () => {
   return {
-    // #ifdef MP-WEIXIN
     request: () => new Promise((resolve, reject) => {
       uni.getUserProfile({
         desc: '用于完善用户资料',
@@ -42,26 +63,20 @@ export const getUserProfile = () => {
         }
       })
     })
-    // #endif
-    // #ifndef MP-WEIXIN
-    request: () => Promise.reject(new Error('仅支持微信小程序环境'))
-    // #endif
   }.request()
 }
 
-// 检查微信登录状态
+/**
+ * 检查微信登录状态
+ * @returns {Promise<boolean>} 返回登录状态，true 表示已登录，false 表示未登录或已过期
+ */
 export const checkSession = () => {
   return {
-    // #ifdef MP-WEIXIN
     request: () => new Promise((resolve) => {
       uni.checkSession({
         success: () => resolve(true),
         fail: () => resolve(false)
       })
     })
-    // #endif
-    // #ifndef MP-WEIXIN
-    request: () => Promise.resolve(false)
-    // #endif
   }.request()
 }

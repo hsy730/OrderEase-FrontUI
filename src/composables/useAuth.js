@@ -1,11 +1,34 @@
+/**
+ * @fileoverview 认证相关的组合式函数
+ * @module composables/useAuth
+ */
 import { ref } from 'vue'
-import { storage } from '@/store'
+import { storage } from '@/store/storage'
 import { userLogin } from '@/utils/api'
+import { wxLogin, getUserProfile } from '@/utils/wechat-auth'
+import { ERROR_MESSAGES } from '@/utils/constants'
 
+/**
+ * 认证组合式函数
+ * @returns {{
+ *   loading: import('vue').Ref<boolean>,
+ *   handlePasswordLogin: (username: string, password: string) => Promise<boolean>,
+ *   handleWeChatLogin: (wechatLoginApi: Function) => Promise<boolean>
+ * }}
+ */
 export function useAuth() {
+  /** @type {import('vue').Ref<boolean>} */
   const loading = ref(false)
 
-  // 登录成功后的处理
+  /**
+   * 处理登录成功响应
+   * @param {Object} response - 登录响应
+   * @param {Object} response.data - 响应数据
+   * @param {string} response.data.message - 响应消息
+   * @param {Object} response.data.user - 用户信息
+   * @param {string} response.data.token - 认证令牌
+   * @returns {boolean} 登录是否成功
+   */
   const handleLoginSuccess = (response) => {
     if (response.data?.message === '登录成功') {
       storage.setItem('user_id', response.data.user.id)
@@ -19,10 +42,15 @@ export function useAuth() {
     return false
   }
 
-  // 用户名密码登录
+  /**
+   * 用户名密码登录
+   * @param {string} username - 用户名
+   * @param {string} password - 密码
+   * @returns {Promise<boolean>} 登录是否成功
+   */
   const handlePasswordLogin = async (username, password) => {
     if (!username || !password) {
-      uni.showToast({ title: '请输入用户名和密码', icon: 'none' })
+      uni.showToast({ title: ERROR_MESSAGES.EMPTY_CREDENTIALS, icon: 'none' })
       return false
     }
 
@@ -31,87 +59,49 @@ export function useAuth() {
       const response = await userLogin({ username, password })
 
       if (!handleLoginSuccess(response)) {
-        uni.showToast({ title: response.data?.error || '登录失败', icon: 'none' })
+        uni.showToast({ title: response.data?.error || ERROR_MESSAGES.LOGIN_FAILED, icon: 'none' })
         return false
       }
       return true
     } catch (error) {
       console.error('登录失败:', error)
-      uni.showToast({ title: '网络错误，请重试', icon: 'none' })
+      uni.showToast({ title: ERROR_MESSAGES.NETWORK_ERROR, icon: 'none' })
       return false
     } finally {
       loading.value = false
     }
   }
 
-  // 微信授权登录
+  /**
+   * 微信授权登录
+   * @param {Function} wechatLoginApi - 微信登录 API 函数
+   * @returns {Promise<boolean>} 登录是否成功
+   */
   const handleWeChatLogin = async (wechatLoginApi) => {
-    // #ifdef MP-WEIXIN
     try {
       loading.value = true
 
-      // 获取微信登录 code
-      const code = await new Promise((resolve, reject) => {
-        uni.login({
-          provider: 'weixin',
-          success: (res) => {
-            if (res.code) {
-              resolve(res.code)
-            } else {
-              reject(new Error('获取微信登录 code 失败'))
-            }
-          },
-          fail: (err) => {
-            reject(err)
-          }
-        })
-      })
+      const code = await wxLogin()
+      const userInfo = await getUserProfile()
 
-      // 获取用户授权
-      const userInfo = await new Promise((resolve, reject) => {
-        uni.getUserProfile({
-          desc: '用于完善用户资料',
-          success: (res) => {
-            resolve({
-              nickName: res.userInfo.nickName,
-              avatarUrl: res.userInfo.avatarUrl,
-              gender: res.userInfo.gender,
-              encryptedData: res.encryptedData,
-              iv: res.iv,
-              rawData: res.rawData,
-              signature: res.signature
-            })
-          },
-          fail: (err) => {
-            reject(new Error('用户拒绝授权'))
-          }
-        })
-      })
-
-      // 调用后端微信登录接口
       const response = await wechatLoginApi({ code, userInfo })
 
       if (!handleLoginSuccess(response)) {
-        uni.showToast({ title: response.data?.error || '微信登录失败', icon: 'none' })
+        uni.showToast({ title: response.data?.error || ERROR_MESSAGES.WECHAT_LOGIN_FAILED, icon: 'none' })
         return false
       }
       return true
     } catch (error) {
       console.error('微信登录失败:', error)
       if (error.message === '用户拒绝授权') {
-        uni.showToast({ title: '您取消了授权', icon: 'none' })
+        uni.showToast({ title: ERROR_MESSAGES.WECHAT_AUTH_CANCELLED, icon: 'none' })
       } else {
-        uni.showToast({ title: '微信登录失败，请重试', icon: 'none' })
+        uni.showToast({ title: ERROR_MESSAGES.WECHAT_LOGIN_FAILED, icon: 'none' })
       }
       return false
     } finally {
       loading.value = false
     }
-    // #endif
-    // #ifndef MP-WEIXIN
-    uni.showToast({ title: '仅支持小程序环境', icon: 'none' })
-    return false
-    // #endif
   }
 
   return {

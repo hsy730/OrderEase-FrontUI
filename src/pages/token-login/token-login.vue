@@ -43,7 +43,7 @@
 <script setup>
 import { ref } from 'vue'
 import { userLoginByToken } from '@/utils/api'
-import { storage } from '@/store'
+import { storage } from '@/store/storage'
 
 // 表单数据
 const form = ref({

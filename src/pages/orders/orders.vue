@@ -117,7 +117,7 @@ import { ref } from 'vue'
 import { onShow } from '@dcloudio/uni-app'
 import { getOrders, getOrderDetail, getShopDetail } from '@/utils/api'
 import { getImageUrl } from '@/utils/image'
-import { storage } from '@/store'
+import { storage } from '@/store/storage'
 import HeaderBar from '@/components/HeaderBar.vue'
 
 const orders = ref([])

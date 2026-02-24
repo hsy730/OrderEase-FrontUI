@@ -3,10 +3,21 @@
 /**
  * postinstall script
  *
- * uni-app 3.0.0-alpha 版本的 H5 编译器代码中引用了 `injectHook` API
- * 但这个 API 是 Vue 内部 API，没有公开导出。
+ * 问题描述：
+ * uni-app vue3 版本依赖 Vue 内部 API `injectHook`，但 Vue 官方并未公开导出此 API。
+ * 这导致运行时报错：injectHook is not exported from 'vue'
  *
- * 此脚本在 npm install 后自动修复 node_modules 中的 uni-app.es.js 文件
+ * 解决方案：
+ * 此脚本在 npm install 后自动修复 node_modules 中的 uni-app.es.js 文件，
+ * 提供一个简化版的 injectHook 实现。
+ *
+ * 相关问题：
+ * - https://github.com/dcloudio/uni-app/issues/xxxx
+ * - Vue 内部 API 不对外导出是设计决策，非 bug
+ *
+ * 注意：
+ * - 当 uni-app 官方修复此问题后，可以移除此脚本
+ * - 检查方法：查看 uni-app.es.js 是否仍从 vue 导入 injectHook
  */
 
 import fs from 'fs'

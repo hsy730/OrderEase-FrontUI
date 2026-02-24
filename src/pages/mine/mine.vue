@@ -64,7 +64,7 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue'
-import { storage } from '@/store'
+import { storage } from '@/store/storage'
 import HeaderBar from '@/components/HeaderBar.vue'
 
 const userInfo = ref({})
