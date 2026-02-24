@@ -78,6 +78,7 @@ export function useAuth() {
    * @returns {Promise<boolean>} 登录是否成功
    */
   const handleWeChatLogin = async (wechatLoginApi) => {
+    // #ifdef MP-WEIXIN
     try {
       loading.value = true
 
@@ -102,6 +103,11 @@ export function useAuth() {
     } finally {
       loading.value = false
     }
+    // #endif
+    // #ifndef MP-WEIXIN
+    uni.showToast({ title: '仅支持微信小程序环境', icon: 'none' })
+    return false
+    // #endif
   }
 
   return {
