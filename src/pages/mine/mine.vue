@@ -11,7 +11,7 @@
         mode="aspectFill"
       />
       <view class="user-details">
-        <text class="username">{{ userInfo.username || '用户' }}</text>
+        <text class="username">{{ displayUsername }}</text>
         <text class="phone">{{ formatPhone(userInfo.phone) }}</text>
       </view>
     </view>
@@ -64,6 +64,7 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue'
+import { onShow } from '@dcloudio/uni-app'
 import { storage } from '@/store/storage'
 import HeaderBar from '@/components/HeaderBar.vue'
 import { APP_VERSION, TOAST_MESSAGES } from '@/utils/constants'
@@ -73,6 +74,24 @@ const userInfo = ref({})
 const isLoggedIn = computed(() => {
   return !!storage.getItem('user_id')
 })
+
+// 获取显示的用户名
+const displayUsername = computed(() => {
+  const info = userInfo.value
+  return info.username || info.name || '用户'
+})
+
+// 刷新用户信息
+const refreshUserInfo = () => {
+  if (isLoggedIn.value) {
+    const storedUserInfo = storage.getItem('user_info')
+    if (storedUserInfo) {
+      userInfo.value = storedUserInfo
+    }
+  } else {
+    userInfo.value = {}
+  }
+}
 
 const formatPhone = (phone) => {
   if (!phone) return '未设置'
@@ -119,12 +138,12 @@ const showAbout = () => {
 
 // 页面加载时获取用户信息
 onMounted(() => {
-  if (isLoggedIn.value) {
-    const userInfoStr = storage.getItem('user_info')
-    if (userInfoStr) {
-      userInfo.value = userInfoStr
-    }
-  }
+  refreshUserInfo()
+})
+
+// 页面显示时刷新用户信息（每次页面显示都会触发）
+onShow(() => {
+  refreshUserInfo()
 })
 
 
