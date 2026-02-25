@@ -41,7 +41,7 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, onUnmounted } from 'vue'
 import { userLoginByToken } from '@/utils/api'
 import { storage } from '@/store/storage'
 import { STORAGE_KEYS, ERROR_MESSAGES, ROUTES } from '@/utils/constants'
@@ -52,6 +52,7 @@ const form = ref({
 })
 
 const loading = ref(false)
+let loginTimer = null
 
 const handleTokenLogin = async () => {
   if (!form.value.token) {
@@ -77,7 +78,7 @@ const handleTokenLogin = async () => {
 
       showSuccess('登录成功')
 
-      setTimeout(() => {
+      loginTimer = setTimeout(() => {
         uni.reLaunch({ url: ROUTES.INDEX })
       }, 1500)
     } else {
@@ -93,6 +94,13 @@ const handleTokenLogin = async () => {
 const goToLogin = () => {
   uni.navigateBack()
 }
+
+onUnmounted(() => {
+  if (loginTimer) {
+    clearTimeout(loginTimer)
+    loginTimer = null
+  }
+})
 </script>
 
 <style scoped>

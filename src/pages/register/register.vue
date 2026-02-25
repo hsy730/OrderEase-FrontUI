@@ -65,7 +65,7 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, onUnmounted } from 'vue'
 import { userRegister } from '@/utils/api'
 import { ROUTES, ERROR_MESSAGES } from '@/utils/constants'
 import { showError, showSuccess } from '@/utils/errorHandler'
@@ -77,6 +77,7 @@ const form = ref({
 })
 
 const loading = ref(false)
+let registerTimer = null
 
 const handleRegister = async () => {
   if (!form.value.username) {
@@ -115,7 +116,7 @@ const handleRegister = async () => {
     if (response.data && response.data.message === '注册成功') {
       showSuccess('注册成功')
 
-      setTimeout(() => {
+      registerTimer = setTimeout(() => {
         uni.redirectTo({ url: ROUTES.LOGIN })
       }, 1500)
     } else {
@@ -131,6 +132,13 @@ const handleRegister = async () => {
 const goToLogin = () => {
   uni.navigateBack()
 }
+
+onUnmounted(() => {
+  if (registerTimer) {
+    clearTimeout(registerTimer)
+    registerTimer = null
+  }
+})
 </script>
 
 <style scoped>
