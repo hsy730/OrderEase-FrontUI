@@ -44,62 +44,54 @@
 import { ref } from 'vue'
 import { userLoginByToken } from '@/utils/api'
 import { storage } from '@/store/storage'
+import { ROUTES, STORAGE_KEYS, ERROR_MESSAGES } from '@/utils/constants'
+import { showError, showSuccess } from '@/utils/errorHandler'
 
-// 表单数据
 const form = ref({
   token: ''
 })
 
-// 登录状态
 const loading = ref(false)
 
-// 令牌登录方法
 const handleTokenLogin = async () => {
-  // 验证令牌
   if (!form.value.token) {
-    uni.showToast({ title: '请输入令牌', icon: 'none' })
+    showError('请输入令牌')
     return
   }
 
   try {
     loading.value = true
 
-    // 调用令牌登录API
     const response = await userLoginByToken({
       token: form.value.token
     })
 
     if (response.data && response.data.message === '登录成功') {
-      // 存储用户信息和token
-      storage.setItem('user_id', response.data.user.id)
-      storage.setItem('user_info', response.data.user)
-      storage.setItem('token', response.data.token)
+      storage.setItem(STORAGE_KEYS.USER_ID, response.data.user.id)
+      storage.setItem(STORAGE_KEYS.USER_INFO, response.data.user)
+      storage.setItem(STORAGE_KEYS.TOKEN, response.data.token)
 
-      // 如果返回了 shop_id，也存储
       if (response.data.shop_id) {
-        storage.setItem('shop_id', response.data.shop_id)
+        storage.setItem(STORAGE_KEYS.SHOP_ID, response.data.shop_id)
       }
 
-      uni.showToast({ title: '登录成功', icon: 'success' })
+      showSuccess('登录成功')
 
-      // 跳转到首页
       setTimeout(() => {
-        uni.reLaunch({ url: '/pages/index/index' })
+        uni.reLaunch({ url: ROUTES.INDEX })
       }, 1500)
     } else {
-      uni.showToast({ title: response.data?.error || '令牌无效', icon: 'none' })
+      showError(response.data?.error || '令牌无效')
     }
   } catch (error) {
-    console.error('令牌登录失败:', error)
-    uni.showToast({ title: '网络错误，请重试', icon: 'none' })
+    showError(ERROR_MESSAGES.NETWORK_ERROR)
   } finally {
     loading.value = false
   }
 }
 
-// 跳转到登录页面
 const goToLogin = () => {
-  uni.navigateBack()
+  uni.navigateTo({ url: ROUTES.LOGIN })
 }
 </script>
 

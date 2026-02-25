@@ -67,73 +67,67 @@
 <script setup>
 import { ref } from 'vue'
 import { userRegister } from '@/utils/api'
+import { ROUTES, ERROR_MESSAGES } from '@/utils/constants'
+import { showError, showSuccess } from '@/utils/errorHandler'
 
-// 表单数据
 const form = ref({
   username: '',
   password: '',
   confirmPassword: ''
 })
 
-// 注册状态
 const loading = ref(false)
 
-// 注册方法
 const handleRegister = async () => {
-  // 验证表单
   if (!form.value.username) {
-    uni.showToast({ title: '请输入用户名', icon: 'none' })
+    showError('请输入用户名')
     return
   }
 
   if (form.value.username.length < 2 || form.value.username.length > 20) {
-    uni.showToast({ title: '用户名长度2-20位', icon: 'none' })
+    showError('用户名长度2-20位')
     return
   }
 
   if (!form.value.password) {
-    uni.showToast({ title: '请输入密码', icon: 'none' })
+    showError('请输入密码')
     return
   }
 
   if (!/^[a-zA-Z0-9]{6}$/.test(form.value.password)) {
-    uni.showToast({ title: '密码必须为6位字母或数字', icon: 'none' })
+    showError('密码必须为6位字母或数字')
     return
   }
 
   if (form.value.password !== form.value.confirmPassword) {
-    uni.showToast({ title: '两次密码输入不一致', icon: 'none' })
+    showError('两次密码输入不一致')
     return
   }
 
   try {
     loading.value = true
 
-    // 调用注册API
     const response = await userRegister({
       username: form.value.username,
       password: form.value.password
     })
 
     if (response.data && response.data.message === '注册成功') {
-      uni.showToast({ title: '注册成功', icon: 'success' })
+      showSuccess('注册成功')
 
-      // 跳转到登录页面
       setTimeout(() => {
-        uni.redirectTo({ url: '/pages/login/index' })
+        uni.redirectTo({ url: ROUTES.LOGIN })
       }, 1500)
     } else {
-      uni.showToast({ title: response.data?.error || '注册失败', icon: 'none' })
+      showError(response.data?.error || '注册失败')
     }
   } catch (error) {
-    console.error('注册失败:', error)
-    uni.showToast({ title: '网络错误，请重试', icon: 'none' })
+    showError(ERROR_MESSAGES.NETWORK_ERROR)
   } finally {
     loading.value = false
   }
 }
 
-// 跳转到登录页面
 const goToLogin = () => {
   uni.navigateBack()
 }

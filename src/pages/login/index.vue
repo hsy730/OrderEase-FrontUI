@@ -116,6 +116,7 @@
 import { ref } from 'vue'
 import { userWeChatLogin } from '@/utils/api'
 import { useAuth } from '@/composables/useAuth'
+import { ROUTES } from '@/utils/constants'
 
 const { loading, handlePasswordLogin, handleWeChatLogin: authHandleWeChatLogin } = useAuth()
 
@@ -143,11 +144,11 @@ const handleWeChatLogin = async () => {
 }
 
 const goToRegister = () => {
-  uni.navigateTo({ url: '/pages/register/register' })
+  uni.navigateTo({ url: ROUTES.REGISTER })
 }
 
 const goToTokenLogin = () => {
-  uni.navigateTo({ url: '/pages/token-login/token-login' })
+  uni.navigateTo({ url: ROUTES.TOKEN_LOGIN })
 }
 </script>
 

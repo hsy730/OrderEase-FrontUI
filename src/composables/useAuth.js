@@ -6,7 +6,7 @@ import { ref } from 'vue'
 import { storage } from '@/store/storage'
 import { userLogin } from '@/utils/api'
 import { wxLogin, getUserProfile } from '@/utils/wechat-auth'
-import { ERROR_MESSAGES } from '@/utils/constants'
+import { ERROR_MESSAGES, ROUTES, STORAGE_KEYS } from '@/utils/constants'
 
 /**
  * 认证组合式函数
@@ -31,12 +31,12 @@ export function useAuth() {
    */
   const handleLoginSuccess = (response) => {
     if (response.data?.message === '登录成功') {
-      storage.setItem('user_id', response.data.user.id)
-      storage.setItem('user_info', response.data.user)
-      storage.setItem('token', response.data.token)
+      storage.setItem(STORAGE_KEYS.USER_ID, response.data.user.id)
+      storage.setItem(STORAGE_KEYS.USER_INFO, response.data.user)
+      storage.setItem(STORAGE_KEYS.TOKEN, response.data.token)
       uni.showToast({ title: '登录成功', icon: 'success' })
 
-      uni.reLaunch({ url: '/pages/index/index' })
+      uni.reLaunch({ url: ROUTES.INDEX })
       return true
     }
     return false

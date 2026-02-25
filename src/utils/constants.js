@@ -22,6 +22,16 @@ export const ROUTES = {
   TOKEN_LOGIN: '/pages/token-login/token-login'
 }
 
+/** @type {Record<string, string>} 页面路径（用于 navigateTo/redirectTo） */
+export const PAGES = {
+  LOGIN: '/pages/login/index',
+  INDEX: '/pages/index/index',
+  ORDERS: '/pages/orders/orders',
+  MINE: '/pages/mine/mine',
+  REGISTER: '/pages/register/register',
+  TOKEN_LOGIN: '/pages/token-login/token-login'
+}
+
 /** @enum {number} 订单状态枚举 */
 export const ORDER_STATUS = {
   PENDING: 0,

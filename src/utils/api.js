@@ -1,29 +1,25 @@
 // 使用 uni.request 替代 axios，适配小程序环境
-import { API_BASE_URL } from './constants'
+import { API_BASE_URL, STORAGE_KEYS } from './constants'
 import { storage } from '@/store/storage'
 
-// 请求拦截器封装
-function requestInterceptor(options) {
-  // 获取本地存储参数
-  const shop_id = storage.getItem('shop_id') || ''
-  const user_id = storage.getItem('user_id') || ''
-  const token = storage.getItem('token') || ''
+const isDev = import.meta.env.DEV
 
-  // 构建请求头
+function requestInterceptor(options) {
+  const shop_id = storage.getItem(STORAGE_KEYS.SHOP_ID) || ''
+  const user_id = storage.getItem(STORAGE_KEYS.USER_ID) || ''
+  const token = storage.getItem(STORAGE_KEYS.TOKEN) || ''
+
   const headers = {
     'Content-Type': 'application/json',
     ...options.headers
   }
 
-  // 添加 Authorization 头
   if (token) {
     headers.Authorization = `Bearer ${token}`
   }
 
-  // 构建请求参数
   const url = options.url.startsWith('http') ? options.url : `${API_BASE_URL}${options.url}`
 
-  // 构建最终参数
   const finalOptions = {
     url,
     method: options.method || 'GET',
@@ -32,14 +28,11 @@ function requestInterceptor(options) {
     timeout: options.timeout || 5000
   }
 
-  // 处理参数注入
   if (options.method === 'GET') {
-    // GET 请求: 参数添加到 query
     finalOptions.params = { ...options.params }
     if (shop_id) finalOptions.params.shop_id = shop_id
     if (user_id) finalOptions.params.user_id = user_id
   } else {
-    // POST/PUT 请求: 参数添加到 body
     const hasBodyData = finalOptions.data && finalOptions.data !== ''
     if (hasBodyData) {
       if (shop_id) finalOptions.data.shop_id = shop_id
@@ -53,12 +46,10 @@ function requestInterceptor(options) {
   return finalOptions
 }
 
-// 响应拦截器封装
 function responseInterceptor(response) {
   const { statusCode, data, errMsg } = response
 
-  // 记录错误信息，便于调试
-  if (statusCode !== 200) {
+  if (isDev && statusCode !== 200) {
     console.log('API请求错误:', {
       url: response.config?.url || '',
       status: statusCode,
@@ -66,17 +57,13 @@ function responseInterceptor(response) {
     })
   }
 
-  // 处理 401 错误
   if (statusCode === 401) {
     const url = response.config?.url || ''
     const isLoginRequest = url.includes('/user/login')
 
     if (!isLoginRequest) {
-      console.log('收到401错误，准备跳转到登录页面')
-      // 清除本地存储的登录信息
-      storage.removeItem('token')
-      storage.removeItem('user_info')
-      // 跳转到登录页面
+      storage.removeItem(STORAGE_KEYS.TOKEN)
+      storage.removeItem(STORAGE_KEYS.USER_INFO)
       uni.reLaunch({ url: '/pages/login/index' })
     }
   }
@@ -88,12 +75,10 @@ function responseInterceptor(response) {
   }
 }
 
-// 统一的请求方法
 function request(options) {
   return new Promise((resolve, reject) => {
     const finalOptions = requestInterceptor(options)
 
-    // 构建 query string
     if (finalOptions.params) {
       const queryStr = Object.keys(finalOptions.params)
         .map(key => `${encodeURIComponent(key)}=${encodeURIComponent(finalOptions.params[key])}`)
@@ -104,16 +89,22 @@ function request(options) {
     }
     delete finalOptions.params
 
-    console.log('API Request:', finalOptions.url)
+    if (isDev) {
+      console.log('API Request:', finalOptions.url)
+    }
 
     uni.request({
       ...finalOptions,
       success: (res) => {
-        console.log('API Response:', finalOptions.url, res.statusCode)
+        if (isDev) {
+          console.log('API Response:', finalOptions.url, res.statusCode)
+        }
         resolve(responseInterceptor({ ...res, config: options }))
       },
       fail: (err) => {
-        console.log('API请求失败:', err)
+        if (isDev) {
+          console.log('API请求失败:', err)
+        }
         reject(err)
       }
     })
