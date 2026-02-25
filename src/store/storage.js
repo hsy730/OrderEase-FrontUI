@@ -44,16 +44,16 @@ export const storage = {
     // #ifdef H5
     const value = localStorage.getItem(key)
     if (!value) return ''
-    try {
-      const parsed = JSON.parse(value)
-      // 如果是数字字符串且长度>=15，保持字符串格式（如用户ID）
-      if (typeof parsed === 'string' && /^\d{15,}$/.test(parsed)) {
-        return parsed
+    // 只对 JSON 对象/数组进行 parse，简单字符串直接返回
+    // 防止大整数（如用户ID、shop_id）因 JSON.parse 导致精度丢失
+    if (value.startsWith('{') || value.startsWith('[')) {
+      try {
+        return JSON.parse(value)
+      } catch {
+        return value
       }
-      return parsed
-    } catch {
-      return value
     }
+    return value
     // #endif
 
     // #ifndef H5

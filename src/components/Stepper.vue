@@ -1,7 +1,7 @@
 <template>
   <view class="stepper">
     <view
-      v-if="showMinus"
+      v-if="showMinus && modelValue > 0"
       class="stepper-btn minus"
       :class="{ disabled: modelValue <= min }"
       @click.stop="handleDecrement"
