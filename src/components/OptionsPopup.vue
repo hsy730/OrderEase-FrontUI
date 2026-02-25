@@ -34,11 +34,11 @@
           <text class="price-display">
             ¥{{ (product?.price || 0) + optionTotal }}
           </text>
-          <view class="stepper">
-            <view class="stepper-btn minus" @click="emit('quantity', -1)">-</view>
-            <view class="stepper-input">{{ quantity }}</view>
-            <view class="stepper-btn plus" @click="emit('quantity', 1)">+</view>
-          </view>
+          <Stepper
+            :model-value="quantity"
+            :min="1"
+            @change="emit('quantity', $event.delta)"
+          />
         </view>
         <view
           class="add-cart-btn"
@@ -67,6 +67,7 @@
  * @module components/OptionsPopup
  */
 import { computed } from 'vue'
+import Stepper from './Stepper.vue'
 
 const props = defineProps({
   visible: {
@@ -231,41 +232,6 @@ const bubbleStyle = computed(() => ({
   font-size: 40rpx;
   font-weight: bold;
   color: #EA580C;
-}
-
-.stepper {
-  display: flex;
-  align-items: center;
-  gap: 8rpx;
-}
-
-.stepper-btn {
-  width: 48rpx;
-  height: 48rpx;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 28rpx;
-  font-weight: bold;
-}
-
-.stepper-btn.plus {
-  background: linear-gradient(135deg, #1E40AF 0%, #3B82F6 100%);
-  color: #FFFFFF;
-}
-
-.stepper-btn.minus {
-  background: #FFFFFF;
-  color: #1E40AF;
-  border: 1rpx solid #1E40AF;
-}
-
-.stepper-input {
-  width: 48rpx;
-  text-align: center;
-  font-size: 26rpx;
-  color: #0F172A;
 }
 
 .add-cart-btn {

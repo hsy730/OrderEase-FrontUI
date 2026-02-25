@@ -24,21 +24,11 @@
             </view>
           </view>
           <view class="controls">
-            <view class="stepper">
-              <view
-                class="stepper-btn minus"
-                @click="handleChange(item, -1)"
-              >
-                -
-              </view>
-              <view class="stepper-input">{{ item.count }}</view>
-              <view
-                class="stepper-btn plus"
-                @click="handleChange(item, 1)"
-              >
-                +
-              </view>
-            </view>
+            <Stepper
+              :model-value="item.count"
+              :min="0"
+              @change="handleChange(item, $event.delta)"
+            />
           </view>
         </view>
       </scroll-view>
@@ -51,6 +41,7 @@
  * @fileoverview 购物车弹窗组件
  * @module components/CartPopup
  */
+import Stepper from './Stepper.vue'
 
 const props = defineProps({
   visible: {
@@ -172,40 +163,5 @@ const handleClear = () => {
 .controls {
   display: flex;
   align-items: center;
-}
-
-.stepper {
-  display: flex;
-  align-items: center;
-  gap: 8rpx;
-}
-
-.stepper-btn {
-  width: 48rpx;
-  height: 48rpx;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 28rpx;
-  font-weight: bold;
-}
-
-.stepper-btn.plus {
-  background: linear-gradient(135deg, #1E40AF 0%, #3B82F6 100%);
-  color: #FFFFFF;
-}
-
-.stepper-btn.minus {
-  background: #FFFFFF;
-  color: #1E40AF;
-  border: 1rpx solid #1E40AF;
-}
-
-.stepper-input {
-  width: 48rpx;
-  text-align: center;
-  font-size: 26rpx;
-  color: #0F172A;
 }
 </style>

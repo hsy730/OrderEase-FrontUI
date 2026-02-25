@@ -6,7 +6,7 @@
       :class="{ disabled: modelValue <= min }"
       @click.stop="handleDecrement"
     >
-      -
+      <view class="icon-minus"></view>
     </view>
     <view v-if="showMinus && modelValue > 0" class="stepper-input">
       {{ modelValue }}
@@ -16,7 +16,7 @@
       :class="{ disabled: modelValue >= max }"
       @click.stop="handleIncrement"
     >
-      +
+      <view class="icon-plus"></view>
     </view>
   </view>
 </template>
@@ -77,19 +77,52 @@ const handleDecrement = () => {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 28rpx;
-  font-weight: bold;
+}
+
+.icon-plus,
+.icon-minus {
+  width: 20rpx;
+  height: 4rpx;
+  border-radius: 2rpx;
+  position: relative;
+}
+
+.icon-plus::before,
+.icon-minus::before {
+  content: '';
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border-radius: 2rpx;
+}
+
+.icon-plus::after {
+  content: '';
+  position: absolute;
+  width: 4rpx;
+  height: 20rpx;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  border-radius: 2rpx;
 }
 
 .stepper-btn.plus {
   background: linear-gradient(135deg, #1E40AF 0%, #3B82F6 100%);
-  color: #FFFFFF;
+}
+
+.stepper-btn.plus .icon-plus::before,
+.stepper-btn.plus .icon-plus::after {
+  background: #FFFFFF;
 }
 
 .stepper-btn.minus {
   background: #FFFFFF;
-  color: #1E40AF;
   border: 1rpx solid #1E40AF;
+}
+
+.stepper-btn.minus .icon-minus::before {
+  background: #1E40AF;
 }
 
 .stepper-btn.disabled {
