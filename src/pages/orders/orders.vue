@@ -3,7 +3,7 @@
     <!-- 顶部固定标题栏 -->
     <HeaderBar />
 
-    <scroll-view v-if="isInitialized" class="orders-list" scroll-y @scrolltolower="loadMore">
+    <scroll-view v-show="isInitialized" class="orders-list" scroll-y @scrolltolower="loadMore">
       <view v-if="orders.length === 0 && !isLoading" class="empty-state">
         <text class="empty-text">暂无订单</text>
       </view>

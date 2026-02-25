@@ -566,8 +566,7 @@ const handleSubmitOrder = async () => {
       showSuccess(TOAST_MESSAGES.ORDER_SUCCESS)
       cartItems.value = []
       products.value.forEach(p => { p.count = 0; p.lastCount = 0 })
-      // 首页是 tabBar 页面，使用 switchTab
-      uni.switchTab({ url: ROUTES.INDEX })
+      uni.switchTab({ url: ROUTES.ORDERS })
     } else {
       showError(response.data.error || '订单创建失败')
     }
