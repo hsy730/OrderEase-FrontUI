@@ -44,7 +44,7 @@
 import { ref } from 'vue'
 import { userLoginByToken } from '@/utils/api'
 import { storage } from '@/store/storage'
-import { ROUTES, STORAGE_KEYS, ERROR_MESSAGES } from '@/utils/constants'
+import { STORAGE_KEYS, ERROR_MESSAGES, ROUTES } from '@/utils/constants'
 import { showError, showSuccess } from '@/utils/errorHandler'
 
 const form = ref({
@@ -91,7 +91,7 @@ const handleTokenLogin = async () => {
 }
 
 const goToLogin = () => {
-  uni.navigateTo({ url: ROUTES.LOGIN })
+  uni.navigateBack()
 }
 </script>
 

@@ -141,7 +141,12 @@ const bubbleStyle = computed(() => ({
   background-color: #FFFFFF;
   border-top-left-radius: 32rpx;
   border-top-right-radius: 32rpx;
+  /* #ifdef MP-WEIXIN */
   padding-bottom: env(safe-area-inset-bottom);
+  /* #endif */
+  /* #ifndef MP-WEIXIN */
+  padding-bottom: 32rpx;
+  /* #endif */
   z-index: 2001;
 }
 
