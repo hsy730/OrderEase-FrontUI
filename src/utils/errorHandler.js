@@ -78,7 +78,15 @@ export const handleHttpError = (statusCode, errorData) => {
  * @returns {boolean}
  */
 export const isResponseSuccess = (response) => {
-  return response?.status === 200 && response?.data
+  // 检查 HTTP 状态码和数据存在
+  if (!response || response.status !== 200 || !response.data) {
+    return false
+  }
+  // 检查业务状态码（如果后端使用 code 字段）
+  if (response.data.code !== undefined && response.data.code !== null && response.data.code !== 0) {
+    return false
+  }
+  return true
 }
 
 /**

@@ -10,8 +10,8 @@
       </view>
       <scroll-view class="cart-scroll" scroll-y>
         <view
-          v-for="(item, index) in items"
-          :key="index"
+          v-for="item in items"
+          :key="item.cartItemId || item.id"
           class="cart-item"
         >
           <view class="item-info">

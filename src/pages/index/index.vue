@@ -26,6 +26,8 @@
               :src="getImageUrl(product.image)"
               class="product-image"
               mode="aspectFill"
+              lazy-load="true"
+              :show-menu-by-longpress="false"
             />
             <view v-else class="image-placeholder">
               <text>暂无图片</text>
@@ -34,7 +36,7 @@
             <view class="product-info">
               <text class="product-name">{{ product.name }}</text>
               <view class="product-details">
-                <text class="product-price">¥{{ product.price }}</text>
+                <text class="product-price">¥{{ formatPrice(product.price) }}</text>
                 <view class="stepper-container">
                   <view v-if="product.option_categories?.length" class="spec-wrapper">
                     <view v-if="product.count > 0" class="badge">{{ product.count }}</view>
@@ -91,7 +93,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, nextTick } from 'vue'
+import { ref, computed, onMounted, nextTick, onUnmounted } from 'vue'
 import { getShopDetail, getTagBoundProducts, createOrder } from '@/utils/api'
 import { getImageUrl } from '@/utils/image'
 import { showError, showSuccess, showConfirm } from '@/utils/errorHandler'
@@ -107,6 +109,12 @@ import Stepper from '@/components/Stepper.vue'
 import CartBar from '@/components/CartBar.vue'
 import CartPopup from '@/components/CartPopup.vue'
 import OptionsPopup from '@/components/OptionsPopup.vue'
+
+// 格式化价格，处理浮点精度
+const formatPrice = (price) => {
+  if (price === null || price ===) return '0.00'
+  return parseFloat(price).toFixed(2)
+}
 
 const shopDetail = ref(null)
 const products = ref([])
@@ -126,6 +134,18 @@ const showOptionsPopup = ref(false)
 const productQuantity = ref(1)
 const selectedOptionsMap = ref(new Map())
 const errorMessage = ref('')
+
+// 定时器管理
+const timers = []
+
+// 购物车图标位置缓存
+const cartIconRect = ref(null)
+
+const safeTimeout = (fn, delay) => {
+  const timer = setTimeout(fn, delay)
+  timers.push(timer)
+  return timer
+}
 
 const flyingDotStyle = computed(() => ({
   left: `${flyingDot.value.startX}px`,
@@ -149,7 +169,23 @@ const optionTotal = computed(() => {
     .reduce((sum, opt) => sum + (opt.price_adjustment || 0), 0)
 })
 
+// 更新购物车图标位置
+const updateCartIconRect = () => {
+  if (cartIconRect.value) return
+  uni.createSelectorQuery()
+    .select('.cart-icon-wrapper')
+    .boundingClientRect((rect) => {
+      if (rect) cartIconRect.value = rect
+    })
+    .exec()
+}
+
 onMounted(async () => {
+  // 延迟更新购物车图标位置，确保 DOM 已渲染
+  safeTimeout(() => {
+    nextTick(updateCartIconRect)
+  }, 100)
+
   try {
     const { data: shopRes } = await getShopDetail()
     if (shopRes) {
@@ -165,6 +201,12 @@ onMounted(async () => {
   } catch (error) {
     showError(ERROR_MESSAGES.SHOP_LOAD_FAILED)
   }
+})
+
+// 组件卸载时清理定时器
+onUnmounted(() => {
+  timers.forEach(timer => clearTimeout(timer))
+  timers.length = 0
 })
 
 const handleCategorySelect = async (category) => {
@@ -204,20 +246,33 @@ const triggerFlyAnimation = (event) => {
   const startX = touch.clientX || event.clientX
   const startY = touch.clientY || event.clientY
 
-  uni.createSelectorQuery()
-    .select('.cart-icon-wrapper')
-    .boundingClientRect((rect) => {
-      if (rect) {
-        flyingDot.value = { visible: true, startX, startY, endX: rect.left + rect.width / 2, endY: rect.top + rect.height / 2 }
+  // 使用缓存的购物车图标位置
+  if (cartIconRect.value) {
+    flyingDot.value = { visible: true, startX, startY, endX: cartIconRect.value.left + cartIconRect.value.width / 2, endY: cartIconRect.value.top + cartIconRect.value.height / 2 }
 
-        setTimeout(() => {
-          flyingDot.value.visible = false
-          cartBouncing.value = true
-          setTimeout(() => { cartBouncing.value = false }, ANIMATION_DURATION.BOUNCE)
-        }, ANIMATION_DURATION.FLY)
-      }
-    })
-    .exec()
+    safeTimeout(() => {
+      flyingDot.value.visible = false
+      cartBouncing.value = true
+      safeTimeout(() => { cartBouncing.value = false }, ANIMATION_DURATION.BOUNCE)
+    }, ANIMATION_DURATION.FLY)
+  } else {
+    // 如果缓存不存在，则查询
+    uni.createSelectorQuery()
+      .select('.cart-icon-wrapper')
+      .boundingClientRect((rect) => {
+        if (rect) {
+          cartIconRect.value = rect
+          flyingDot.value = { visible: true, startX, startY, endX: rect.left + rect.width / 2, endY: rect.top + rect.height / 2 }
+
+          safeTimeout(() => {
+            flyingDot.value.visible = false
+            cartBouncing.value = true
+            safeTimeout(() => { cartBouncing.value = false }, ANIMATION_DURATION.BOUNCE)
+          }, ANIMATION_DURATION.FLY)
+        }
+      })
+      .exec()
+  }
 }
 
 const handleStepperChange = (product, delta, event) => {
@@ -280,6 +335,19 @@ const changeQuantity = (delta) => {
   productQuantity.value = Math.max(1, productQuantity.value + delta)
 }
 
+// 生成稳定的选项哈希
+const generateStableOptionsHash = (selectedOptionsMap) => {
+  // 稳定的排序和序列化
+  const sortedOptions = Array.from(selectedOptionsMap)
+    .map(([catId, opts]) => ({
+      category_id: Number(catId),
+      option_ids: opts.map(o => o.id).sort((a, b) => a - b)
+    }))
+    .sort((a, b) => a.category_id - b.category_id)
+
+  return JSON.stringify(sortedOptions)
+}
+
 const triggerLuckyBagAnimation = () => {
   return new Promise((resolve) => {
     uni.createSelectorQuery()
@@ -303,8 +371,8 @@ const triggerLuckyBagAnimation = () => {
 
         addBtnPulsing.value = true
 
-        setTimeout(() => { luckyBagBubble.value.visible = false }, ANIMATION_DURATION.PARABOLA)
-        setTimeout(() => { addBtnPulsing.value = false }, ANIMATION_DURATION.FLY)
+        safeTimeout(() => { luckyBagBubble.value.visible = false }, ANIMATION_DURATION.PARABOLA)
+        safeTimeout(() => { addBtnPulsing.value = false }, ANIMATION_DURATION.FLY)
 
         resolve()
       })
@@ -324,19 +392,27 @@ const confirmSelection = async () => {
   }
 
   errorMessage.value = ''
-  const finalPrice = selectedProduct.value.price + optionTotal.value
+  // 修复浮点数精度问题
+  const finalPrice = parseFloat((selectedProduct.value.price + optionTotal.value).toFixed(2))
+
+  // 存储完整的选项信息（包括 id，而非仅名称）
+  const selectedOptionsData = Array.from(selectedOptionsMap.value).map(([categoryId, opts]) => {
+    const category = selectedProduct.value.option_categories.find(c => c.id === categoryId)
+    return {
+      category: category?.name,
+      category_id: category?.id,
+      options: opts.map(o => ({ name: o.name, id: o.id }))
+    }
+  })
+
   const productWithOptions = {
     ...selectedProduct.value,
     finalPrice,
     price: finalPrice,
-    selectedOptions: Array.from(selectedOptionsMap.value).map(([categoryId, opts]) => ({
-      category: selectedProduct.value.option_categories.find(c => c.id === categoryId)?.name,
-      options: opts.map(o => o.name)
-    })),
+    selectedOptions: selectedOptionsData,
     count: productQuantity.value,
-    cartItemId: `${selectedProduct.value.id}-${JSON.stringify(
-      Array.from(selectedOptionsMap.value).map(([_, opts]) => opts.map(o => ({ id: o.id }))).sort()
-    )}`
+    // 使用稳定的哈希算法
+    cartItemId: `${selectedProduct.value.id}-${generateStableOptionsHash(selectedOptionsMap.value)}`
   }
 
   addToCart(productWithOptions)
@@ -344,9 +420,9 @@ const confirmSelection = async () => {
   await nextTick()
   await triggerLuckyBagAnimation()
 
-  setTimeout(() => {
+  safeTimeout(() => {
     popupClosing.value = true
-    setTimeout(() => {
+    safeTimeout(() => {
       showOptionsPopup.value = false
       popupClosing.value = false
       productQuantity.value = 1
@@ -354,9 +430,9 @@ const confirmSelection = async () => {
     }, ANIMATION_DURATION.FADE)
   }, ANIMATION_DURATION.PARABOLA)
 
-  setTimeout(() => {
+  safeTimeout(() => {
     cartBouncing.value = true
-    setTimeout(() => { cartBouncing.value = false }, ANIMATION_DURATION.BOUNCE)
+    safeTimeout(() => { cartBouncing.value = false }, ANIMATION_DURATION.BOUNCE)
   }, ANIMATION_DURATION.PARABOLA)
 
   showSuccess(TOAST_MESSAGES.CART_ADDED)
@@ -373,7 +449,8 @@ const addToCart = (product) => {
   }
 
   const productIndex = products.value.findIndex(p => p.id === product.id)
-  if (productIndex > -1) {
+  // 安全检查：确保 productIndex 有效
+  if (productIndex >= 0 && productIndex < products.value.length) {
     if (product.selectedOptions && product.selectedOptions.length > 0) {
       const totalProductCount = cartItems.value.filter(item => item.id === product.id).reduce((sum, item) => sum + item.count, 0)
       products.value[productIndex].count = totalProductCount
@@ -385,7 +462,7 @@ const addToCart = (product) => {
   }
 }
 
-const toggleCartList = () => {
+const toggleCartList = = () => {
   showCartPopup.value = !showCartPopup.value
 }
 
@@ -406,7 +483,8 @@ const handleCartChange = ({ item, delta }) => {
     const productId = cartItems.value[cartIndex].id
 
     const productIndex = products.value.findIndex(p => p.id === productId)
-    if (productIndex > -1) {
+    // 安全检查：确保 productIndex 有效
+    if (productIndex >= 0 && productIndex < products.value.length) {
       const totalProductCount = cartItems.value
         .filter(i => i.id === productId && (i.cartItemId || `${i.id}`) !== `${item.cartItemId || item.id}`)
         .reduce((sum, i) => sum + i.count, 0) + newCount
@@ -437,18 +515,15 @@ const handleSubmitOrder = async () => {
       items: cartItems.value.map(item => {
         const orderItem = { product_id: item.id, quantity: item.count, price: item.price }
 
-        if (item.selectedOptions && item.selectedOptions.length > 0 && item.option_categories) {
+        // 使用存储的完整选项信息（category_id 和 option_id）
+        if (item.selectedOptions && item.selectedOptions.length > 0) {
           orderItem.options = []
           item.selectedOptions.forEach(selected => {
-            const category = item.option_categories.find(cat => cat.name === selected.category)
-            if (category) {
-              selected.options.forEach(optionName => {
-                const optionDetail = category.options.find(opt => opt.name === optionName)
-                if (optionDetail) {
-                  orderItem.options.push({ category_id: category.id, option_id: optionDetail.id })
-                }
-              })
-            }
+            selected.options.forEach(optionData => {
+              if (selected.category_id && optionData.id) {
+                orderItem.options.push({ category_id: selected.category_id, option_id: optionData.id })
+              }
+            })
           })
         }
         return orderItem
@@ -461,7 +536,8 @@ const handleSubmitOrder = async () => {
       showSuccess(TOAST_MESSAGES.ORDER_SUCCESS)
       cartItems.value = []
       products.value.forEach(p => { p.count = 0; p.lastCount = 0 })
-      uni.redirectTo({ url: ROUTES.ORDERS })
+      // 首页是 tabBar 页面，使用 switchTab
+      uni.switchTab({ url: ROUTES.INDEX })
     } else {
       showError(response.data.error || '订单创建失败')
     }
@@ -643,7 +719,7 @@ const handleSubmitOrder = async () => {
   padding: 4rpx 12rpx;
   font-size: 20rpx;
   font-weight: bold;
-  min-width: 32rpx;
+  min-width: 32raring;
   text-align: center;
 }
 
