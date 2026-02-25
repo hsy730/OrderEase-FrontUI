@@ -58,7 +58,7 @@ const emit = defineEmits(['close', 'clear', 'change'])
 
 const formatOptions = (selectedOptions) => {
   if (!selectedOptions || !selectedOptions.length) return ''
-  return selectedOptions.map(o => o.options.join(', ')).join(', ')
+  return selectedOptions.map(o => o.options.map(opt => opt.name).join(', ')).join(', ')
 }
 
 const handleChange = (item, delta) => {

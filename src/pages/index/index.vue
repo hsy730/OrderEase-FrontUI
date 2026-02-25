@@ -45,7 +45,7 @@
                   <Stepper
                     v-else
                     v-model="product.count"
-                    @change="(e) => handleStepperChange(product, e.delta, $event)"
+                    @change="(e) => handleStepperChange(product, e.delta, e.event)"
                   />
                 </view>
               </view>
@@ -242,33 +242,47 @@ const handleCategorySelect = async (category) => {
 }
 
 const triggerFlyAnimation = (event) => {
-  const touch = event.touches?.[0] || event
-  const startX = touch.clientX || event.clientX
-  const startY = touch.clientY || event.clientY
+  if (!event) return
 
-  // 使用缓存的购物车图标位置
-  if (cartIconRect.value) {
-    flyingDot.value = { visible: true, startX, startY, endX: cartIconRect.value.left + cartIconRect.value.width / 2, endY: cartIconRect.value.top + cartIconRect.value.height / 2 }
+  let startX, startY
+
+  if (event.touches && event.touches.length > 0) {
+    startX = event.touches[0].clientX
+    startY = event.touches[0].clientY
+  } else if (event.clientX !== undefined) {
+    startX = event.clientX
+    startY = event.clientY
+  } else if (event.detail && event.detail.x !== undefined) {
+    startX = event.detail.x
+    startY = event.detail.y
+  } else {
+    return
+  }
+
+  const doAnimation = (endX, endY) => {
+    flyingDot.value = { visible: true, startX, startY, endX, endY }
 
     safeTimeout(() => {
       flyingDot.value.visible = false
       cartBouncing.value = true
       safeTimeout(() => { cartBouncing.value = false }, ANIMATION_DURATION.BOUNCE)
     }, ANIMATION_DURATION.FLY)
+  }
+
+  if (cartIconRect.value) {
+    doAnimation(
+      cartIconRect.value.left + cartIconRect.value.width / 2,
+      cartIconRect.value.top + cartIconRect.value.height / 2
+    )
   } else {
-    // 如果缓存不存在，则查询
     uni.createSelectorQuery()
       .select('.cart-icon-wrapper')
       .boundingClientRect((rect) => {
         if (rect) {
           cartIconRect.value = rect
-          flyingDot.value = { visible: true, startX, startY, endX: rect.left + rect.width / 2, endY: rect.top + rect.height / 2 }
-
-          safeTimeout(() => {
-            flyingDot.value.visible = false
-            cartBouncing.value = true
-            safeTimeout(() => { cartBouncing.value = false }, ANIMATION_DURATION.BOUNCE)
-          }, ANIMATION_DURATION.FLY)
+          doAnimation(rect.left + rect.width / 2, rect.top + rect.height / 2)
+        } else {
+          doAnimation(startX, startY + 200)
         }
       })
       .exec()
@@ -370,13 +384,16 @@ const triggerLuckyBagAnimation = () => {
         const btnRect = rects[0]
         const cartRect = rects[1]
 
-        if (btnRect && cartRect) {
+        if (btnRect) {
+          const endX = cartRect ? cartRect.left + cartRect.width / 2 : btnRect.left
+          const endY = cartRect ? cartRect.top + cartRect.height / 2 : btnRect.top + 200
+
           luckyBagBubble.value = {
             visible: true,
             startX: btnRect.left + btnRect.width / 2,
             startY: btnRect.top,
-            endX: cartRect.left + cartRect.width / 2,
-            endY: cartRect.top + cartRect.height / 2
+            endX,
+            endY
           }
         }
 
@@ -429,7 +446,9 @@ const confirmSelection = async () => {
   addToCart(productWithOptions)
 
   await nextTick()
-  await triggerLuckyBagAnimation()
+  safeTimeout(() => {
+    triggerLuckyBagAnimation()
+  }, 50)
 
   safeTimeout(() => {
     popupClosing.value = true

@@ -4,7 +4,7 @@
       v-if="showMinus && modelValue > 0"
       class="stepper-btn minus"
       :class="{ disabled: modelValue <= min }"
-      @click.stop="handleDecrement"
+      @tap.stop="handleDecrement"
     >
       <view class="icon-minus"></view>
     </view>
@@ -14,7 +14,7 @@
     <view
       class="stepper-btn plus"
       :class="{ disabled: modelValue >= max }"
-      @click.stop="handleIncrement"
+      @tap.stop="handleIncrement"
     >
       <view class="icon-plus"></view>
     </view>
@@ -48,18 +48,18 @@ const props = defineProps({
 
 const emit = defineEmits(['update:modelValue', 'change'])
 
-const handleIncrement = () => {
+const handleIncrement = (e) => {
   if (props.modelValue >= props.max) return
   const newValue = props.modelValue + 1
   emit('update:modelValue', newValue)
-  emit('change', { value: newValue, delta: 1 })
+  emit('change', { value: newValue, delta: 1, event: e })
 }
 
-const handleDecrement = () => {
+const handleDecrement = (e) => {
   if (props.modelValue <= props.min) return
   const newValue = props.modelValue - 1
   emit('update:modelValue', newValue)
-  emit('change', { value: newValue, delta: -1 })
+  emit('change', { value: newValue, delta: -1, event: e })
 }
 </script>
 
