@@ -112,7 +112,7 @@ import OptionsPopup from '@/components/OptionsPopup.vue'
 
 // 格式化价格，处理浮点精度
 const formatPrice = (price) => {
-  if (price === null || price ===) return '0.00'
+  if (price === null || price === undefined) return '0.00'
   return parseFloat(price).toFixed(2)
 }
 
@@ -462,7 +462,7 @@ const addToCart = (product) => {
   }
 }
 
-const toggleCartList = = () => {
+const toggleCartList = () => {
   showCartPopup.value = !showCartPopup.value
 }
 

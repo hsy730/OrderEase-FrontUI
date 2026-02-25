@@ -7,9 +7,6 @@ import { storage } from '@/store/storage'
 import { userLogin } from '@/utils/api'
 import { wxLogin, getUserProfile } from '@/utils/wechat-auth'
 import { ERROR_MESSAGES, ROUTES, STORAGE_KEYS } from '@/utils/constants'
-// #ifdef H5
-import { uni } from 'uni-app'
-// #endif
 
 /**
  * 认证组合式函数
