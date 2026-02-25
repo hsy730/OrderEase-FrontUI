@@ -28,17 +28,17 @@
 
     <!-- 功能列表 -->
     <view class="function-list">
-      <view v-if="isLoggedIn" class="function-item" @click="showToast('功能开发中')">
+      <view v-if="isLoggedIn" class="function-item" @click="showToast(TOAST_MESSAGES.FEATURE_DEVELOPING)">
         <text class="item-icon">📍</text>
         <text class="item-text">收货地址</text>
         <text class="item-arrow">›</text>
       </view>
-      <view v-if="isLoggedIn" class="function-item" @click="showToast('功能开发中')">
+      <view v-if="isLoggedIn" class="function-item" @click="showToast(TOAST_MESSAGES.FEATURE_DEVELOPING)">
         <text class="item-icon">📞</text>
         <text class="item-text">联系电话</text>
         <text class="item-arrow">›</text>
       </view>
-      <view v-if="isLoggedIn" class="function-item" @click="showToast('功能开发中')">
+      <view v-if="isLoggedIn" class="function-item" @click="showToast(TOAST_MESSAGES.FEATURE_DEVELOPING)">
         <text class="item-icon">⚙️</text>
         <text class="item-text">账户设置</text>
         <text class="item-arrow">›</text>
@@ -48,7 +48,7 @@
         <text class="item-text" style="color: #EF4444;">退出登录</text>
         <text class="item-arrow">›</text>
       </view>
-      <view class="function-item" @click="showToast('OrderEase 点单系统 v1.0.0')">
+      <view class="function-item" @click="showAbout">
         <text class="item-icon">ℹ️</text>
         <text class="item-text">关于我们</text>
         <text class="item-arrow">›</text>
@@ -57,7 +57,7 @@
 
     <!-- 店铺信息 -->
     <view class="shop-info">
-      <text class="shop-version">V1.0.0</text>
+      <text class="shop-version">V{{ APP_VERSION }}</text>
     </view>
   </view>
 </template>
@@ -66,26 +66,23 @@
 import { ref, computed, onMounted } from 'vue'
 import { storage } from '@/store/storage'
 import HeaderBar from '@/components/HeaderBar.vue'
+import { APP_VERSION, TOAST_MESSAGES } from '@/utils/constants'
 
 const userInfo = ref({})
 
-// 计算属性：是否已登录
 const isLoggedIn = computed(() => {
   return !!storage.getItem('user_id')
 })
 
-// 格式化手机号显示
 const formatPhone = (phone) => {
   if (!phone) return '未设置'
   return phone.replace(/(\d{3})\d{4}(\d{4})/, '$1****$2')
 }
 
-// 跳转到登录页面
 const goToLogin = () => {
   uni.navigateTo({ url: '/pages/login/index' })
 }
 
-// 退出登录
 const handleLogout = () => {
   uni.showModal({
     title: '确认退出',
@@ -93,7 +90,6 @@ const handleLogout = () => {
     confirmColor: '#1E40AF',
     success: (res) => {
       if (res.confirm) {
-        // 清除用户信息
         storage.removeItem('user_id')
         storage.removeItem('user_info')
         storage.removeItem('token')
@@ -103,20 +99,22 @@ const handleLogout = () => {
           icon: 'success'
         })
 
-        // 重新加载页面数据
         userInfo.value = {}
       }
     }
   })
 }
 
-// 显示提示
 const showToast = (message) => {
   uni.showToast({
     title: message,
     icon: 'none',
     duration: 2000
   })
+}
+
+const showAbout = () => {
+  showToast(`OrderEase 点单系统 v${APP_VERSION}`)
 }
 
 // 页面加载时获取用户信息

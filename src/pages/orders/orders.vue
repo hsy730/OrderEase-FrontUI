@@ -140,9 +140,7 @@ const loadOrders = async (page = 1) => {
 
   try {
     const userId = storage.getItem('user_id')
-    console.log('loadOrders called, userId:', userId)
     if (!userId) {
-      console.log('用户未登录，准备跳转登录页')
       isInitialized.value = true
       uni.reLaunch({ url: '/pages/login/index' })
       return
@@ -154,10 +152,8 @@ const loadOrders = async (page = 1) => {
       pageSize: pageSize.value
     })
 
-    console.log('API response:', response)
     if (response.data && response.status === 200) {
       const orderList = response.data.data || response.data
-      console.log('orderList:', orderList)
       const newOrders = orderList.map(order => ({
         id: order.id,
         orderNo: order.id,
@@ -189,7 +185,6 @@ const loadOrders = async (page = 1) => {
       currentPage.value = page
     }
   } catch (error) {
-    console.error('获取订单失败:', error)
     if (page === 1) {
       orders.value = []
     }
@@ -252,7 +247,7 @@ const loadShopDetail = async () => {
       }
     }
   } catch (error) {
-    console.error('获取店铺详情失败:', error)
+    // 静默处理
   }
 }
 
@@ -282,7 +277,6 @@ const viewOrderDetail = async (order) => {
       uni.showToast({ title: '获取订单详情失败', icon: 'none' })
     }
   } catch (error) {
-    console.error('获取订单详情失败:', error)
     uni.showToast({ title: '获取订单详情失败', icon: 'none' })
   } finally {
     uni.hideLoading()
@@ -308,13 +302,9 @@ const groupOptionsByCategory = (options) => {
 }
 
 onShow(async () => {
-  console.log('orders onShow, checking storage...')
   const userId = storage.getItem('user_id')
-  console.log('user_id from storage:', userId)
-  console.log('token from storage:', storage.getItem('token'))
 
   if (!userId) {
-    console.log('用户未登录，准备跳转登录页')
     isInitialized.value = true
     uni.reLaunch({ url: '/pages/login/index' })
     return

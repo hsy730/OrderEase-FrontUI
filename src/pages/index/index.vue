@@ -1,11 +1,8 @@
 <template>
   <view class="order-page">
-    <!-- 顶部固定标题栏 -->
     <HeaderBar />
 
-    <!-- 内容区域 -->
     <view class="content-wrapper">
-      <!-- 左侧分类菜单 -->
       <scroll-view class="category-menu" scroll-y>
         <view
           v-for="category in shopDetail?.tags || []"
@@ -18,204 +15,78 @@
         </view>
       </scroll-view>
 
-      <!-- 右侧商品列表 -->
       <scroll-view class="product-container" scroll-y>
-      <!-- 商品列表 -->
-      <view class="product-list">
-        <view v-if="products.length === 0" class="empty-tip">
-          <text class="empty-text">该分类下暂无商品</text>
-        </view>
-        <view v-for="product in products" :key="product.id" class="product-item">
-          <image
-            v-if="product.image"
-            :src="getImageUrl(product.image)"
-            class="product-image"
-            mode="aspectFill"
-          />
-          <view v-else class="image-placeholder">
-            <text>暂无图片</text>
+        <view class="product-list">
+          <view v-if="products.length === 0" class="empty-tip">
+            <text class="empty-text">该分类下暂无商品</text>
           </view>
+          <view v-for="product in products" :key="product.id" class="product-item">
+            <image
+              v-if="product.image"
+              :src="getImageUrl(product.image)"
+              class="product-image"
+              mode="aspectFill"
+            />
+            <view v-else class="image-placeholder">
+              <text>暂无图片</text>
+            </view>
 
-          <view class="product-info">
-            <text class="product-name">{{ product.name }}</text>
-            <view class="product-details">
-              <text class="product-price">¥{{ product.price }}</text>
-              <view class="stepper-container">
-                <!-- 有选项的商品：始终显示"选规格"按钮 + 数量气泡 -->
-                <view v-if="product.option_categories?.length" class="spec-wrapper">
-                  <view
-                    v-if="product.count > 0"
-                    class="badge"
-                  >
-                    {{ product.count }}
+            <view class="product-info">
+              <text class="product-name">{{ product.name }}</text>
+              <view class="product-details">
+                <text class="product-price">¥{{ product.price }}</text>
+                <view class="stepper-container">
+                  <view v-if="product.option_categories?.length" class="spec-wrapper">
+                    <view v-if="product.count > 0" class="badge">{{ product.count }}</view>
+                    <view class="spec-button" @click="handleShowOptions(product)">选规格</view>
                   </view>
-                  <view class="spec-button" @click="handleShowOptions(product)">
-                    选规格
-                  </view>
-                </view>
-                <!-- 无选项的商品：显示计数器 -->
-                <view v-else class="stepper">
-                  <view
-                    v-if="product.count > 0"
-                    class="stepper-btn minus"
-                    @click="handleStepperChange(product, -1)"
-                  >
-                    -
-                  </view>
-                  <view v-if="product.count > 0" class="stepper-input">
-                    {{ product.count }}
-                  </view>
-                  <view 
-                    class="stepper-btn plus" 
-                    @click="handleStepperChange(product, 1, $event)"
-                  >
-                    +
-                  </view>
+                  <Stepper
+                    v-else
+                    v-model="product.count"
+                    @change="(e) => handleStepperChange(product, e.delta, $event)"
+                  />
                 </view>
               </view>
             </view>
           </view>
         </view>
-      </view>
-    </scroll-view>
+      </scroll-view>
     </view>
 
-    <!-- 底部购物车 -->
-    <view v-if="cartItems.length > 0" class="cart-bar">
-      <!-- 遮罩层 -->
-      <view v-if="showCartPopup" class="overlay" @click="toggleCartList"></view>
+    <CartBar
+      v-if="cartItems.length > 0"
+      :count="totalCount"
+      :amount="totalAmount"
+      :bouncing="cartBouncing"
+      @toggle="toggleCartList"
+      @submit="handleSubmitOrder"
+    />
 
-      <!-- 购物车列表 -->
-      <view v-if="showCartPopup" class="cart-list">
-        <view class="cart-list-header">
-          <text class="header-title">已选商品</text>
-          <view class="clear-cart" @click="handleClearCart">
-            <text class="clear-text">清空</text>
-          </view>
-        </view>
-        <scroll-view class="cart-scroll" scroll-y>
-          <view
-            v-for="(item, index) in cartItems"
-            :key="index"
-            class="cart-item"
-          >
-            <view class="item-info">
-              <text class="item-name">{{ item.name }}</text>
-              <view class="item-meta">
-                <text class="options">
-                  {{ item.selectedOptions && item.selectedOptions.length ? item.selectedOptions.map(o => o.options.join(', ')).join(', ') : '' }}
-                </text>
-                <text class="item-price">¥{{ (item.finalPrice || item.price || 0).toFixed(2) }}</text>
-              </view>
-            </view>
-            <view class="controls">
-              <view class="stepper">
-                <view
-                  class="stepper-btn minus"
-                  @click="handleCountChange(item.cartItemId || item.id, -1)"
-                >
-                  -
-                </view>
-                <view class="stepper-input">{{ item.count }}</view>
-                <view
-                  class="stepper-btn plus"
-                  @click="handleCountChange(item.cartItemId || item.id, 1)"
-                >
-                  +
-                </view>
-              </view>
-            </view>
-          </view>
-        </scroll-view>
-      </view>
+    <CartPopup
+      :visible="showCartPopup"
+      :items="cartItems"
+      @close="toggleCartList"
+      @clear="handleClearCart"
+      @change="handleCartChange"
+    />
 
-      <!-- 购物车信息栏 -->
-      <view class="cart-info" @click="toggleCartList">
-        <view class="cart-icon-wrapper" :class="{ 'cart-bounce': cartBouncing }">
-          <view v-if="totalCount > 0" class="cart-badge">{{ totalCount }}</view>
-          <text class="cart-icon">🛍️</text>
-        </view>
-        <view class="price-info">
-          <text class="symbol">¥</text>
-          <text class="amount">{{ totalAmount.toFixed(2) }}</text>
-        </view>
-      </view>
+    <view v-if="flyingDot.visible" class="flying-dot" :style="flyingDotStyle"></view>
 
-      <!-- 提交按钮 -->
-      <view class="submit-btn" @click="handleSubmitOrder">
-        <text class="submit-text">选好了</text>
-      </view>
-    </view>
-
-    <!-- 飞行元素 -->
-    <view
-      v-if="flyingDot.visible"
-      class="flying-dot"
-      :style="flyingDotStyle"
-    ></view>
-
-    <!-- 商品选项弹窗 -->
-    <view v-if="showOptionsPopup" class="popup-mask" :class="{ 'popup-closing': popupClosing }" @click="closeOptionsPopup">
-      <view class="popup-bottom" :class="{ 'popup-slide-down': popupClosing }" @click.stop>
-        <view class="popup-header">
-          <text class="popup-title">{{ selectedProduct.name }}</text>
-        </view>
-        <scroll-view class="popup-content" scroll-y>
-          <view
-            v-for="category in selectedProduct.option_categories || []"
-            :key="category.id"
-            class="option-category"
-          >
-            <view class="category-title">
-              <text>{{ category.name }}</text>
-              <text v-if="category.is_required" class="required">*</text>
-            </view>
-            <view class="options-wrapper">
-              <view
-                v-for="option in category.options"
-                :key="option.id"
-                class="option-item"
-                :class="{ selected: isOptionSelected(category, option) }"
-                @click="toggleOption(category, option)"
-              >
-                <text>{{ option.name }}</text>
-                <text v-if="option.price_adjustment > 0" class="price-adjust">+¥{{ option.price_adjustment }}</text>
-              </view>
-            </view>
-          </view>
-        </scroll-view>
-        <view class="footer-actions">
-          <view v-if="errorMessage" class="error-message">{{ errorMessage }}</view>
-          <view class="left-section">
-            <text class="price-display">
-              ¥{{ (selectedProduct.price || 0) + optionTotal }}
-            </text>
-            <view class="stepper">
-              <view class="stepper-btn minus" @click="changeQuantity(-1)">-</view>
-              <view class="stepper-input">{{ productQuantity }}</view>
-              <view class="stepper-btn plus" @click="changeQuantity(1)">+</view>
-            </view>
-          </view>
-          <view 
-            class="add-cart-btn" 
-            :class="{ 'btn-pulse': addBtnPulsing }"
-            @click="confirmSelection"
-          >
-            加入福袋
-          </view>
-        </view>
-        <view class="close-btn" @click="closeOptionsPopup">×</view>
-      </view>
-
-      <!-- 福袋气泡 -->
-      <view
-        v-if="luckyBagBubble.visible"
-        class="lucky-bag-bubble"
-        :style="luckyBagBubbleStyle"
-      >
-        🛍️
-      </view>
-    </view>
+    <OptionsPopup
+      :visible="showOptionsPopup"
+      :closing="popupClosing"
+      :product="selectedProduct"
+      :quantity="productQuantity"
+      :selected-options="selectedOptionsMap"
+      :option-total="optionTotal"
+      :error-message="errorMessage"
+      :pulsing="addBtnPulsing"
+      :bubble="luckyBagBubble"
+      @close="closeOptionsPopup"
+      @select="handleOptionSelect"
+      @quantity="changeQuantity"
+      @confirm="confirmSelection"
+    />
   </view>
 </template>
 
@@ -223,35 +94,38 @@
 import { ref, computed, onMounted, nextTick } from 'vue'
 import { getShopDetail, getTagBoundProducts, createOrder } from '@/utils/api'
 import { getImageUrl } from '@/utils/image'
+import { showError, showSuccess, showConfirm } from '@/utils/errorHandler'
+import {
+  ANIMATION_DURATION,
+  PAGINATION,
+  TOAST_MESSAGES,
+  ERROR_MESSAGES,
+  ROUTES
+} from '@/utils/constants'
 import HeaderBar from '@/components/HeaderBar.vue'
+import Stepper from '@/components/Stepper.vue'
+import CartBar from '@/components/CartBar.vue'
+import CartPopup from '@/components/CartPopup.vue'
+import OptionsPopup from '@/components/OptionsPopup.vue'
 
 const shopDetail = ref(null)
 const products = ref([])
 const activeCategory = ref(null)
 const cartItems = ref([])
 const showCartPopup = ref(false)
-
-const flyingDot = ref({
-  visible: false,
-  startX: 0,
-  startY: 0,
-  endX: 0,
-  endY: 0
-})
-
 const cartBouncing = ref(false)
 
-const luckyBagBubble = ref({
-  visible: false,
-  startX: 0,
-  startY: 0,
-  endX: 0,
-  endY: 0
-})
+const flyingDot = ref({ visible: false, startX: 0, startY: 0, endX: 0, endY: 0 })
 
+const luckyBagBubble = ref({ visible: false, startX: 0, startY: 0, endX: 0, endY: 0 })
 const addBtnPulsing = ref(false)
-
 const popupClosing = ref(false)
+
+const selectedProduct = ref(null)
+const showOptionsPopup = ref(false)
+const productQuantity = ref(1)
+const selectedOptionsMap = ref(new Map())
+const errorMessage = ref('')
 
 const flyingDotStyle = computed(() => ({
   left: `${flyingDot.value.startX}px`,
@@ -260,12 +134,70 @@ const flyingDotStyle = computed(() => ({
   '--fly-y': `${flyingDot.value.endY - flyingDot.value.startY}px`
 }))
 
-const luckyBagBubbleStyle = computed(() => ({
-  left: `${luckyBagBubble.value.startX}px`,
-  top: `${luckyBagBubble.value.startY}px`,
-  '--parabola-x': `${luckyBagBubble.value.endX - luckyBagBubble.value.startX}px`,
-  '--parabola-y': `${luckyBagBubble.value.endY - luckyBagBubble.value.startY}px`
-}))
+const totalCount = computed(() => cartItems.value.reduce((sum, item) => sum + item.count, 0))
+
+const totalAmount = computed(() => {
+  return cartItems.value.reduce((sum, item) => {
+    const price = item.finalPrice || item.price || 0
+    return sum + price * item.count
+  }, 0)
+})
+
+const optionTotal = computed(() => {
+  return Array.from(selectedOptionsMap.value.values())
+    .flat()
+    .reduce((sum, opt) => sum + (opt.price_adjustment || 0), 0)
+})
+
+onMounted(async () => {
+  try {
+    const { data: shopRes } = await getShopDetail()
+    if (shopRes) {
+      if (!shopRes.tags) shopRes.tags = []
+      shopRes.tags.push({ id: -1, name: '未分类' })
+      shopDetail.value = shopRes
+
+      if (shopRes.tags.length > 0) {
+        activeCategory.value = shopRes.tags[0].id
+        await handleCategorySelect(shopRes.tags[0])
+      }
+    }
+  } catch (error) {
+    showError(ERROR_MESSAGES.SHOP_LOAD_FAILED)
+  }
+})
+
+const handleCategorySelect = async (category) => {
+  activeCategory.value = category.id
+  try {
+    const response = await getTagBoundProducts({
+      tag_id: category.id,
+      page: PAGINATION.DEFAULT_PAGE,
+      pageSize: PAGINATION.PRODUCTS_PAGE_SIZE
+    })
+
+    if (response.status === 200) {
+      products.value = response.data.data.map(product => ({
+        id: product.id,
+        name: product.name,
+        price: product.price,
+        image: product.image_url,
+        description: product.description,
+        count: cartItems.value.find(item => item.id === product.id)?.count || 0,
+        lastCount: 0,
+        option_categories: (product.option_categories || []).map(cat => ({
+          ...cat,
+          options: [...(cat.options || [])].sort((a, b) => (a.display_order || 0) - (b.display_order || 0))
+        }))
+      }))
+      return
+    }
+    products.value = []
+  } catch (error) {
+    showError(ERROR_MESSAGES.PRODUCTS_LOAD_FAILED)
+    products.value = []
+  }
+}
 
 const triggerFlyAnimation = (event) => {
   const touch = event.touches?.[0] || event
@@ -276,116 +208,47 @@ const triggerFlyAnimation = (event) => {
     .select('.cart-icon-wrapper')
     .boundingClientRect((rect) => {
       if (rect) {
-        flyingDot.value.startX = startX
-        flyingDot.value.startY = startY
-        flyingDot.value.endX = rect.left + rect.width / 2
-        flyingDot.value.endY = rect.top + rect.height / 2
-        flyingDot.value.visible = true
+        flyingDot.value = { visible: true, startX, startY, endX: rect.left + rect.width / 2, endY: rect.top + rect.height / 2 }
 
         setTimeout(() => {
           flyingDot.value.visible = false
           cartBouncing.value = true
-          setTimeout(() => {
-            cartBouncing.value = false
-          }, 400)
-        }, 500)
+          setTimeout(() => { cartBouncing.value = false }, ANIMATION_DURATION.BOUNCE)
+        }, ANIMATION_DURATION.FLY)
       }
     })
     .exec()
 }
 
-// 商品选项弹窗相关
-const selectedProduct = ref(null)
-const showOptionsPopup = ref(false)
-const productQuantity = ref(1)
-const selectedOptions = ref(new Map())
-const errorMessage = ref('')
+const handleStepperChange = (product, delta, event) => {
+  const productKey = `${product.id}`
+  const existingIndex = cartItems.value.findIndex(item => (item.cartItemId || `${item.id}`) === productKey)
 
-onMounted(async () => {
-  try {
-    const { data: shopRes } = await getShopDetail()
-    if (shopRes) {
-      if (!shopRes.tags) {
-        shopRes.tags = []
-      }
-      shopRes.tags.push({ id: -1, name: '未分类' })
-      shopDetail.value = shopRes
+  const newCount = existingIndex > -1 ? cartItems.value[existingIndex].count + delta : delta
 
-      if (shopRes.tags.length > 0) {
-        activeCategory.value = shopRes.tags[0].id
-        await handleCategorySelect(shopRes.tags[0])
-      }
-    }
-  } catch (error) {
-    console.error('店铺数据加载失败:', error)
-  }
-})
-
-const handleCategorySelect = async (category) => {
-  activeCategory.value = category.id
-  try {
-    const response = await getTagBoundProducts({
-      tag_id: category.id,
-      page: 1,
-      pageSize: 20
-    })
-
-    if (response.status === 200) {
-      products.value = response.data.data.map(p => ({
-        id: p.id,
-        name: p.name,
-        price: p.price,
-        image: p.image_url,
-        description: p.description,
-        count: cartItems.value.find(item => item.id === p.id)?.count || 0,
-        lastCount: 0,
-        option_categories: (p.option_categories || []).map(cat => ({
-          ...cat,
-          options: [...(cat.options || [])].sort((a, b) => (a.display_order || 0) - (b.display_order || 0))
-        }))
-      }))
-      return
-    }
-    products.value = []
-  } catch (error) {
-    console.error('获取商品失败:', error)
-    products.value = []
-  }
-}
-
-// 选中选项价格总计
-const optionTotal = computed(() => {
-  return Array.from(selectedOptions.value.values())
-    .flat()
-    .reduce((sum, opt) => sum + (opt.price_adjustment || 0), 0)
-})
-
-const toggleOption = (category, option) => {
-  const categoryOptions = selectedOptions.value.get(category.id) || []
-
-  if (category.is_required) {
-    selectedOptions.value.set(category.id, [option])
+  if (newCount <= 0) {
+    if (existingIndex > -1) cartItems.value.splice(existingIndex, 1)
+    product.count = 0
+    product.lastCount = 0
   } else {
-    const index = categoryOptions.findIndex(o => o.id === option.id)
-    const newOptions = [...categoryOptions]
-    if (index > -1) {
-      newOptions.splice(index, 1)
+    if (existingIndex > -1) {
+      cartItems.value[existingIndex].count = newCount
     } else {
-      newOptions.push(option)
+      cartItems.value.push({ ...product, count: newCount, cartItemId: productKey })
     }
-    selectedOptions.value.set(category.id, newOptions)
+    product.count = newCount
+    product.lastCount = newCount
   }
-}
 
-const isOptionSelected = (category, option) => {
-  const categoryOptions = selectedOptions.value.get(category.id) || []
-  return categoryOptions.some(opt => opt.id === option.id)
+  if (delta > 0 && event) {
+    nextTick(() => triggerFlyAnimation(event))
+  }
 }
 
 const handleShowOptions = (product) => {
   product.action = 'add'
   selectedProduct.value = product
-  selectedOptions.value = new Map()
+  selectedOptionsMap.value = new Map()
   productQuantity.value = 1
   errorMessage.value = ''
   showOptionsPopup.value = true
@@ -394,6 +257,23 @@ const handleShowOptions = (product) => {
 const closeOptionsPopup = () => {
   showOptionsPopup.value = false
   errorMessage.value = ''
+}
+
+const handleOptionSelect = ({ category, option }) => {
+  const categoryOptions = selectedOptionsMap.value.get(category.id) || []
+
+  if (category.is_required) {
+    selectedOptionsMap.value.set(category.id, [option])
+  } else {
+    const index = categoryOptions.findIndex(o => o.id === option.id)
+    const newOptions = [...categoryOptions]
+    if (index > -1) {
+      newOptions.splice(index, 1)
+    } else {
+      newOptions.push(option)
+    }
+    selectedOptionsMap.value.set(category.id, newOptions)
+  }
 }
 
 const changeQuantity = (delta) => {
@@ -412,22 +292,19 @@ const triggerLuckyBagAnimation = () => {
         const cartRect = rects[1]
 
         if (btnRect && cartRect) {
-          luckyBagBubble.value.startX = btnRect.left + btnRect.width / 2
-          luckyBagBubble.value.startY = btnRect.top
-          luckyBagBubble.value.endX = cartRect.left + cartRect.width / 2
-          luckyBagBubble.value.endY = cartRect.top + cartRect.height / 2
-          luckyBagBubble.value.visible = true
+          luckyBagBubble.value = {
+            visible: true,
+            startX: btnRect.left + btnRect.width / 2,
+            startY: btnRect.top,
+            endX: cartRect.left + cartRect.width / 2,
+            endY: cartRect.top + cartRect.height / 2
+          }
         }
 
         addBtnPulsing.value = true
 
-        setTimeout(() => {
-          luckyBagBubble.value.visible = false
-        }, 800)
-
-        setTimeout(() => {
-          addBtnPulsing.value = false
-        }, 500)
+        setTimeout(() => { luckyBagBubble.value.visible = false }, ANIMATION_DURATION.PARABOLA)
+        setTimeout(() => { addBtnPulsing.value = false }, ANIMATION_DURATION.FLY)
 
         resolve()
       })
@@ -439,7 +316,7 @@ const confirmSelection = async () => {
 
   const requiredCategories = (selectedProduct.value.option_categories || []).filter(c => c.is_required === true || c.is_required === 1)
   for (const category of requiredCategories) {
-    const selected = selectedOptions.value.get(category.id)
+    const selected = selectedOptionsMap.value.get(category.id)
     if (!selected || selected.length === 0) {
       errorMessage.value = `请选择${category.name}`
       return
@@ -450,15 +327,15 @@ const confirmSelection = async () => {
   const finalPrice = selectedProduct.value.price + optionTotal.value
   const productWithOptions = {
     ...selectedProduct.value,
-    finalPrice: finalPrice,
+    finalPrice,
     price: finalPrice,
-    selectedOptions: Array.from(selectedOptions.value).map(([categoryId, opts]) => ({
+    selectedOptions: Array.from(selectedOptionsMap.value).map(([categoryId, opts]) => ({
       category: selectedProduct.value.option_categories.find(c => c.id === categoryId)?.name,
       options: opts.map(o => o.name)
     })),
     count: productQuantity.value,
     cartItemId: `${selectedProduct.value.id}-${JSON.stringify(
-      Array.from(selectedOptions.value).map(([_, opts]) => opts.map(o => ({ id: o.id }))).sort()
+      Array.from(selectedOptionsMap.value).map(([_, opts]) => opts.map(o => ({ id: o.id }))).sort()
     )}`
   }
 
@@ -473,44 +350,32 @@ const confirmSelection = async () => {
       showOptionsPopup.value = false
       popupClosing.value = false
       productQuantity.value = 1
-      selectedOptions.value = new Map()
-    }, 400)
-  }, 800)
+      selectedOptionsMap.value = new Map()
+    }, ANIMATION_DURATION.FADE)
+  }, ANIMATION_DURATION.PARABOLA)
 
   setTimeout(() => {
     cartBouncing.value = true
-    setTimeout(() => {
-      cartBouncing.value = false
-    }, 400)
-  }, 800)
+    setTimeout(() => { cartBouncing.value = false }, ANIMATION_DURATION.BOUNCE)
+  }, ANIMATION_DURATION.PARABOLA)
 
-  uni.showToast({ title: '已加入福袋', icon: 'success' })
+  showSuccess(TOAST_MESSAGES.CART_ADDED)
 }
 
 const addToCart = (product) => {
   const productKey = product.cartItemId || `${product.id}`
-
-  const existingIndex = cartItems.value.findIndex(
-    item => (item.cartItemId || `${item.id}`) === productKey
-  )
+  const existingIndex = cartItems.value.findIndex(item => (item.cartItemId || `${item.id}`) === productKey)
 
   if (existingIndex > -1) {
     cartItems.value[existingIndex].count += product.count || 1
   } else {
-    cartItems.value.push({
-      ...product,
-      count: product.count || 1,
-      cartItemId: productKey
-    })
+    cartItems.value.push({ ...product, count: product.count || 1, cartItemId: productKey })
   }
 
-  // 同步到商品列表
   const productIndex = products.value.findIndex(p => p.id === product.id)
   if (productIndex > -1) {
     if (product.selectedOptions && product.selectedOptions.length > 0) {
-      const totalProductCount = cartItems.value
-        .filter(item => item.id === product.id)
-        .reduce((sum, item) => sum + item.count, 0)
+      const totalProductCount = cartItems.value.filter(item => item.id === product.id).reduce((sum, item) => sum + item.count, 0)
       products.value[productIndex].count = totalProductCount
       products.value[productIndex].lastCount = totalProductCount
     } else {
@@ -520,61 +385,31 @@ const addToCart = (product) => {
   }
 }
 
-const handleStepperChange = (product, delta, event) => {
-  const productKey = `${product.id}`
-  const existingIndex = cartItems.value.findIndex(
-    item => (item.cartItemId || `${item.id}`) === productKey
-  )
+const toggleCartList = () => {
+  showCartPopup.value = !showCartPopup.value
+}
 
-  let newCount
-  if (existingIndex > -1) {
-    newCount = cartItems.value[existingIndex].count + delta
-  } else {
-    newCount = delta
-  }
-
-  if (newCount <= 0) {
-    if (existingIndex > -1) {
-      cartItems.value.splice(existingIndex, 1)
-    }
-    product.count = 0
-    product.lastCount = 0
-  } else {
-    if (existingIndex > -1) {
-      cartItems.value[existingIndex].count = newCount
-    } else {
-      cartItems.value.push({
-        ...product,
-        count: newCount,
-        cartItemId: productKey
-      })
-    }
-    product.count = newCount
-    product.lastCount = newCount
-  }
-
-  if (delta > 0 && event) {
-    nextTick(() => {
-      triggerFlyAnimation(event)
-    })
+const handleClearCart = async () => {
+  showCartPopup.value = false
+  const confirmed = await showConfirm('确认', '确定清空福袋吗?')
+  if (confirmed) {
+    cartItems.value = []
+    products.value.forEach(p => { p.count = 0; p.lastCount = 0 })
   }
 }
 
-const handleCountChange = (id, delta) => {
-  const cartIndex = cartItems.value.findIndex(
-    item => (item.cartItemId || `${item.id}`) === `${id}`
-  )
+const handleCartChange = ({ item, delta }) => {
+  const cartIndex = cartItems.value.findIndex(i => (i.cartItemId || `${i.id}`) === `${item.cartItemId || item.id}`)
 
   if (cartIndex > -1) {
     const newCount = Math.max(0, cartItems.value[cartIndex].count + delta)
     const productId = cartItems.value[cartIndex].id
 
-    // 同步到商品列表
     const productIndex = products.value.findIndex(p => p.id === productId)
     if (productIndex > -1) {
       const totalProductCount = cartItems.value
-        .filter(item => item.id === productId && (item.cartItemId || `${item.id}`) !== `${id}`)
-        .reduce((sum, item) => sum + item.count, 0) + newCount
+        .filter(i => i.id === productId && (i.cartItemId || `${i.id}`) !== `${item.cartItemId || item.id}`)
+        .reduce((sum, i) => sum + i.count, 0) + newCount
       products.value[productIndex].count = totalProductCount
       products.value[productIndex].lastCount = totalProductCount
     }
@@ -585,80 +420,37 @@ const handleCountChange = (id, delta) => {
       cartItems.value.splice(cartIndex, 1)
     }
 
-    // 如果购物车为空，隐藏弹窗
     if (cartItems.value.length === 0) {
       showCartPopup.value = false
     }
   }
 }
 
-const toggleCartList = () => {
-  showCartPopup.value = !showCartPopup.value
-}
-
-const handleClearCart = () => {
-  // 先关闭购物车弹窗，再显示确认弹窗
-  showCartPopup.value = false
-  uni.showModal({
-    title: '确认',
-    content: '确定清空福袋吗?',
-    success: (res) => {
-      if (res.confirm) {
-        cartItems.value = []
-        products.value.forEach(p => {
-          p.count = 0
-          p.lastCount = 0
-        })
-      }
-    }
-  })
-}
-
-const totalCount = computed(() => {
-  return cartItems.value.reduce((sum, item) => sum + item.count, 0)
-})
-
-const totalAmount = computed(() => {
-  return cartItems.value.reduce((sum, item) => {
-    const price = item.finalPrice || item.price || 0
-    return sum + price * item.count
-  }, 0)
-})
-
 const handleSubmitOrder = async () => {
   if (cartItems.value.length === 0) {
-    uni.showToast({ title: '福袋为空', icon: 'none' })
+    showError(TOAST_MESSAGES.CART_EMPTY)
     return
   }
 
   try {
     const orderData = {
       items: cartItems.value.map(item => {
-        const orderItem = {
-          product_id: item.id,
-          quantity: item.count,
-          price: item.price
-        }
+        const orderItem = { product_id: item.id, quantity: item.count, price: item.price }
 
         if (item.selectedOptions && item.selectedOptions.length > 0 && item.option_categories) {
           orderItem.options = []
-
           item.selectedOptions.forEach(selected => {
             const category = item.option_categories.find(cat => cat.name === selected.category)
             if (category) {
               selected.options.forEach(optionName => {
                 const optionDetail = category.options.find(opt => opt.name === optionName)
                 if (optionDetail) {
-                  orderItem.options.push({
-                    category_id: category.id,
-                    option_id: optionDetail.id
-                  })
+                  orderItem.options.push({ category_id: category.id, option_id: optionDetail.id })
                 }
               })
             }
           })
         }
-
         return orderItem
       })
     }
@@ -666,19 +458,15 @@ const handleSubmitOrder = async () => {
     const response = await createOrder(orderData)
 
     if (response.status === 200) {
-      uni.showToast({ title: '订单创建成功', icon: 'success' })
+      showSuccess(TOAST_MESSAGES.ORDER_SUCCESS)
       cartItems.value = []
-      products.value.forEach(p => {
-        p.count = 0
-        p.lastCount = 0
-      })
-      uni.redirectTo({ url: '/pages/orders/orders' })
+      products.value.forEach(p => { p.count = 0; p.lastCount = 0 })
+      uni.redirectTo({ url: ROUTES.ORDERS })
     } else {
-      uni.showToast({ title: response.data.error || '订单创建失败', icon: 'none' })
+      showError(response.data.error || '订单创建失败')
     }
   } catch (error) {
-    console.error('订单提交失败:', error)
-    uni.showToast({ title: '订单提交失败', icon: 'none' })
+    showError('订单提交失败')
   }
 }
 </script>
@@ -691,7 +479,6 @@ const handleSubmitOrder = async () => {
   background: #F8FAFC;
 }
 
-/* 左侧分类菜单 */
 .category-menu {
   width: 160rpx;
   background: #FDFDFD;
@@ -749,55 +536,66 @@ const handleSubmitOrder = async () => {
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: 80rpx 0;
+  padding: 100rpx 0;
 }
 
 .empty-text {
-  font-size: 28rpx;
   color: #94A3B8;
+  font-size: 28rpx;
+}
+
+.product-list {
+  padding-bottom: 120rpx;
 }
 
 .product-item {
   display: flex;
-  margin-bottom: 24rpx;
   background: #FFFFFF;
-  padding: 16rpx;
-  border-radius: 16rpx;
+  border-radius: 24rpx;
+  padding: 24rpx;
+  margin-bottom: 24rpx;
   border: 1rpx solid #E2E8F0;
+  box-shadow: 0 2rpx 16rpx rgba(45, 52, 54, 0.08);
 }
 
 .product-image {
-  width: 120rpx;
-  height: 120rpx;
+  width: 160rpx;
+  height: 160rpx;
   border-radius: 16rpx;
+  margin-right: 24rpx;
   flex-shrink: 0;
 }
 
 .image-placeholder {
-  width: 120rpx;
-  height: 120rpx;
-  background: #F8FAFC;
-  border: 2rpx dashed #F97316;
+  width: 160rpx;
+  height: 160rpx;
   border-radius: 16rpx;
+  margin-right: 24rpx;
+  background: #F1F5F9;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #F97316;
+  color: #94A3B8;
   font-size: 24rpx;
 }
 
 .product-info {
-  margin-left: 24rpx;
   flex: 1;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+  min-width: 0;
 }
 
 .product-name {
-  font-size: 28rpx;
-  font-weight: 500;
+  font-size: 30rpx;
+  font-weight: 600;
   color: #0F172A;
+  margin-bottom: 16rpx;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 .product-details {
@@ -812,43 +610,11 @@ const handleSubmitOrder = async () => {
   font-weight: bold;
 }
 
-/* 计数器 */
-.stepper {
+.stepper-container {
   display: flex;
   align-items: center;
-  gap: 8rpx;
 }
 
-.stepper-btn {
-  width: 48rpx;
-  height: 48rpx;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 28rpx;
-  font-weight: bold;
-}
-
-.stepper-btn.plus {
-  background: linear-gradient(135deg, #1E40AF 0%, #3B82F6 100%);
-  color: #FFFFFF;
-}
-
-.stepper-btn.minus {
-  background: #FFFFFF;
-  color: #1E40AF;
-  border: 1rpx solid #1E40AF;
-}
-
-.stepper-input {
-  width: 48rpx;
-  text-align: center;
-  font-size: 26rpx;
-  color: #0F172A;
-}
-
-/* 选规格按钮 */
 .spec-wrapper {
   position: relative;
 }
@@ -881,393 +647,25 @@ const handleSubmitOrder = async () => {
   text-align: center;
 }
 
-/* 购物车栏 */
-.cart-bar {
+.flying-dot {
   position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  height: 100rpx;
-  background: #FFFFFF;
-  border-top: 1rpx solid #E2E8F0;
-  display: flex;
-  align-items: center;
-  z-index: 1000;
-  box-shadow: 0 8rpx 32rpx rgba(30, 64, 175, 0.15);
-}
-
-.cart-bar-empty {
-  opacity: 0.9;
-}
-
-.cart-bar-empty .cart-info {
-  opacity: 0.5;
-}
-
-.cart-info {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  padding: 0 32rpx;
-  gap: 24rpx;
-}
-
-.cart-icon-wrapper {
-  position: relative;
-}
-
-.cart-icon {
-  font-size: 48rpx;
-}
-
-.cart-badge {
-  position: absolute;
-  top: -12rpx;
-  right: -12rpx;
-  background: #F97316;
-  color: #FFFFFF;
-  border-radius: 24rpx;
-  padding: 4rpx 16rpx;
-  font-size: 20rpx;
-  font-weight: bold;
-  min-width: 36rpx;
-  text-align: center;
-}
-
-.price-info {
-  display: flex;
-  align-items: baseline;
-}
-
-.price-info .symbol {
-  font-size: 24rpx;
-  color: #475569;
-}
-
-.price-info .amount {
-  font-size: 40rpx;
-  font-weight: bold;
-  color: #EA580C;
-}
-
-.submit-btn {
-  width: 240rpx;
-  height: 80rpx;
-  margin: 10rpx 16rpx;
+  width: 24rpx;
+  height: 24rpx;
   background: linear-gradient(135deg, #1E40AF 0%, #3B82F6 100%);
-  border-radius: 40rpx;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 4rpx 16rpx rgba(30, 64, 175, 0.3);
-}
-
-.submit-text {
-  color: #FFFFFF;
-  font-size: 32rpx;
-  font-weight: 600;
-}
-
-/* 购物车弹窗 */
-.overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: calc(100% - 200rpx);
-  background-color: rgba(0, 0, 0, 0.5);
-  z-index: 999;
-}
-
-.cart-list {
-  position: absolute;
-  bottom: 100rpx;
-  left: 0;
-  right: 0;
-  background-color: #FFFFFF;
-  border-top-left-radius: 32rpx;
-  border-top-right-radius: 32rpx;
-  max-height: 80vh;
-  overflow: hidden;
-  z-index: 1000;
-}
-
-.cart-list-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 24rpx 32rpx;
-  background-color: #F8FAFC;
-  border-bottom: 1rpx solid #E2E8F0;
-}
-
-.header-title {
-  font-size: 32rpx;
-  font-weight: bold;
-  color: #0F172A;
-}
-
-.clear-cart {
-  padding: 8rpx 16rpx;
-}
-
-.clear-text {
-  font-size: 28rpx;
-  color: #EF4444;
-}
-
-.cart-scroll {
-  max-height: 60vh;
-}
-
-.cart-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 24rpx 32rpx;
-  border-bottom: 1rpx solid #E2E8F0;
-}
-
-.item-info {
-  flex: 1;
-}
-
-.item-name {
-  font-size: 28rpx;
-  font-weight: 600;
-  color: #0F172A;
-  margin-bottom: 8rpx;
-}
-
-.item-meta {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 8rpx;
-}
-
-.options {
-  font-size: 24rpx;
-  color: #94A3B8;
-  min-height: 32rpx;
-}
-
-.item-price {
-  font-size: 28rpx;
-  font-weight: bold;
-  color: #EA580C;
-}
-
-.controls {
-  display: flex;
-  align-items: center;
-}
-
-/* 商品选项弹窗 */
-.popup-mask {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: rgba(0, 0, 0, 0.5);
-  z-index: 2000;
-}
-
-.popup-bottom {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  background-color: #FFFFFF;
-  border-top-left-radius: 32rpx;
-  border-top-right-radius: 32rpx;
-  padding-bottom: env(safe-area-inset-bottom);
-  z-index: 2001;
-}
-
-.popup-header {
-  padding: 32rpx;
-  text-align: center;
-  border-bottom: 1rpx solid #E2E8F0;
-}
-
-.popup-title {
-  font-size: 40rpx;
-  font-weight: bold;
-  color: #0F172A;
-}
-
-.popup-content {
-  max-height: 60vh;
-  padding: 32rpx;
-}
-
-.option-category {
-  margin-bottom: 40rpx;
-}
-
-.category-title {
-  display: flex;
-  align-items: center;
-  margin-bottom: 24rpx;
-  font-size: 32rpx;
-  font-weight: 600;
-  color: #0F172A;
-}
-
-.required {
-  color: #EF4444;
-  margin-left: 8rpx;
-}
-
-.options-wrapper {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 16rpx;
-}
-
-.option-item {
-  padding: 24rpx 32rpx;
-  background-color: #F8FAFC;
-  border: 2rpx solid #E2E8F0;
-  border-radius: 16rpx;
-  display: flex;
-  align-items: center;
-  gap: 8rpx;
-}
-
-.option-item.selected {
-  border-color: #1E40AF;
-  color: #1E40AF;
-  background: rgba(30, 64, 175, 0.08);
-}
-
-.price-adjust {
-  font-size: 24rpx;
-  color: #F97316;
-}
-
-.footer-actions {
-  position: relative;
-  padding: 32rpx;
-  border-top: 1rpx solid #E2E8F0;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.left-section {
-  display: flex;
-  align-items: center;
-  gap: 32rpx;
-}
-
-.price-display {
-  font-size: 40rpx;
-  font-weight: bold;
-  color: #EA580C;
-}
-
-.add-cart-btn {
-  padding: 24rpx 48rpx;
-  background: linear-gradient(135deg, #1E40AF 0%, #3B82F6 100%);
-  color: #FFFFFF;
-  border-radius: 56rpx;
-  font-size: 28rpx;
-  font-weight: 600;
-}
-
-.error-message {
-  position: absolute;
-  top: -60rpx;
-  left: 32rpx;
-  right: 32rpx;
-  background: #FEF2F2;
-  border: 1rpx solid #FECACA;
-  color: #DC2626;
-  padding: 16rpx 24rpx;
-  border-radius: 12rpx;
-  font-size: 26rpx;
-  text-align: center;
-}
-
-.close-btn {
-  position: absolute;
-  top: 24rpx;
-  right: 32rpx;
-  font-size: 48rpx;
-  color: #94A3B8;
-  line-height: 1;
-  padding: 8rpx;
-}
-
-.add-cart-btn.btn-pulse {
-  animation: btnPulse 0.5s ease-out;
-}
-
-@keyframes btnPulse {
-  0% {
-    transform: scale(1);
-    box-shadow: 0 0 0 0 rgba(30, 64, 175, 0.6);
-  }
-  50% {
-    transform: scale(0.92);
-    box-shadow: 0 0 0 24rpx rgba(30, 64, 175, 0);
-  }
-  100% {
-    transform: scale(1);
-    box-shadow: 0 0 0 0 rgba(30, 64, 175, 0);
-  }
-}
-
-.lucky-bag-bubble {
-  position: fixed;
-  font-size: 48rpx;
-  transform: translate(-50%, -100%);
+  border-radius: 50%;
   pointer-events: none;
   z-index: 3000;
-  animation: parabolaFly 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+  animation: flyToCart 0.5s ease-in-out forwards;
 }
 
-@keyframes parabolaFly {
+@keyframes flyToCart {
   0% {
     opacity: 1;
-    transform: translate(-50%, -100%) scale(1);
-  }
-  50% {
-    opacity: 1;
-    transform: translate(calc(-50% + var(--parabola-x) * 0.5), calc(-100% - 150rpx)) scale(1.15);
+    transform: translate(0, 0) scale(1);
   }
   100% {
     opacity: 0;
-    transform: translate(calc(-50% + var(--parabola-x)), calc(-100% + var(--parabola-y))) scale(0.5);
-  }
-}
-
-.popup-mask.popup-closing {
-  animation: maskFadeOut 0.4s ease-out forwards;
-}
-
-@keyframes maskFadeOut {
-  0% {
-    opacity: 1;
-  }
-  100% {
-    opacity: 0;
-  }
-}
-
-.popup-bottom.popup-slide-down {
-  animation: slideDown 0.5s ease-out forwards;
-}
-
-@keyframes slideDown {
-  0% {
-    transform: translateY(0);
-  }
-  100% {
-    transform: translateY(100%);
+    transform: translate(var(--fly-x), var(--fly-y)) scale(0.3);
   }
 }
 </style>
