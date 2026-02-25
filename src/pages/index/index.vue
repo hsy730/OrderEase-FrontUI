@@ -748,7 +748,7 @@ const handleSubmitOrder = async () => {
   padding: 4rpx 12rpx;
   font-size: 20rpx;
   font-weight: bold;
-  min-width: 32raring;
+  min-width: 32rpx;
   text-align: center;
 }
 
