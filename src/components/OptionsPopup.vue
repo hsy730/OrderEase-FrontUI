@@ -13,6 +13,9 @@
           <view class="category-title">
             <text>{{ category.name }}</text>
             <text v-if="category.is_required" class="required">*</text>
+            <text class="select-type-hint">
+              {{ category.is_multiple ? '多选' : '单选' }}
+            </text>
           </view>
           <view class="options-wrapper">
             <view
@@ -184,6 +187,13 @@ const bubbleStyle = computed(() => ({
 .required {
   color: #EF4444;
   margin-left: 8rpx;
+}
+
+.select-type-hint {
+  font-size: 24rpx;
+  color: #94A3B8;
+  margin-left: 16rpx;
+  font-weight: normal;
 }
 
 .options-wrapper {

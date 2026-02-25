@@ -316,10 +316,21 @@ const closeOptionsPopup = () => {
 
 const handleOptionSelect = ({ category, option }) => {
   const categoryOptions = selectedOptionsMap.value.get(category.id) || []
+  // is_multiple: false 表示单选, true 表示多选
+  const isSingleSelect = !category.is_multiple
 
-  if (category.is_required) {
-    selectedOptionsMap.value.set(category.id, [option])
+  if (isSingleSelect) {
+    // 单选模式：点击已选中的则取消选择，否则替换为新的选择
+    const isAlreadySelected = categoryOptions.some(o => o.id === option.id)
+    if (isAlreadySelected) {
+      // 取消选择
+      selectedOptionsMap.value.set(category.id, [])
+    } else {
+      // 选择新的选项（替换之前的）
+      selectedOptionsMap.value.set(category.id, [option])
+    }
   } else {
+    // 多选模式：切换选择状态
     const index = categoryOptions.findIndex(o => o.id === option.id)
     const newOptions = [...categoryOptions]
     if (index > -1) {
