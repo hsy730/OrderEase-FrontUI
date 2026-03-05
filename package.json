@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev:h5": "uni -p h5",
+    "dev:proxy": "cross-env VITE_PROXY_TARGET=http://xhsj.xyz uni -p h5",
     "dev:mp:weixin": "uni -p mp-weixin",
     "build:h5": "uni build -p h5",
     "build:mp-weixin": "uni build -p mp-weixin",
@@ -22,6 +23,7 @@
     "@dcloudio/uni-mp-weixin": "^3.0.0-alpha-5000120211001",
     "@dcloudio/vite-plugin-uni": "^3.0.0-alpha-5000120211001",
     "@vitejs/plugin-vue": "^5.0.5",
+    "cross-env": "^10.1.0",
     "sass": "^1.97.3",
     "vite": "5.2.8"
   }

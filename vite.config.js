@@ -56,13 +56,13 @@ export default defineConfig(({ command, mode }) => {
     server: {
       host: "0.0.0.0",
       port: "3001",
-      proxy: {
+      proxy: env.VITE_PROXY_TARGET ? {
         '/api': {
-          target: 'http://localhost:8080',
+          target: env.VITE_PROXY_TARGET,
           changeOrigin: true,
-          rewrite: (path) => path.replace(/^\/api/, '')
+          rewrite: (path) => path.replace(/^\/api/, '/api')
         }
-      }
+      } : undefined
     },
     publicDir: 'public'
   }

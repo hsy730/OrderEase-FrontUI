@@ -41,6 +41,18 @@
             <text v-else>登录中...</text>
           </view>
         </view>
+
+        <!-- H5 注册和令牌登录链接 -->
+        <view class="links-section">
+          <view class="link-row">
+            <text class="link-text">还没有账号？</text>
+            <text class="link-btn" @click="goToRegister">立即注册</text>
+          </view>
+          <view class="link-row">
+            <text class="link-text">使用令牌登录？</text>
+            <text class="link-btn" @click="goToTokenLogin">令牌登录</text>
+          </view>
+        </view>
         <!-- #endif -->
 
         <!-- #ifdef MP-WEIXIN -->
