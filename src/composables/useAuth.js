@@ -29,8 +29,8 @@ export function useAuth() {
    * @returns {boolean} 登录是否成功
    */
   const handleLoginSuccess = (response) => {
-    if (response.data?.message === '登录成功') {
-      storage.setItem(STORAGE_KEYS.USER_ID, response.data.user.id)
+    if (response.data?.token) {
+      storage.setItem(STORAGE_KEYS.USER_ID, response.data.user?.id)
       storage.setItem(STORAGE_KEYS.USER_INFO, response.data.user)
       storage.setItem(STORAGE_KEYS.TOKEN, response.data.token)
       uni.showToast({ title: '登录成功', icon: 'success' })

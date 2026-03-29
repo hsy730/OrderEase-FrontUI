@@ -121,7 +121,7 @@ const handleSubmit = async () => {
       avatar_url: finalAvatarUrl
     })
 
-    if (response.data?.message === '登录成功' || response.data?.token) {
+    if (response.data?.token) {
       storage.setItem(STORAGE_KEYS.USER_ID, response.data.user?.id)
       storage.setItem(STORAGE_KEYS.USER_INFO, response.data.user || { nickname: nickname.value, avatar: finalAvatarUrl })
       storage.setItem(STORAGE_KEYS.TOKEN, response.data.token)

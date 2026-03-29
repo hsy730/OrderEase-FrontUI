@@ -67,8 +67,8 @@ const handleTokenLogin = async () => {
       token: form.value.token
     })
 
-    if (response.data && response.data.message === '登录成功') {
-      storage.setItem(STORAGE_KEYS.USER_ID, response.data.user.id)
+    if (response.data?.token) {
+      storage.setItem(STORAGE_KEYS.USER_ID, response.data.user?.id)
       storage.setItem(STORAGE_KEYS.USER_INFO, response.data.user)
       storage.setItem(STORAGE_KEYS.TOKEN, response.data.token)
 
