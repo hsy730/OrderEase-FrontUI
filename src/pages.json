@@ -44,6 +44,12 @@
       "style": {
         "navigationBarTitleText": "令牌登录"
       }
+    },
+    {
+      "path": "pages/wechat-auth/wechat-auth",
+      "style": {
+        "navigationBarTitleText": "微信授权"
+      }
     }
   ],
   "globalStyle": {

@@ -126,7 +126,6 @@
 
 <script setup>
 import { ref } from 'vue'
-import { userWeChatLogin } from '@/utils/api'
 import { useAuth } from '@/composables/useAuth'
 import { ROUTES } from '@/utils/constants'
 
@@ -152,7 +151,7 @@ const handleLogin = async () => {
 }
 
 const handleWeChatLogin = async () => {
-  await authHandleWeChatLogin(userWeChatLogin)
+  await authHandleWeChatLogin()
 }
 
 const goToRegister = () => {

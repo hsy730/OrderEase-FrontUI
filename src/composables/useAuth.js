@@ -5,7 +5,6 @@
 import { ref } from 'vue'
 import { storage } from '@/store/storage'
 import { userLogin } from '@/utils/api'
-import { wxLogin, getUserProfile } from '@/utils/wechat-auth'
 import { ERROR_MESSAGES, ROUTES, STORAGE_KEYS } from '@/utils/constants'
 
 /**
@@ -13,7 +12,7 @@ import { ERROR_MESSAGES, ROUTES, STORAGE_KEYS } from '@/utils/constants'
  * @returns {{
  *   loading: import('vue').Ref<boolean>,
  *   handlePasswordLogin: (username: string, password: string) => Promise<boolean>,
- *   handleWeChatLogin: (wechatLoginApi: Function) => Promise<boolean>
+ *   handleWeChatLogin: () => Promise<boolean>
  * }}
  */
 export function useAuth() {
@@ -73,32 +72,18 @@ export function useAuth() {
   }
 
   /**
-   * 微信授权登录
-   * @param {Function} wechatLoginApi - 微信登录 API 函数
-   * @returns {Promise<boolean>} 登录是否成功
+   * 微信授权登录 - 跳转到授权页面
+   * @returns {Promise<boolean>} 是否成功跳转
    */
-  const handleWeChatLogin = async (wechatLoginApi) => {
+  const handleWeChatLogin = async () => {
     // #ifdef MP-WEIXIN
     try {
       loading.value = true
-
-      const code = await wxLogin()
-      const userInfo = await getUserProfile()
-
-      const response = await wechatLoginApi({ code, userInfo })
-
-      if (!handleLoginSuccess(response)) {
-        uni.showToast({ title: response.data?.error || ERROR_MESSAGES.WECHAT_LOGIN_FAILED, icon: 'none' })
-        return false
-      }
+      uni.navigateTo({ url: ROUTES.WECHAT_AUTH })
       return true
     } catch (error) {
-      console.error('微信登录失败:', error)
-      if (error.message === '用户拒绝授权') {
-        uni.showToast({ title: ERROR_MESSAGES.WECHAT_AUTH_CANCELLED, icon: 'none' })
-      } else {
-        uni.showToast({ title: ERROR_MESSAGES.WECHAT_LOGIN_FAILED, icon: 'none' })
-      }
+      console.error('微信登录跳转失败:', error)
+      uni.showToast({ title: ERROR_MESSAGES.WECHAT_LOGIN_FAILED, icon: 'none' })
       return false
     } finally {
       loading.value = false

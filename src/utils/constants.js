@@ -19,7 +19,8 @@ export const ROUTES = {
   ORDERS: '/pages/orders/orders',
   MINE: '/pages/mine/mine',
   REGISTER: '/pages/register/register',
-  TOKEN_LOGIN: '/pages/token-login/token-login'
+  TOKEN_LOGIN: '/pages/token-login/token-login',
+  WECHAT_AUTH: '/pages/wechat-auth/wechat-auth'
 }
 
 /** @type {Record<string, string>} 页面路径（用于 navigateTo/redirectTo） */
@@ -29,7 +30,8 @@ export const PAGES = {
   ORDERS: '/pages/orders/orders',
   MINE: '/pages/mine/mine',
   REGISTER: '/pages/register/register',
-  TOKEN_LOGIN: '/pages/token-login/token-login'
+  TOKEN_LOGIN: '/pages/token-login/token-login',
+  WECHAT_AUTH: '/pages/wechat-auth/wechat-auth'
 }
 
 /** @enum {number} 订单状态枚举 */
