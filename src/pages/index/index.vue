@@ -94,6 +94,7 @@
 
 <script setup>
 import { ref, computed, onMounted, nextTick, onUnmounted } from 'vue'
+import { onShareAppMessage, onShareTimeline } from '@dcloudio/uni-app'
 import { getShopDetail, getTagBoundProducts, createOrder } from '@/utils/api'
 import { getImageUrl } from '@/utils/image'
 import { showError, showSuccess, showConfirm } from '@/utils/errorHandler'
@@ -102,8 +103,10 @@ import {
   PAGINATION,
   TOAST_MESSAGES,
   ERROR_MESSAGES,
-  ROUTES
+  ROUTES,
+  STORAGE_KEYS
 } from '@/utils/constants'
+import { storage } from '@/store/storage'
 import HeaderBar from '@/components/HeaderBar.vue'
 import Stepper from '@/components/Stepper.vue'
 import CartBar from '@/components/CartBar.vue'
@@ -574,6 +577,25 @@ const handleSubmitOrder = async () => {
     showError('订单提交失败')
   }
 }
+
+onShareAppMessage(() => {
+  const shopId = storage.getItem(STORAGE_KEYS.SHOP_ID)
+  const shopName = shopDetail.value?.name || 'OrderEase 点单系统'
+  return {
+    title: `${shopName} - 来点单吧`,
+    path: `/pages/index/index${shopId ? '?shop_id=' + shopId : ''}`,
+    imageUrl: ''
+  }
+})
+
+onShareTimeline(() => {
+  const shopId = storage.getItem(STORAGE_KEYS.SHOP_ID)
+  const shopName = shopDetail.value?.name || 'OrderEase 点单系统'
+  return {
+    title: `${shopName} - 来点单吧`,
+    query: shopId ? `shop_id=${shopId}` : ''
+  }
+})
 </script>
 
 <style scoped>
