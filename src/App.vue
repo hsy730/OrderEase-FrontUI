@@ -2,6 +2,8 @@
 import { onLaunch as onAppLaunch, onShow as onAppShow, onHide as onAppHide } from '@dcloudio/uni-app'
 import { storage } from '@/store/storage'
 import { STORAGE_KEYS } from '@/utils/constants'
+import { wxLogin } from '@/utils/wechat-auth'
+import { userWeChatLogin } from '@/utils/api'
 
 /**
  * 验证并清理 URL 参数
@@ -102,6 +104,36 @@ const handleMiniProgramParams = (query) => {
   }
 }
 
+/**
+ * 静默登录 - 小程序启动时自动执行
+ * 无需用户操作，通过微信 code 自动换取 token
+ */
+const silentLogin = async () => {
+  // #ifdef MP-WEIXIN
+  try {
+    console.log('[静默登录] 开始执行')
+
+    const code = await wxLogin()
+
+    const response = await userWeChatLogin({
+      code,
+      silent: true
+    })
+
+    if (response.data?.token) {
+      storage.setItem(STORAGE_KEYS.USER_ID, response.data.user?.id)
+      storage.setItem(STORAGE_KEYS.USER_INFO, response.data.user)
+      storage.setItem(STORAGE_KEYS.TOKEN, response.data.token)
+      console.log('[静默登录] 成功')
+    } else {
+      console.log('[静默登录] 失败:', response.data?.error)
+    }
+  } catch (error) {
+    console.error('[静默登录] 异常:', error)
+  }
+  // #endif
+}
+
 onAppLaunch((options) => {
   console.log('App Launch', options)
 
@@ -111,11 +143,15 @@ onAppLaunch((options) => {
 
   // #ifndef H5
   handleMiniProgramParams(options?.query)
+  silentLogin()
   // #endif
 })
 
 onAppShow(() => {
   console.log('App Show')
+  // #ifndef H5
+  silentLogin()
+  // #endif
 })
 
 onAppHide(() => {

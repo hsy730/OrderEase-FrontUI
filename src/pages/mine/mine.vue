@@ -68,6 +68,8 @@ import { onShow } from '@dcloudio/uni-app'
 import { storage } from '@/store/storage'
 import HeaderBar from '@/components/HeaderBar.vue'
 import { APP_VERSION, TOAST_MESSAGES } from '@/utils/constants'
+import { checkSession } from '@/utils/wechat-auth'
+import { silentLogin } from '@/utils/login-helper'
 
 const userInfo = ref({})
 
@@ -90,6 +92,17 @@ const refreshUserInfo = () => {
     }
   } else {
     userInfo.value = {}
+  }
+}
+
+// 检查登录状态
+const checkLoginStatus = async () => {
+  if (isLoggedIn.value) {
+    const sessionValid = await checkSession()
+    if (!sessionValid) {
+      await silentLogin()
+      refreshUserInfo()
+    }
   }
 }
 
@@ -143,6 +156,7 @@ onMounted(() => {
 
 // 页面显示时刷新用户信息（每次页面显示都会触发）
 onShow(() => {
+  checkLoginStatus()
   refreshUserInfo()
 })
 

@@ -1,6 +1,7 @@
 // 使用 uni.request 替代 axios，适配小程序环境
 import { API_BASE_URL, STORAGE_KEYS } from './constants'
 import { storage } from '@/store/storage'
+import { silentLogin } from './login-helper'
 
 const isDev = import.meta.env.DEV
 
@@ -59,12 +60,20 @@ function responseInterceptor(response) {
 
   if (statusCode === 401) {
     const url = response.config?.url || ''
-    const isLoginRequest = url.includes('/user/login')
+    const isLoginRequest = url.includes('/user/login') || url.includes('/user/wechat-login')
 
     if (!isLoginRequest) {
-      storage.removeItem(STORAGE_KEYS.TOKEN)
-      storage.removeItem(STORAGE_KEYS.USER_INFO)
-      uni.reLaunch({ url: '/pages/login/index' })
+      silentLogin().then((success) => {
+        if (!success) {
+          storage.removeItem(STORAGE_KEYS.TOKEN)
+          storage.removeItem(STORAGE_KEYS.USER_INFO)
+          uni.reLaunch({ url: '/pages/login/index' })
+        }
+      }).catch(() => {
+        storage.removeItem(STORAGE_KEYS.TOKEN)
+        storage.removeItem(STORAGE_KEYS.USER_INFO)
+        uni.reLaunch({ url: '/pages/login/index' })
+      })
     }
   }
 
