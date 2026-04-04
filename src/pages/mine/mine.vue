@@ -75,7 +75,7 @@ import { storage } from '@/store/storage'
 import HeaderBar from '@/components/HeaderBar.vue'
 import { APP_VERSION, TOAST_MESSAGES } from '@/utils/constants'
 import { checkSession } from '@/utils/wechat-auth'
-import { silentLogin } from '@/utils/login-helper'
+import { silentLogin } from '@/utils/auth-utils'
 import { checkAndSyncUserInfo, clearUserSyncRecord } from '@/utils/user-sync'
 
 const userInfo = ref({})

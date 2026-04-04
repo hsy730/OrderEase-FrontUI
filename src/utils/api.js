@@ -1,7 +1,7 @@
 // 使用 uni.request 替代 axios，适配小程序环境
 import { API_BASE_URL, STORAGE_KEYS } from './constants'
 import { storage } from '@/store/storage'
-import { silentLogin } from './login-helper'
+import { silentLogin } from './auth-utils'
 
 const isDev = import.meta.env.DEV
 
@@ -205,6 +205,11 @@ export const submitOrder = (orderData) => {
 // 微信小程序授权登录
 export const userWeChatLogin = (wechatData) => {
   return api.post('/user/wechat-login', wechatData)
+}
+
+// 获取当前登录用户信息
+export const getUserInfo = () => {
+  return api.get('/user/info')
 }
 
 export default api

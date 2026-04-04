@@ -119,22 +119,26 @@ export const silentSyncUserInfo = async () => {
       return true
     }
 
-    // 获取微信登录 code
+    // #ifdef MP-WEIXIN
+    // 微信小程序环境：使用 code 同步
     const code = await wxLogin()
-
-    // 调用后端同步接口
     const response = await api.post('/user/silent-sync', {
       code,
       platform: 'wechat_mp'
     })
 
     if (response.data?.user) {
-      // 更新本地用户信息
       storage.setItem(STORAGE_KEYS.USER_INFO, response.data.user)
       updateSyncTime()
       return true
     }
     return false
+    // #endif
+
+    // #ifndef MP-WEIXIN
+    // 非微信小程序环境：无需同步用户信息
+    return true
+    // #endif
   } catch (error) {
     console.error('静默同步用户信息失败:', error)
     return false
@@ -148,7 +152,8 @@ export const silentSyncUserInfo = async () => {
  */
 export const activeSyncUserInfo = async () => {
   try {
-    // 获取最新的微信用户信息
+    // #ifdef MP-WEIXIN
+    // 微信小程序环境：获取微信用户信息
     const wechatUserInfo = await getWeChatUserProfile()
 
     if (!wechatUserInfo) {
@@ -177,6 +182,12 @@ export const activeSyncUserInfo = async () => {
     }
 
     return success
+    // #endif
+
+    // #ifndef MP-WEIXIN
+    // 非微信小程序环境：不支持主动更新用户信息
+    return true
+    // #endif
   } catch (error) {
     console.error('主动同步用户信息失败:', error)
     return false
