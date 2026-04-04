@@ -7,12 +7,18 @@
     <view v-if="isLoggedIn" class="user-info">
       <image
         class="user-avatar"
-        src="/static/user-avatar.svg"
+        :src="userInfo.avatar || '/static/user-avatar.svg'"
         mode="aspectFill"
+        @click="handleSyncUserInfo"
       />
       <view class="user-details">
         <text class="username">{{ displayUsername }}</text>
         <text class="phone">{{ formatPhone(userInfo.phone) }}</text>
+      </view>
+      <!-- 刷新信息按钮 -->
+      <view class="sync-btn" @click="handleSyncUserInfo">
+        <text class="sync-icon">🔄</text>
+        <text class="sync-text">刷新</text>
       </view>
     </view>
 
@@ -70,8 +76,10 @@ import HeaderBar from '@/components/HeaderBar.vue'
 import { APP_VERSION, TOAST_MESSAGES } from '@/utils/constants'
 import { checkSession } from '@/utils/wechat-auth'
 import { silentLogin } from '@/utils/login-helper'
+import { checkAndSyncUserInfo, clearUserSyncRecord } from '@/utils/user-sync'
 
 const userInfo = ref({})
+const syncing = ref(false)
 
 const isLoggedIn = computed(() => {
   return !!storage.getItem('user_id')
@@ -102,7 +110,26 @@ const checkLoginStatus = async () => {
     if (!sessionValid) {
       await silentLogin()
       refreshUserInfo()
+    } else {
+      // 登录态有效时，检查是否需要同步用户信息
+      await checkAndSyncUserInfo({ silent: true })
+      refreshUserInfo()
     }
+  }
+}
+
+// 处理用户信息同步
+const handleSyncUserInfo = async () => {
+  if (syncing.value) return
+
+  syncing.value = true
+  try {
+    const success = await checkAndSyncUserInfo({ silent: false, force: true })
+    if (success) {
+      refreshUserInfo()
+    }
+  } finally {
+    syncing.value = false
   }
 }
 
@@ -125,6 +152,8 @@ const handleLogout = () => {
         storage.removeItem('user_id')
         storage.removeItem('user_info')
         storage.removeItem('token')
+        // 清除用户信息同步记录
+        clearUserSyncRecord()
 
         uni.showToast({
           title: '已退出登录',
@@ -207,6 +236,25 @@ onShow(() => {
 .phone {
   font-size: 28rpx;
   color: #94A3B8;
+}
+
+/* 刷新按钮 */
+.sync-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 16rpx;
+  margin-left: 16rpx;
+}
+
+.sync-icon {
+  font-size: 32rpx;
+  margin-bottom: 4rpx;
+}
+
+.sync-text {
+  font-size: 20rpx;
+  color: #64748B;
 }
 
 /* 登录提示卡片 */

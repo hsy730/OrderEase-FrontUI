@@ -4,6 +4,7 @@ import { storage } from '@/store/storage'
 import { STORAGE_KEYS } from '@/utils/constants'
 import { wxLogin } from '@/utils/wechat-auth'
 import { userWeChatLogin } from '@/utils/api'
+import { checkAndSyncUserInfo } from '@/utils/user-sync'
 
 /**
  * 验证并清理 URL 参数
@@ -125,6 +126,9 @@ const silentLogin = async () => {
       storage.setItem(STORAGE_KEYS.USER_INFO, response.data.user)
       storage.setItem(STORAGE_KEYS.TOKEN, response.data.token)
       console.log('[静默登录] 成功')
+
+      // 静默登录成功后，检查并同步用户信息
+      await checkAndSyncUserInfo({ silent: true })
     } else {
       console.log('[静默登录] 失败:', response.data?.error)
     }
