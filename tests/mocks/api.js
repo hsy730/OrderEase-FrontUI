@@ -3,13 +3,16 @@
 
 const isDev = process.env.NODE_ENV !== 'production'
 
+// 使用环境变量管理测试URL，支持自定义配置
+const TEST_BASE_URL = process.env.TEST_API_BASE_URL || 'http://127.0.0.1:8080/api/order-ease/v1'
+
 function requestInterceptor(options) {
   const headers = {
     'Content-Type': 'application/json',
     ...options.headers
   }
 
-  const url = options.url.startsWith('http') ? options.url : `http://127.0.0.1:8080/api/order-ease/v1${options.url}`
+  const url = options.url.startsWith('http') ? options.url : `${TEST_BASE_URL}${options.url}`
 
   return {
     url,
