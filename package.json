@@ -10,12 +10,17 @@
     "build:h5": "uni build -p h5",
     "build:mp-weixin": "uni build -p mp-weixin",
     "preview": "uni build -p h5 && vite preview",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
     "postinstall": "node scripts/postinstall.js"
   },
   "dependencies": {
     "vue": "3.4.21"
   },
   "devDependencies": {
+    "@babel/core": "^7.29.0",
+    "@babel/preset-env": "^7.29.2",
     "@dcloudio/types": "3.4.28",
     "@dcloudio/uni-app": "^3.0.0-alpha-5000120260211001",
     "@dcloudio/uni-components": "^3.0.0-alpha-5000120211001",
@@ -23,8 +28,14 @@
     "@dcloudio/uni-mp-weixin": "^3.0.0-alpha-5000120211001",
     "@dcloudio/vite-plugin-uni": "^3.0.0-alpha-5000120211001",
     "@vitejs/plugin-vue": "^5.0.5",
+    "@vue/test-utils": "^2.4.6",
+    "babel-jest": "^30.3.0",
     "cross-env": "^10.1.0",
+    "jest": "^30.3.0",
+    "jest-environment-jsdom": "^30.3.0",
+    "jsdom": "^29.0.1",
     "sass": "^1.97.3",
-    "vite": "5.2.8"
+    "vite": "5.2.8",
+    "vitest": "^3.2.4"
   }
 }
