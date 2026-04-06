@@ -79,11 +79,20 @@ const onNicknameBlur = (e) => {
 }
 
 const uploadAvatar = async (tempFilePath) => {
+  const token = storage.getItem(STORAGE_KEYS.TOKEN) || ''
+  const headers = {}
+  if (token) {
+    headers.Authorization = `Bearer ${token}`
+  } else {
+    debugLog('token 为空，无法上传头像')
+  }
+
   return new Promise((resolve, reject) => {
     uni.uploadFile({
       url: `${import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8080/'}${import.meta.env.VITE_API_PREFIX || 'api/order-ease/v1'}/user/upload-avatar`,
       filePath: tempFilePath,
       name: 'avatar',
+      header: headers,
       success: (res) => {
         try {
           const data = JSON.parse(res.data)
@@ -114,29 +123,40 @@ const handleSubmit = async () => {
     debugLog('获取微信 code 成功', code)
 
     let finalAvatarUrl = avatarUrl.value
-    if (avatarUrl.value.startsWith('http://tmp/') || avatarUrl.value.startsWith('wxfile://')) {
-      debugLog('上传头像', avatarUrl.value)
-      finalAvatarUrl = await uploadAvatar(avatarUrl.value)
-      debugLog('头像上传完成', finalAvatarUrl)
-    }
+    const needUpload = avatarUrl.value.startsWith('http://tmp/') || avatarUrl.value.startsWith('wxfile://')
 
-    const response = await userWeChatLogin({
+    const loginData = {
       code,
       nickname: nickname.value.trim(),
-      avatar_url: finalAvatarUrl
-    })
+      avatar_url: needUpload ? '' : avatarUrl.value
+    }
+
+    debugLog('开始微信登录', loginData)
+    const response = await userWeChatLogin(loginData)
     debugLog('微信授权登录响应', response)
 
-    if (response.data?.token) {
-      storage.setItem(STORAGE_KEYS.USER_ID, response.data.user?.id)
-      storage.setItem(STORAGE_KEYS.USER_INFO, response.data.user || { nickname: nickname.value, avatar: finalAvatarUrl })
-      storage.setItem(STORAGE_KEYS.TOKEN, response.data.token)
-      debugLog('授权成功', { userId: response.data.user?.id })
+    if (response.data?.data?.token) {
+      storage.setItem(STORAGE_KEYS.USER_ID, response.data.data.user?.id)
+      storage.setItem(STORAGE_KEYS.USER_INFO, response.data.data.user || { nickname: nickname.value, avatar: finalAvatarUrl })
+      storage.setItem(STORAGE_KEYS.TOKEN, response.data.data.token)
+      debugLog('登录成功，token 已存储', response.data.data.token)
 
+      if (needUpload) {
+        debugLog('上传头像', avatarUrl.value)
+        try {
+          finalAvatarUrl = await uploadAvatar(avatarUrl.value)
+          debugLog('头像上传完成', finalAvatarUrl)
+        } catch (uploadError) {
+          debugError('头像上传失败，使用临时路径', uploadError)
+          finalAvatarUrl = avatarUrl.value
+        }
+      }
+
+      debugLog('授权成功', { userId: response.data.data.user?.id, avatarUrl: finalAvatarUrl })
       uni.showToast({ title: '授权成功', icon: 'success' })
       uni.reLaunch({ url: ROUTES.INDEX })
     } else {
-      const errorMessage = response.data?.error || ERROR_MESSAGES.WECHAT_LOGIN_FAILED
+      const errorMessage = response.data?.data?.error || ERROR_MESSAGES.WECHAT_LOGIN_FAILED
       debugError('授权失败', errorMessage)
       uni.showToast({ title: errorMessage, icon: 'none' })
       debugAlert('授权失败', errorMessage)
