@@ -51,7 +51,10 @@ export default defineConfig(({ command, mode }) => {
     },
     define: {
       // 将环境变量注入到代码中，供 manifest.json 使用
-      'import.meta.env.VITE_MP_WEIXIN_APP_ID': JSON.stringify(env.VITE_MP_WEIXIN_APP_ID || '')
+      'import.meta.env.VITE_MP_WEIXIN_APP_ID': JSON.stringify(env.VITE_MP_WEIXIN_APP_ID || ''),
+      'import.meta.env.VITE_DEBUG_MODE': JSON.stringify(env.VITE_DEBUG_MODE || 'false'),
+      'import.meta.env.VITE_API_BASE_URL': JSON.stringify(env.VITE_API_BASE_URL || ''),
+      'import.meta.env.VITE_API_PREFIX': JSON.stringify(env.VITE_API_PREFIX || '')
     },
     server: {
       host: "0.0.0.0",

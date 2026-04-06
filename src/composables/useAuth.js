@@ -6,6 +6,7 @@ import { ref } from 'vue'
 import { storage } from '@/store/storage'
 import { userLogin } from '@/utils/api'
 import { ERROR_MESSAGES, ROUTES, STORAGE_KEYS } from '@/utils/constants'
+import { debugLog, debugError, debugAlert } from '@/utils/debug'
 
 /**
  * 认证组合式函数
@@ -48,26 +49,39 @@ export function useAuth() {
    * @returns {Promise<boolean>} 登录是否成功
    */
   const handlePasswordLogin = async (username, password) => {
+    debugLog('开始密码登录', { username })
+    
     if (!username || !password) {
-      uni.showToast({ title: ERROR_MESSAGES.EMPTY_CREDENTIALS, icon: 'none' })
+      const message = ERROR_MESSAGES.EMPTY_CREDENTIALS
+      debugError('登录参数为空', message)
+      uni.showToast({ title: message, icon: 'none' })
+      debugAlert('登录错误', message)
       return false
     }
 
     try {
       loading.value = true
+      debugLog('发送登录请求')
       const response = await userLogin({ username, password })
+      debugLog('登录请求响应', response)
 
       if (!handleLoginSuccess(response)) {
-        uni.showToast({ title: response.data?.error || ERROR_MESSAGES.LOGIN_FAILED, icon: 'none' })
+        const errorMessage = response.data?.error || ERROR_MESSAGES.LOGIN_FAILED
+        debugError('登录失败', errorMessage)
+        uni.showToast({ title: errorMessage, icon: 'none' })
+        debugAlert('登录失败', errorMessage)
         return false
       }
       return true
     } catch (error) {
-      console.error('登录失败:', error)
-      uni.showToast({ title: ERROR_MESSAGES.NETWORK_ERROR, icon: 'none' })
+      debugError('登录异常', error)
+      const message = ERROR_MESSAGES.NETWORK_ERROR
+      uni.showToast({ title: message, icon: 'none' })
+      debugAlert('网络错误', `登录失败: ${error.message}`)
       return false
     } finally {
       loading.value = false
+      debugLog('登录流程结束')
     }
   }
 
@@ -76,21 +90,29 @@ export function useAuth() {
    * @returns {Promise<boolean>} 是否成功跳转
    */
   const handleWeChatLogin = async () => {
+    debugLog('开始微信授权登录')
+    
     // #ifdef MP-WEIXIN
     try {
       loading.value = true
+      debugLog('跳转到微信授权页面', ROUTES.WECHAT_AUTH)
       uni.navigateTo({ url: ROUTES.WECHAT_AUTH })
       return true
     } catch (error) {
-      console.error('微信登录跳转失败:', error)
-      uni.showToast({ title: ERROR_MESSAGES.WECHAT_LOGIN_FAILED, icon: 'none' })
+      debugError('微信登录跳转失败', error)
+      const message = ERROR_MESSAGES.WECHAT_LOGIN_FAILED
+      uni.showToast({ title: message, icon: 'none' })
+      debugAlert('微信登录错误', `跳转失败: ${error.message}`)
       return false
     } finally {
       loading.value = false
+      debugLog('微信登录流程结束')
     }
     // #endif
     // #ifndef MP-WEIXIN
-    uni.showToast({ title: '仅支持微信小程序环境', icon: 'none' })
+    const message = '仅支持微信小程序环境'
+    uni.showToast({ title: message, icon: 'none' })
+    debugAlert('环境错误', message)
     return false
     // #endif
   }

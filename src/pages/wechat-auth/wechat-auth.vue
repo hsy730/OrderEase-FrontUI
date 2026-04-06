@@ -53,11 +53,12 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { storage } from '@/store/storage'
 import { userWeChatLogin } from '@/utils/api'
 import { STORAGE_KEYS, ROUTES, ERROR_MESSAGES } from '@/utils/constants'
 import { wxLogin } from '@/utils/wechat-auth'
+import { debugLog, debugError, debugAlert, isDebugMode } from '@/utils/debug'
 
 const avatarUrl = ref('')
 const nickname = ref('')
@@ -107,12 +108,16 @@ const handleSubmit = async () => {
 
   try {
     loading.value = true
+    debugLog('开始微信授权提交', { nickname: nickname.value, avatarUrl: avatarUrl.value })
 
     const code = await wxLogin()
+    debugLog('获取微信 code 成功', code)
 
     let finalAvatarUrl = avatarUrl.value
     if (avatarUrl.value.startsWith('http://tmp/') || avatarUrl.value.startsWith('wxfile://')) {
+      debugLog('上传头像', avatarUrl.value)
       finalAvatarUrl = await uploadAvatar(avatarUrl.value)
+      debugLog('头像上传完成', finalAvatarUrl)
     }
 
     const response = await userWeChatLogin({
@@ -120,28 +125,45 @@ const handleSubmit = async () => {
       nickname: nickname.value.trim(),
       avatar_url: finalAvatarUrl
     })
+    debugLog('微信授权登录响应', response)
 
     if (response.data?.token) {
       storage.setItem(STORAGE_KEYS.USER_ID, response.data.user?.id)
       storage.setItem(STORAGE_KEYS.USER_INFO, response.data.user || { nickname: nickname.value, avatar: finalAvatarUrl })
       storage.setItem(STORAGE_KEYS.TOKEN, response.data.token)
+      debugLog('授权成功', { userId: response.data.user?.id })
 
       uni.showToast({ title: '授权成功', icon: 'success' })
       uni.reLaunch({ url: ROUTES.INDEX })
     } else {
-      uni.showToast({ title: response.data?.error || ERROR_MESSAGES.WECHAT_LOGIN_FAILED, icon: 'none' })
+      const errorMessage = response.data?.error || ERROR_MESSAGES.WECHAT_LOGIN_FAILED
+      debugError('授权失败', errorMessage)
+      uni.showToast({ title: errorMessage, icon: 'none' })
+      debugAlert('授权失败', errorMessage)
     }
   } catch (error) {
-    console.error('微信授权登录失败:', error)
-    uni.showToast({ title: ERROR_MESSAGES.WECHAT_LOGIN_FAILED, icon: 'none' })
+    debugError('微信授权登录异常', error)
+    const message = ERROR_MESSAGES.WECHAT_LOGIN_FAILED
+    uni.showToast({ title: message, icon: 'none' })
+    debugAlert('授权错误', `登录失败: ${error.message}`)
   } finally {
     loading.value = false
+    debugLog('授权流程结束')
   }
 }
 
 const handleSkip = () => {
+  debugLog('用户选择跳过授权')
   uni.navigateBack({ delta: 1 })
 }
+
+onMounted(() => {
+  debugLog('微信授权页面加载', {
+    platform: uni.getSystemInfoSync().platform,
+    isDebug: isDebugMode()
+  })
+  debugAlert('微信授权', `页面加载成功\n环境: ${isDebugMode() ? '调试' : '生产'}`)
+})
 </script>
 
 <style scoped>

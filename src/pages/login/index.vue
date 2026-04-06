@@ -125,9 +125,10 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useAuth } from '@/composables/useAuth'
 import { ROUTES } from '@/utils/constants'
+import { debugLog, debugAlert, isDebugMode } from '@/utils/debug'
 
 const { loading, handlePasswordLogin, handleWeChatLogin: authHandleWeChatLogin } = useAuth()
 
@@ -161,6 +162,15 @@ const goToRegister = () => {
 const goToTokenLogin = () => {
   uni.navigateTo({ url: ROUTES.TOKEN_LOGIN })
 }
+
+onMounted(() => {
+  debugLog('登录页面加载', {
+    platform: uni.getSystemInfoSync().platform,
+    loginMode: loginMode.value,
+    isDebug: isDebugMode()
+  })
+  debugAlert('登录页面', `页面加载成功\n环境: ${isDebugMode() ? '调试' : '生产'}\n模式: ${loginMode.value}`)
+})
 </script>
 
 <style scoped>
