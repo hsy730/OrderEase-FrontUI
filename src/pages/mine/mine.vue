@@ -85,10 +85,10 @@ const isLoggedIn = computed(() => {
   return !!storage.getItem('user_id')
 })
 
-// 获取显示的用户名
+// 获取显示的用户名（优先显示微信昵称）
 const displayUsername = computed(() => {
   const info = userInfo.value
-  return info.username || info.name || '用户'
+  return info.nickname || info.username || info.name || '用户'
 })
 
 // 刷新用户信息
