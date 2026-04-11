@@ -3,8 +3,8 @@
  * @module utils/constants
  */
 
-const BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8080/'
-const API_PREFIX = import.meta.env.VITE_API_PREFIX || 'api/order-ease/v1'
+const BASE_URL = import.meta.env.VITE_API_BASE_URL
+const API_PREFIX = import.meta.env.VITE_API_PREFIX
 
 /** @type {string} API 基础 URL */
 export const API_BASE_URL = `${BASE_URL}${API_PREFIX}`
