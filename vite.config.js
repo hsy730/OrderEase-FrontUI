@@ -42,7 +42,7 @@ export default defineConfig(({ command, mode }) => {
     base: isH5 ? '/order-ease-iui/' : '/',
     plugins: [
       uniPlugin,
-      platform.includes('mp') ? copyStaticPlugin() : null
+      copyStaticPlugin()
     ].filter(Boolean),
     resolve: {
       alias: {
