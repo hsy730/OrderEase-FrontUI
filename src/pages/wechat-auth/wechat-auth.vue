@@ -56,7 +56,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { storage } from '@/store/storage'
 import { userWeChatLogin } from '@/utils/api'
-import { STORAGE_KEYS, ROUTES, ERROR_MESSAGES } from '@/utils/constants'
+import { STORAGE_KEYS, ROUTES, ERROR_MESSAGES, API_BASE_URL } from '@/utils/constants'
 import { wxLogin } from '@/utils/wechat-auth'
 import { debugLog, debugError, debugAlert, isDebugMode } from '@/utils/debug'
 
@@ -178,11 +178,14 @@ const handleSkip = () => {
 }
 
 onMounted(() => {
+  const shopId = storage.getItem(STORAGE_KEYS.SHOP_ID)
   debugLog('微信授权页面加载', {
     platform: uni.getSystemInfoSync().platform,
-    isDebug: isDebugMode()
+    isDebug: isDebugMode(),
+    apiBaseUrl: API_BASE_URL,
+    shop_id: shopId
   })
-  debugAlert('微信授权', `页面加载成功\n环境: ${isDebugMode() ? '调试' : '生产'}`)
+  debugAlert('微信授权', `页面加载成功\n环境: ${isDebugMode() ? '调试' : '生产'}\nAPI: ${API_BASE_URL}\nshop_id: ${shopId || '未设置'}`)
 })
 </script>
 
