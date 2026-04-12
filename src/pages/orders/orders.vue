@@ -1,7 +1,9 @@
 <template>
   <view class="orders-page">
+    <!-- #ifdef H5 -->
     <!-- 顶部固定标题栏 -->
     <HeaderBar />
+    <!-- #endif -->
 
     <scroll-view v-show="isInitialized" class="orders-list" scroll-y @scrolltolower="loadMore">
       <view v-if="orders.length === 0 && !isLoading" class="empty-state">
@@ -327,9 +329,14 @@ onShow(async () => {
 }
 
 .orders-list {
-  height: calc(100vh - 88rpx);
   padding: 20rpx;
+  /* #ifdef H5 */
+  height: calc(100vh - 88rpx);
   margin-top: 88rpx;
+  /* #endif */
+  /* #ifdef MP-WEIXIN */
+  height: 100vh;
+  /* #endif */
 }
 
 .empty-state {

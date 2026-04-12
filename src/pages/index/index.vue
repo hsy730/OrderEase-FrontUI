@@ -1,6 +1,8 @@
 <template>
   <view class="order-page">
+    <!-- #ifdef H5 -->
     <HeaderBar />
+    <!-- #endif -->
 
     <view class="content-wrapper">
       <scroll-view class="category-menu" scroll-y>
@@ -648,8 +650,13 @@ onShareTimeline(() => {
 .content-wrapper {
   display: flex;
   flex: 1;
+  /* #ifdef H5 */
   height: calc(100vh - 88rpx);
   margin-top: 88rpx;
+  /* #endif */
+  /* #ifdef MP-WEIXIN */
+  height: 100vh;
+  /* #endif */
 }
 
 .product-container {

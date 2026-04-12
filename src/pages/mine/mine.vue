@@ -1,7 +1,9 @@
 <template>
   <view class="mine-page">
+    <!-- #ifdef H5 -->
     <!-- 顶部固定标题栏 -->
     <HeaderBar />
+    <!-- #endif -->
 
     <!-- 用户信息 -->
     <view v-if="isLoggedIn" class="user-info" @click="handleSyncUserInfo">
@@ -194,7 +196,12 @@ onShow(() => {
   background: #FFFFFF;
   border-radius: 24rpx;
   margin: 20rpx;
+  /* #ifdef H5 */
   margin-top: 120rpx;
+  /* #endif */
+  /* #ifdef MP-WEIXIN */
+  margin-top: 20rpx;
+  /* #endif */
   padding: 32rpx;
   display: flex;
   align-items: center;
@@ -240,7 +247,12 @@ onShow(() => {
   background: #FFFFFF;
   border-radius: 24rpx;
   margin: 20rpx;
+  /* #ifdef H5 */
   margin-top: 120rpx;
+  /* #endif */
+  /* #ifdef MP-WEIXIN */
+  margin-top: 20rpx;
+  /* #endif */
   padding: 48rpx 32rpx;
   text-align: center;
   box-shadow: 0 2rpx 16rpx rgba(45, 52, 54, 0.08);
