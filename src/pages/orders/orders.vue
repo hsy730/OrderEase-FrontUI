@@ -226,7 +226,6 @@ const onRefresh = async () => {
   try {
     currentPage.value = 1
     noMoreData.value = false
-    await loadShopDetail()
     await loadOrders(1)
     uni.showToast({ title: '刷新成功', icon: 'success', duration: 1000 })
   } catch (error) {
