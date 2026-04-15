@@ -5,7 +5,15 @@
     <HeaderBar />
     <!-- #endif -->
 
-    <scroll-view v-show="isInitialized" class="orders-list" scroll-y @scrolltolower="loadMore">
+    <scroll-view
+      v-show="isInitialized"
+      class="orders-list"
+      scroll-y
+      :refresher-enabled="true"
+      :refresher-triggered="isRefreshing"
+      @refresherrefresh="onRefresh"
+      @scrolltolower="loadMore"
+    >
       <view v-if="orders.length === 0 && !isLoading" class="empty-state">
         <text class="empty-text">暂无订单</text>
       </view>
@@ -138,6 +146,7 @@ const pageSize = ref(10)
 const loadingMore = ref(false)
 const noMoreData = ref(false)
 const isLoading = ref(false)
+const isRefreshing = ref(false)
 
 // 获取订单列表
 const loadOrders = async (page = 1) => {
@@ -207,6 +216,24 @@ const loadMore = () => {
   if (loadingMore.value || noMoreData.value) return
   loadingMore.value = true
   loadOrders(currentPage.value + 1)
+}
+
+// 下拉刷新
+const onRefresh = async () => {
+  if (isRefreshing.value) return
+  isRefreshing.value = true
+
+  try {
+    currentPage.value = 1
+    noMoreData.value = false
+    await loadShopDetail()
+    await loadOrders(1)
+    uni.showToast({ title: '刷新成功', icon: 'success', duration: 1000 })
+  } catch (error) {
+    uni.showToast({ title: '刷新失败', icon: 'none' })
+  } finally {
+    isRefreshing.value = false
+  }
 }
 
 // 获取状态样式类
@@ -315,10 +342,17 @@ onShow(async () => {
     return
   }
 
-  isInitialized.value = false
+  // 首次加载显示loading，后续切换保持当前数据避免闪烁
+  const isFirstLoad = orders.value.length === 0
+  if (isFirstLoad) {
+    isInitialized.value = false
+  }
   currentPage.value = 1
   noMoreData.value = false
-  orders.value = []
+  // 只有首次加载才清空数据，后续切换保持旧数据直到新数据加载完成
+  if (isFirstLoad) {
+    orders.value = []
+  }
   await loadShopDetail()
   await loadOrders(1)
 })
