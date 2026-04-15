@@ -1,5 +1,6 @@
 // 图片URL处理工具函数
 import { API_BASE_URL } from '@/utils/constants';
+
 /**
  * 构建正确的后端图片URL
  * @param {string} imagePath - 图片路径（来自后端的image_url字段）
@@ -8,15 +9,36 @@ import { API_BASE_URL } from '@/utils/constants';
 export const getImageUrl = (imagePath) => {
   // 如果没有图片路径，返回空字符串
   if (!imagePath) return '';
-  
+
   // 如果已经是完整URL，直接返回
   if (imagePath.startsWith('http')) {
     return imagePath;
   }
-  
+
   // 构建正确的后端图片URL
   // 根据后端API的实际路径，应该是 /api/order-ease/v1/product/image/{imagePath}
   // 但由于vite.config.js中的代理配置会移除/api前缀，所以实际请求会变成
   // http://localhost:8080/api/order-ease/v1/product/image/{imagePath}
   return `${API_BASE_URL}/product/image?path=${imagePath}`;
+};
+
+/**
+ * 构建用户头像URL
+ * @param {string} avatarPath - 头像路径（来自后端的avatar字段）
+ * @returns {string} 完整的头像URL
+ */
+export const getUserAvatarUrl = (avatarPath) => {
+  // 如果没有头像路径，返回空字符串
+  if (!avatarPath) return '';
+
+  // 如果已经是完整URL（如微信头像），直接返回
+  if (avatarPath.startsWith('http')) {
+    return avatarPath;
+  }
+
+  // 提取文件名（去掉 /uploads/avatars/ 前缀）
+  const fileName = avatarPath.replace('/uploads/avatars/', '');
+
+  // 构建头像获取URL
+  return `${API_BASE_URL}/user/avatar?path=${fileName}`;
 };

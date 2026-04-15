@@ -120,7 +120,11 @@ import { onShow } from '@dcloudio/uni-app'
 import { getOrders, getOrderDetail, getShopDetail } from '@/utils/api'
 import { getImageUrl } from '@/utils/image'
 import { storage } from '@/store/storage'
+import { useShopTitle } from '../../composables/useShopTitle.js'
 import HeaderBar from '@/components/HeaderBar.vue'
+
+// 使用店铺标题 composable
+const { loadShopTitle, shopDetail } = useShopTitle()
 
 const orders = ref([])
 const showDetailPopup = ref(false)
@@ -241,12 +245,11 @@ const getStatusLabel = (status) => {
 // 加载店铺详情获取状态流
 const loadShopDetail = async () => {
   try {
-    const response = await getShopDetail()
-    if (response.data && response.status === 200) {
-      const shopData = response.data.data || response.data
-      if (shopData.order_status_flow && shopData.order_status_flow.statuses) {
-        orderStatusFlow.value = shopData.order_status_flow.statuses
-      }
+    // 使用 composable 加载店铺信息，会自动处理缓存
+    await loadShopTitle()
+    // 从 composable 获取的 shopDetail 中提取 order_status_flow
+    if (shopDetail.value?.order_status_flow?.statuses) {
+      orderStatusFlow.value = shopDetail.value.order_status_flow.statuses
     }
   } catch (error) {
     // 静默处理
@@ -326,10 +329,12 @@ onShow(async () => {
   min-height: 100vh;
   background: #F8FAFC;
   padding-bottom: 20rpx;
+  overflow-x: hidden;
 }
 
 .orders-list {
   padding: 20rpx;
+  box-sizing: border-box;
   /* #ifdef H5 */
   height: calc(100vh - 88rpx);
   margin-top: 88rpx;
@@ -357,6 +362,8 @@ onShow(async () => {
   padding: 24rpx;
   border: 1rpx solid #E2E8F0;
   box-shadow: 0 2rpx 16rpx rgba(45, 52, 54, 0.08);
+  box-sizing: border-box;
+  max-width: 100%;
 }
 
 .order-header {
@@ -369,6 +376,9 @@ onShow(async () => {
 .order-no {
   font-size: 26rpx;
   color: #475569;
+  word-break: break-all;
+  flex: 1;
+  margin-right: 16rpx;
 }
 
 .order-times {
@@ -380,6 +390,7 @@ onShow(async () => {
   color: #94A3B8;
   display: block;
   margin-bottom: 8rpx;
+  word-break: break-all;
 }
 
 .order-footer {

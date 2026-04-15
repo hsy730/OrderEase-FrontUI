@@ -9,7 +9,7 @@
     <view v-if="isLoggedIn" class="user-info" @click="handleSyncUserInfo">
       <image
         class="user-avatar"
-        :src="userInfo.avatar || '/static/user-avatar.svg'"
+        :src="avatarUrl"
         mode="aspectFill"
       />
       <view class="user-details">
@@ -69,6 +69,8 @@ import { APP_VERSION, TOAST_MESSAGES } from '@/utils/constants'
 import { checkSession } from '@/utils/wechat-auth'
 import { silentLogin } from '@/utils/auth-utils'
 import { checkAndSyncUserInfo, clearUserSyncRecord } from '@/utils/user-sync'
+import { useShopTitle } from '../../composables/useShopTitle.js'
+import { getUserAvatarUrl } from '@/utils/image'
 
 const userInfo = ref({})
 const syncing = ref(false)
@@ -81,6 +83,12 @@ const isLoggedIn = computed(() => {
 const displayUsername = computed(() => {
   const info = userInfo.value
   return info.nickname || info.username || info.name || '用户'
+})
+
+// 获取头像URL（使用工具函数处理）
+const avatarUrl = computed(() => {
+  const url = getUserAvatarUrl(userInfo.value.avatar)
+  return url || '/static/user-avatar.svg'
 })
 
 // 刷新用户信息
@@ -170,9 +178,14 @@ const showAbout = () => {
   showToast(`OrderEase 点单系统 v${APP_VERSION}`)
 }
 
-// 页面加载时获取用户信息
+// 使用店铺标题 composable
+const { loadShopTitle } = useShopTitle()
+
+// 页面加载时获取用户信息和店铺信息
 onMounted(() => {
   refreshUserInfo()
+  // 使用 composable 加载店铺标题（带缓存）
+  loadShopTitle()
 })
 
 // 页面显示时刷新用户信息（每次页面显示都会触发）

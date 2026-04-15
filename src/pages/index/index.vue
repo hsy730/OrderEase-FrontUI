@@ -109,6 +109,7 @@ import {
   STORAGE_KEYS
 } from '@/utils/constants'
 import { storage } from '@/store/storage'
+import { useShopTitle } from '../../composables/useShopTitle.js'
 import HeaderBar from '@/components/HeaderBar.vue'
 import Stepper from '@/components/Stepper.vue'
 import CartBar from '@/components/CartBar.vue'
@@ -185,6 +186,9 @@ const updateCartIconRect = () => {
     .exec()
 }
 
+// 使用店铺标题 composable
+const { loadShopTitle } = useShopTitle()
+
 onMounted(async () => {
   // 延迟更新购物车图标位置，确保 DOM 已渲染
   safeTimeout(() => {
@@ -197,6 +201,9 @@ onMounted(async () => {
       if (!shopRes.tags) shopRes.tags = []
       shopRes.tags.push({ id: -1, name: '未分类' })
       shopDetail.value = shopRes
+
+      // 设置页面标题（H5 和小程序都适用）
+      await loadShopTitle()
 
       if (shopRes.tags.length > 0) {
         activeCategory.value = shopRes.tags[0].id
