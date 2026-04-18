@@ -6,11 +6,11 @@ export default {
     '^@/store/storage$': '<rootDir>/tests/mocks/storage.js',
     '^@/(.*)$': '<rootDir>/src/$1'
   },
-  transform: {},
+  transform: {
+    '^.+\\.jsx?$': 'babel-jest'
+  },
   transformIgnorePatterns: [
     '/node_modules/'
   ],
-  testMatch: ['**/tests/**/*.test.js'],
-  // 启用实验性 ESM 支持
-  experimentalESM: true
+  testMatch: ['**/tests/**/*.test.js']
 }
