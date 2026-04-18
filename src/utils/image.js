@@ -1,25 +1,32 @@
 // 图片URL处理工具函数
-import { API_BASE_URL } from '@/utils/constants';
+import { API_PREFIX } from '@/utils/constants';
+
+const getApiPrefix = () => import.meta.env.VITE_API_PREFIX || '/api/order-ease/v1';
 
 /**
  * 构建正确的后端图片URL
+ * - H5版本：返回相对路径，由nginx反向代理处理
+ * - 小程序版本：返回完整URL，直接访问后端服务器
+ *
  * @param {string} imagePath - 图片路径（来自后端的image_url字段）
  * @returns {string} 完整的图片URL
  */
 export const getImageUrl = (imagePath) => {
-  // 如果没有图片路径，返回空字符串
   if (!imagePath) return '';
 
-  // 如果已经是完整URL，直接返回
   if (imagePath.startsWith('http')) {
     return imagePath;
   }
 
-  // 构建正确的后端图片URL
-  // 根据后端API的实际路径，应该是 /api/order-ease/v1/product/image/{imagePath}
-  // 但由于vite.config.js中的代理配置会移除/api前缀，所以实际请求会变成
-  // http://localhost:8080/api/order-ease/v1/product/image/{imagePath}
-  return `${API_BASE_URL}/product/image?path=${imagePath}`;
+  // #ifdef MP-WEIXIN
+  const baseUrl = import.meta.env.VITE_API_BASE_URL;
+  if (baseUrl) {
+    return `${baseUrl}${getApiPrefix()}/product/image?path=${encodeURIComponent(imagePath)}`;
+  }
+  // #endif
+
+  // H5版本：使用相对路径，依赖nginx反向代理
+  return `${getApiPrefix()}/product/image?path=${encodeURIComponent(imagePath)}`;
 };
 
 /**
@@ -28,17 +35,21 @@ export const getImageUrl = (imagePath) => {
  * @returns {string} 完整的头像URL
  */
 export const getUserAvatarUrl = (avatarPath) => {
-  // 如果没有头像路径，返回空字符串
   if (!avatarPath) return '';
 
-  // 如果已经是完整URL（如微信头像），直接返回
   if (avatarPath.startsWith('http')) {
     return avatarPath;
   }
 
-  // 提取文件名（去掉 /uploads/avatars/ 前缀）
   const fileName = avatarPath.replace('/uploads/avatars/', '');
 
-  // 构建头像获取URL
-  return `${API_BASE_URL}/user/avatar?path=${fileName}`;
+  // #ifdef MP-WEIXIN
+  const baseUrl = import.meta.env.VITE_API_BASE_URL;
+  if (baseUrl) {
+    return `${baseUrl}${getApiPrefix()}/user/avatar?path=${encodeURIComponent(fileName)}`;
+  }
+  // #endif
+
+  // H5版本：使用相对路径，依赖nginx反向代理
+  return `${getApiPrefix()}/user/avatar?path=${encodeURIComponent(fileName)}`;
 };
