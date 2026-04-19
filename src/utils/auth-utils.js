@@ -21,8 +21,8 @@ export const silentLogin = async () => {
     })
 
     if (response.data?.token) {
-      storage.setItem(STORAGE_KEYS.USER_ID, response.data.user?.id)
-      storage.setItem(STORAGE_KEYS.USER_INFO, response.data.user)
+      storage.setItem(STORAGE_KEYS.USER_ID, response.data.user_info?.id)
+      storage.setItem(STORAGE_KEYS.USER_INFO, response.data.user_info)
       storage.setItem(STORAGE_KEYS.TOKEN, response.data.token)
       return true
     }

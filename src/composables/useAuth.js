@@ -31,8 +31,10 @@ export function useAuth() {
    */
   const handleLoginSuccess = (response) => {
     if (response.data?.token) {
-      storage.setItem(STORAGE_KEYS.USER_ID, response.data.user?.id)
-      storage.setItem(STORAGE_KEYS.USER_INFO, response.data.user)
+      // 兼容两种数据结构：token登录返回 user_info，密码登录返回 user
+      const userData = response.data.user_info || response.data.user
+      storage.setItem(STORAGE_KEYS.USER_ID, userData?.id)
+      storage.setItem(STORAGE_KEYS.USER_INFO, userData)
       storage.setItem(STORAGE_KEYS.TOKEN, response.data.token)
       uni.showToast({ title: '登录成功', icon: 'success' })
 
