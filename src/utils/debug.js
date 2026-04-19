@@ -8,11 +8,8 @@
  * @returns {boolean} 是否为调试模式
  */
 export const isDebugMode = () => {
-  // 检查环境变量
-  const isDev = import.meta.env.DEV || false
-  const debugMode = import.meta.env.VITE_DEBUG_MODE === 'true'
-  
-  return isDev || debugMode
+  // 仅根据 VITE_DEBUG_MODE 环境变量控制调试模式
+  return import.meta.env.VITE_DEBUG_MODE === 'true'
 }
 
 /**
