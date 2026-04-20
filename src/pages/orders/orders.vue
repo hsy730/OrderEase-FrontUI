@@ -9,12 +9,25 @@
       v-show="isInitialized"
       class="orders-list"
       scroll-y
-      :refresher-enabled="true"
+      :refresher-enabled="!isGuestMode"
       :refresher-triggered="isRefreshing"
       @refresherrefresh="onRefresh"
       @scrolltolower="loadMore"
     >
-      <view v-if="orders.length === 0 && !isLoading" class="empty-state">
+      <!-- 游客模式：提示登录 -->
+      <view v-if="isGuestMode" class="empty-state guest-empty">
+        <view class="guest-icon">📋</view>
+        <text class="empty-text guest-title">暂无订单</text>
+        <text class="guest-subtitle">登录后可查看订单记录</text>
+        <view class="login-btn-wrapper">
+          <view class="guest-login-btn" @click="goToLogin">
+            <text>去登录</text>
+          </view>
+        </view>
+      </view>
+
+      <!-- 已登录但无订单 -->
+      <view v-else-if="orders.length === 0 && !isLoading" class="empty-state">
         <text class="empty-text">暂无订单</text>
       </view>
 
@@ -139,6 +152,7 @@ const showDetailPopup = ref(false)
 const selectedOrder = ref(null)
 const isInitialized = ref(false)
 const orderStatusFlow = ref([])
+const isGuestMode = ref(false) // 游客模式标识
 
 // 分页相关状态
 const currentPage = ref(1)
@@ -156,10 +170,14 @@ const loadOrders = async (page = 1) => {
   try {
     const userId = storage.getItem('user_id')
     if (!userId) {
+      // 游客模式：不跳转登录，显示空状态
+      isGuestMode.value = true
       isInitialized.value = true
-      uni.reLaunch({ url: '/pages/login/index' })
+      orders.value = []
       return
     }
+
+    isGuestMode.value = false // 已登录，关闭游客模式
 
     const response = await getOrders({
       user_id: userId,
@@ -335,11 +353,18 @@ const groupOptionsByCategory = (options) => {
 onShow(async () => {
   const userId = storage.getItem('user_id')
 
+  // 游客模式：不跳转登录页，显示空状态提示
   if (!userId) {
+    isGuestMode.value = true
     isInitialized.value = true
-    uni.reLaunch({ url: '/pages/login/index' })
+    orders.value = []
+
+    // 即使是游客模式，也要加载店铺标题（使用缓存）
+    await loadShopTitle()
     return
   }
+
+  isGuestMode.value = false
 
   // 首次加载显示loading，后续切换保持当前数据避免闪烁
   const isFirstLoad = orders.value.length === 0
@@ -355,6 +380,11 @@ onShow(async () => {
   await loadShopDetail()
   await loadOrders(1)
 })
+
+// 跳转到登录页面
+const goToLogin = () => {
+  uni.navigateTo({ url: '/pages/login/index' })
+}
 </script>
 
 <style scoped>
@@ -385,6 +415,46 @@ onShow(async () => {
 .empty-text {
   color: #94A3B8;
   font-size: 28rpx;
+}
+
+/* 游客模式空状态 */
+.guest-empty {
+  padding: 160rpx 40rpx;
+}
+
+.guest-icon {
+  font-size: 120rpx;
+  margin-bottom: 32rpx;
+}
+
+.guest-title {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #475569;
+  display: block;
+  margin-bottom: 16rpx;
+}
+
+.guest-subtitle {
+  font-size: 26rpx;
+  color: #94A3B8;
+  display: block;
+  margin-bottom: 48rpx;
+}
+
+.login-btn-wrapper {
+  display: flex;
+  justify-content: center;
+  padding: 0 80rpx;
+}
+
+.guest-login-btn {
+  background: linear-gradient(135deg, #1E40AF 0%, #3B82F6 100%);
+  color: #FFFFFF;
+  border-radius: 44rpx;
+  padding: 24rpx 64rpx;
+  font-size: 28rpx;
+  font-weight: 600;
 }
 
 /* 订单卡片 */

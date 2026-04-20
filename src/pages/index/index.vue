@@ -211,7 +211,11 @@ onMounted(async () => {
       }
     }
   } catch (error) {
-    showError(ERROR_MESSAGES.SHOP_LOAD_FAILED)
+    // 游客模式：即使获取店铺信息失败（如401未认证），也不强制跳转登录页
+    // 允许用户继续浏览，只是可能无法加载完整数据
+    console.log('游客模式：店铺信息加载失败，允许继续浏览', error.message)
+    // 可以选择性地显示一个友好的提示，或者完全静默
+    // showError(ERROR_MESSAGES.SHOP_LOAD_FAILED)
   }
 })
 
@@ -248,7 +252,9 @@ const handleCategorySelect = async (category) => {
     }
     products.value = []
   } catch (error) {
-    showError(ERROR_MESSAGES.PRODUCTS_LOAD_FAILED)
+    // 游客模式：商品列表加载失败时静默处理，不强制跳转
+    console.log('游客模式：商品列表加载失败', error.message)
+    // showError(ERROR_MESSAGES.PRODUCTS_LOAD_FAILED)
     products.value = []
   }
 }
@@ -549,6 +555,23 @@ const handleCartChange = ({ item, delta }) => {
 const handleSubmitOrder = async () => {
   if (cartItems.value.length === 0) {
     showError(TOAST_MESSAGES.CART_EMPTY)
+    return
+  }
+
+  // 检查是否已登录，未登录则提示登录
+  const userId = storage.getItem(STORAGE_KEYS.USER_ID)
+  if (!userId) {
+    uni.showModal({
+      title: '需要登录',
+      content: '提交订单需要先登录，是否前往登录？',
+      confirmText: '去登录',
+      cancelText: '稍后再说',
+      success: (res) => {
+        if (res.confirm) {
+          uni.navigateTo({ url: '/pages/login/index' })
+        }
+      }
+    })
     return
   }
 

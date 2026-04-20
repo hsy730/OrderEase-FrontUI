@@ -63,17 +63,32 @@ function responseInterceptor(response) {
     const isLoginRequest = url.includes('/user/login') || url.includes('/user/wechat-login')
 
     if (!isLoginRequest) {
-      silentLogin().then((success) => {
-        if (!success) {
+      // 定义允许游客访问的接口（浏览类接口）
+      const guestAllowedUrls = [
+        '/shop/detail',
+        '/tag/bound-products',
+        '/tag/list'
+      ]
+
+      const isGuestAllowed = guestAllowedUrls.some(allowedUrl => url.includes(allowedUrl))
+
+      if (isGuestAllowed) {
+        // 浏览类接口返回401时，不清除数据也不跳转，允许游客模式
+        console.log('游客模式：浏览类接口认证失败，允许继续访问')
+      } else {
+        // 必须登录的接口（如订单操作），尝试静默登录或跳转登录页
+        silentLogin().then((success) => {
+          if (!success) {
+            storage.removeItem(STORAGE_KEYS.TOKEN)
+            storage.removeItem(STORAGE_KEYS.USER_INFO)
+            uni.reLaunch({ url: '/pages/login/index' })
+          }
+        }).catch(() => {
           storage.removeItem(STORAGE_KEYS.TOKEN)
           storage.removeItem(STORAGE_KEYS.USER_INFO)
           uni.reLaunch({ url: '/pages/login/index' })
-        }
-      }).catch(() => {
-        storage.removeItem(STORAGE_KEYS.TOKEN)
-        storage.removeItem(STORAGE_KEYS.USER_INFO)
-        uni.reLaunch({ url: '/pages/login/index' })
-      })
+        })
+      }
     }
   }
 
