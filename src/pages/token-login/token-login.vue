@@ -41,7 +41,7 @@
 </template>
 
 <script setup>
-import { ref, onUnmounted } from 'vue'
+import { ref, onUnmounted, onMounted } from 'vue'
 import { userLoginByToken } from '@/utils/api'
 import { storage } from '@/store/storage'
 import { STORAGE_KEYS, ERROR_MESSAGES, ROUTES } from '@/utils/constants'
@@ -53,6 +53,21 @@ const form = ref({
 
 const loading = ref(false)
 let loginTimer = null
+
+// 页面初始化时读取 URL 参数 tempToken 和 shop_id
+onMounted(() => {
+  // #ifdef H5
+  const urlParams = new URLSearchParams(window.location.search)
+  const tempToken = urlParams.get('temp_token')
+  const shopId = urlParams.get('shop_id')
+  if (tempToken) {
+    form.value.token = tempToken
+  }
+  if (shopId) {
+    storage.setItem(STORAGE_KEYS.SHOP_ID, shopId)
+  }
+  // #endif
+})
 
 const handleTokenLogin = async () => {
   if (!form.value.token) {
